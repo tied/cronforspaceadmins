@@ -3,7 +3,6 @@ package de.iteconomics.confluence.plugins.cron.webwork;
 import java.util.List;
 
 import javax.inject.Inject;
-import javax.servlet.http.HttpServletRequest;
 
 import com.atlassian.confluence.core.ConfluenceActionSupport;
 
@@ -27,10 +26,6 @@ public class ManageJobTypes extends ConfluenceActionSupport {
 	@Override
 	public String execute() {
 		return SUCCESS;
-	}
-
-	public String getGreeting() {
-		return "Hello, Stranger!";
 	}
 
 	public List<JobType> getAllJobTypes() {

@@ -1,5 +1,3 @@
-<h1>Woooooo!</h1>
-<p>${action.greeting}</p>
 <p>all configured jobs:</p>
 <ul>
 #foreach ($jobtype in ${action.allJobTypes})

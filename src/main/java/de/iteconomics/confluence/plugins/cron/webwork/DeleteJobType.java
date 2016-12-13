@@ -1,14 +1,12 @@
 package de.iteconomics.confluence.plugins.cron.webwork;
 
-import java.util.List;
-
 import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
 
 import com.atlassian.confluence.core.ConfluenceActionSupport;
 
 import de.iteconomics.confluence.plugins.cron.api.JobTypeService;
-import de.iteconomics.confluence.plugins.cron.entities.JobType;
+
 
 public class DeleteJobType extends ConfluenceActionSupport {
 
