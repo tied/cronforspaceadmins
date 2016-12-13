@@ -21,4 +21,45 @@
         <context>cron</context>
     </web-resource>
     
+    <ao key="ao-module">
+    	<entity>de.iteconomics.confluence.plugins.cron.entities.JobType</entity>
+    </ao>
+    
+		<xwork key="manage-job-types" name="Manage Job Types"
+			i18n-name-key="manage-job-types.name">
+			<description key="manage-job-types.description"/>
+			<package name="manage-job-types-label" extends="default" namespace="/plugins/cron-for-space-admins">
+				<default-interceptor-ref name="defaultStack"/>
+				<action
+					class="de.iteconomics.confluence.plugins.cron.webwork.ManageJobTypes"
+					name="ManageJobTypes">
+						<result name="success" type="velocity">/templates/manage-job-types.vm</result>
+				</action>
+				<action
+					class="de.iteconomics.confluence.plugins.cron.webwork.SaveJobType"
+					name="SaveJobType">
+						<result name="success" type="redirect">/plugins/cron-for-space-admins/ManageJobTypes.action</result>
+				</action>
+				<action
+					class="de.iteconomics.confluence.plugins.cron.webwork.DeleteJobType"
+					name="DeleteJobType">
+						<result name="success" type="redirect">/plugins/cron-for-space-admins/ManageJobTypes.action</result>
+				</action>								
+			</package>
+		</xwork>
+		
+	<web-section name="Cron for space admins" i18n-name-key="cron-for-space-admins.name"
+					key="cron-for-space-admins" location="system.admin" weight="1000">
+		<description key="cron-for-space-admins.description"/>
+		<label key="cron-for-space-admins.label" />
+	</web-section>
+	
+  <web-item name="Manage job types" i18n-name-key="manage-job-types-item.name"
+				key="manage-job-types-item" section="system.admin/cron-for-space-admins"
+				Weight="90">
+		<description key="manage-job-types-item.description"/>
+		<label key="manage-job-types-item.label" />
+		<link linkId="manage-job-types-link">/plugins/cron-for-space-admins/ManageJobTypes.action</link>
+	</web-item>
+
 </atlassian-plugin>
