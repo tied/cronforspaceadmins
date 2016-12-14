@@ -7,6 +7,8 @@ import net.java.ao.Preload;
 public interface JobType extends Entity {
 
 	String getName();
+	String getUrl();
 
 	void setName(String name);
+	void setUrl(String url);
 }
