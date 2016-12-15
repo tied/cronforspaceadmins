@@ -70,10 +70,10 @@ public class JobServiceImpl implements JobService {
 
 	@Override
 	public void deleteJob(HttpServletRequest request) {
-		String name = request.getParameter("name");
-		Job[] jobs= ao.find(Job.class, Query.select().where("name = ?", name));
+		String id = request.getParameter("id");
+		Job[] jobs= ao.find(Job.class, Query.select().where("id = ?", id));
 		if (jobs.length != 1)
-			throw new JobException("Cannot delete: job with name " + name + " does not exist.");
+			throw new JobException("Cannot delete: job with id " + id + " does not exist.");
 		if (jobs.length == 1) {
 			ao.delete(jobs[0]);
 		}
