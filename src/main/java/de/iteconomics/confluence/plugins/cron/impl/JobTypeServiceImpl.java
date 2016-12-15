@@ -103,4 +103,14 @@ public class JobTypeServiceImpl implements JobTypeService {
 		}
 		return methodNames;
 	}
+
+	@Override
+	public JobType getJobTypeByID(String id) {
+		JobType[] matches = ao.find(JobType.class, Query.select().where("id = ?", id));
+		if (matches.length != 1) {
+			throw new JobTypeException("Cannot get job: more than one job with id " + id + " exist.");
+		}
+
+		return matches[0];
+	}
 }

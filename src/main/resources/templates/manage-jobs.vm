@@ -1,3 +1,5 @@
+$webResourceManager.requireResourcesForContext("cron-space-admin-screen")
+
 <html>
     <head>
         <title>$action.getText("add.link.action")</title>
@@ -33,7 +35,7 @@
 								#foreach ($job in ${action.allJobs})
 								<tr>
 									<td>${job.name}</td>
-									<td>${job.jobTypeID}</td>
+									<td>$action.getJobTypeByID($job.jobTypeID).name</td>
 									<td>${job.cronExpression}</td>
 									<td><a href="/confluence/plugins/cron-for-space-admins/DeleteJob.action?id=${job.ID}">delete</a></td>		
 								</tr>
@@ -50,7 +52,12 @@
 							</div>
 							<div class="field-group top-label">
 								<label for="job-type">Type</label>
-								<input class="text" type="text" name="job-type">
+								<select id="select-job-type" name="job-type">
+									<option value="none">-- none --</option>
+									#foreach ($jobType in $action.allJobTypes)
+										<option value="$jobType.ID">$jobType.name</option>
+									#end
+								</select>
 							</div>
 							<div class="field-group top-label">
 								<label for="cron-expression">Cron Expression</label>
@@ -61,8 +68,6 @@
 							</div>
 							</fieldset>
 						</form>            
-            
-                                
                 </div>
             </body>
         #end

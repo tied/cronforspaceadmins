@@ -13,12 +13,12 @@
     <!-- add our web resources -->
     <web-resource key="cron-resources" name="cron Web Resources">
         <dependency>com.atlassian.auiplugin:ajs</dependency>
-        
+		<dependency>com.atlassian.auiplugin:aui-select2</dependency>        
         <resource type="download" name="cron.css" location="/css/cron.css"/>
         <resource type="download" name="cron.js" location="/js/cron.js"/>
         <resource type="download" name="images/" location="/images"/>
 
-        <context>cron</context>
+        <context>cron-space-admin-screen</context>
     </web-resource>
     
     <ao key="ao-module">

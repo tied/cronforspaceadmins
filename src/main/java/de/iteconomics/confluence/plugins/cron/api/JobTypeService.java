@@ -18,6 +18,7 @@ public interface JobTypeService {
 	void createJobType(HttpServletRequest request);
 	void deleteJobType(HttpServletRequest request);
 	void setAo(ActiveObjects ao);
+	JobType getJobTypeByID(String id);
 	Map<String, String> getJobTypeAttributes(JobType jobType) throws IllegalArgumentException, IllegalAccessException, InvocationTargetException;
 	List<String> getJobTypeFieldNames();
 }
