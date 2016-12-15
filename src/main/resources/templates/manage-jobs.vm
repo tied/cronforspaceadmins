@@ -1,0 +1,42 @@
+<html>
+    <head>
+        <title>$action.getText("add.link.action")</title>
+        <meta name="decorator" content="main"/>
+    </head>
+    #applyDecorator("root")
+        #decoratorParam("helper" $action.helper)
+        ## Name of the tab to highlight: space-operations is also valid.
+        #decoratorParam("context" "space-administration") 
+
+        #applyDecorator ("root")
+            ## The .vmd to use - This one displays both in Space Admin and Space Tools.
+            #decoratorParam ("context" "spacetoolspanel") 
+            ## Key of the web-item to highlight in Space Admin
+
+            ## Key of the web-item to highlight in Space Tools
+            #decoratorParam ("selectedSpaceToolsWebItem" "addons") 
+            #decoratorParam ("helper" $action.helper)
+            <body>
+                <div class="pagecontent">
+                    <p></p>
+                    
+						<h3>Job Configuration</h3>
+            <form method="post" id="addNewGroupToBeNotified" action="AddNewGroupToBeNotified.jspa"  class="aui">
+                <div>
+                    <label style="vertical-align: sub;" for=select-group">Pick a group to be notified</label>
+                    <select id="select-group" name="group">
+										<option selected disabled >-- none --</option>
+            				#foreach ($group in $action.getAllUnusedPageConditionsForManageCompanies())
+                			<option value="$group">$group</option>
+            				#end
+            				</select>
+                    <input type="submit" style="vertical-align: bottom;" value="add" class="aui-button aui-button-primary" />
+                </div>
+            </form>
+            
+                                
+                </div>
+            </body>
+        #end
+    #end
+</html>

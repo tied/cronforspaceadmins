@@ -62,4 +62,21 @@
 		<link linkId="manage-job-types-link">/plugins/cron-for-space-admins/ManageJobTypes.action</link>
 	</web-item>
 
+  <web-item key="job-configuration" name="Job Configuration" section="system.space.tools/addons" weight="100">
+      <label key="cron.configuration.label" />
+      <link linkId="cron-configuration-link-id">/plugins/cron-for-space-admins/ManageJobs.action?key=$generalUtil.urlEncode($helper.spaceKey)</link>
+  </web-item>
+
+  <xwork name="Cron Space Admin Screen" key="cron-space-admin-screen">
+      <description>Examples of actions</description>
+      <package name="cron-for-space-admins-xwork-package" extends="default" namespace="/plugins/cron-for-space-admins">
+          <default-interceptor-ref name="defaultStack"/>
+						<action
+							class="de.iteconomics.confluence.plugins.cron.webwork.ManageJobs"
+							name="ManageJobs">
+								<result name="success" type="velocity">/templates/manage-jobs.vm</result>
+						</action>
+      </package>
+  </xwork>
+
 </atlassian-plugin>
