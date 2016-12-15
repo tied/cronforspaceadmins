@@ -18,7 +18,7 @@
 		<tr>
 			<td>${jobtype.name}</td>
 			<td>${jobtype.url}</td>
-			<td><a href="/confluence/plugins/cron-for-space-admins/DeleteJobType.action?name=${jobtype.name}">delete</a></td>		
+			<td><a href="/confluence/plugins/cron-for-space-admins/DeleteJobType.action?id=${jobtype.ID}">delete</a></td>		
 		</tr>
 		#end
 	</tbody>

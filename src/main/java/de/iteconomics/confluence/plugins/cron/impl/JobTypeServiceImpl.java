@@ -9,8 +9,8 @@ import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+//import org.slf4j.Logger;
+//import org.slf4j.LoggerFactory;
 
 import javax.inject.Inject;
 import javax.inject.Named;
@@ -31,7 +31,7 @@ public class JobTypeServiceImpl implements JobTypeService {
 	@ComponentImport
 	private ActiveObjects ao;
 
-	private final static Logger logger = LoggerFactory.getLogger(JobTypeServiceImpl.class);
+//	private final static Logger logger = LoggerFactory.getLogger(JobTypeServiceImpl.class);
 
 	@Inject
 	@Override
@@ -70,10 +70,10 @@ public class JobTypeServiceImpl implements JobTypeService {
 
 	@Override
 	public void deleteJobType(HttpServletRequest request) {
-		String name = request.getParameter("name");
-		JobType[] jobTypes = ao.find(JobType.class, Query.select().where("name = ?", name));
+		String id = request.getParameter("id");
+		JobType[] jobTypes = ao.find(JobType.class, Query.select().where("id = ?", id));
 		if (jobTypes.length != 1)
-			throw new JobTypeException("Cannot delete: job type with name " + name + " does not exist.");
+			throw new JobTypeException("Cannot delete: job type with id" + id + " does not exist.");
 		if (jobTypes.length == 1) {
 			ao.delete(jobTypes[0]);
 		}
