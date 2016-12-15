@@ -23,6 +23,7 @@
     
     <ao key="ao-module">
     	<entity>de.iteconomics.confluence.plugins.cron.entities.JobType</entity>
+    	<entity>de.iteconomics.confluence.plugins.cron.entities.Job</entity>    	
     </ao>
     
 		<xwork key="manage-job-types" name="Manage Job Types"
@@ -76,6 +77,16 @@
 							name="ManageJobs">
 								<result name="success" type="velocity">/templates/manage-jobs.vm</result>
 						</action>
+						<action
+							class="de.iteconomics.confluence.plugins.cron.webwork.SaveJob"
+							name="SaveJob">
+								<result name="success" type="redirect">/plugins/cron-for-space-admins/ManageJobs.action?key=TS</result>
+						</action>
+						<action
+							class="de.iteconomics.confluence.plugins.cron.webwork.DeleteJob"
+							name="DeleteJob">
+								<result name="success" type="redirect">/plugins/cron-for-space-admins/ManageJobs.action?key=TS</result>
+						</action>						
       </package>
   </xwork>
 

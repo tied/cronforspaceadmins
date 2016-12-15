@@ -21,18 +21,46 @@
                     <p></p>
                     
 						<h3>Job Configuration</h3>
-            <form method="post" id="addNewGroupToBeNotified" action="AddNewGroupToBeNotified.jspa"  class="aui">
-                <div>
-                    <label style="vertical-align: sub;" for=select-group">Pick a group to be notified</label>
-                    <select id="select-group" name="group">
-										<option selected disabled >-- none --</option>
-            				#foreach ($group in $action.getAllUnusedPageConditionsForManageCompanies())
-                			<option value="$group">$group</option>
-            				#end
-            				</select>
-                    <input type="submit" style="vertical-align: bottom;" value="add" class="aui-button aui-button-primary" />
-                </div>
-            </form>
+						<table class="aui">
+							<thead>
+								<tr>
+									<th id="name">Name</th>
+									<th id="job-type">Job Type</th>
+									<th id="cron-expression">Cron Expression</th>									
+								</tr>
+							</thead>
+							<tbody>
+								#foreach ($job in ${action.allJobs})
+								<tr>
+									<td>${job.name}</td>
+									<td>${job.jobTypeID}</td>
+									<td>${job.cronExpression}</td>
+									<td><a href="/confluence/plugins/cron-for-space-admins/DeleteJob.action?name=${job.name}">delete</a></td>		
+								</tr>
+								#end
+							</tbody>
+						</table>
+						<br/><br/>
+						<form class="aui top-label" method="post" action="SaveJob.action">
+							<h3>Create Job</h3>
+							<fieldset class="top-label">
+							<div class="field-group top-label">
+								<label for="name">Name</label>
+								<input class="text" type="text" name="name">
+							</div>
+							<div class="field-group top-label">
+								<label for="job-type">Type</label>
+								<input class="text" type="text" name="job-type">
+							</div>
+							<div class="field-group top-label">
+								<label for="cron-expression">Cron Expression</label>
+								<input class="text" type="text" name="cron-expression">
+							</div>
+							<div class="field-group top-label">	
+								<button class="aui-button" type="submit">save</button>
+							</div>
+							</fieldset>
+						</form>            
             
                                 
                 </div>
