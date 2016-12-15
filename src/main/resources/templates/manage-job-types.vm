@@ -1,10 +1,44 @@
-<p>all configured jobs:</p>
-<ul>
-#foreach ($jobtype in ${action.allJobTypes})
-	<li>${jobtype.name} <a href="/confluence/plugins/cron-for-space-admins/DeleteJobType.action?name=${jobtype.name}">delete</a></li>
-#end
-</ul>
-<form action="SaveJobType.action">
-	<input type="text" name="name"></input>
-	<button type="submit">save</button>
+<html>
+  <head>
+    <meta name="decorator" content="atl.admin"/>
+    <title>Manage Job Types</title>
+  </head>
+  
+  <body>
+<h2>Job types</h2>
+<table class="aui">
+	<thead>
+		<tr>
+			<th id="name">Name</th>
+			<th id="url">URL</th>
+		</tr>
+	</thead>
+	<tbody>
+		#foreach ($jobtype in ${action.allJobTypes})
+		<tr>
+			<td>${jobtype.name}</td>
+			<td>${jobtype.url}</td>
+			<td><a href="/confluence/plugins/cron-for-space-admins/DeleteJobType.action?name=${jobtype.name}">delete</a></td>		
+		</tr>
+		#end
+	</tbody>
+</table>
+<br/><br/>
+<form class="aui top-label" action="SaveJobType.action">
+	<h3>Create Job Type</h3>
+	<fieldset class="top-label">
+	<div class="field-group top-label">
+		<label for="name">Name</label>
+		<input class="text" type="text" name="name">
+	</div>
+	<div class="field-group top-label">	
+		<label for="url">URL</label>
+		<input class="text" type="text" name="url">
+	</div>	
+	<div class="field-group top-label">	
+		<button class="aui-button" type="submit">save</button>
+	</div>
+	</fieldset>
 </form>
+</body>
+</html>

@@ -2,6 +2,7 @@ package de.iteconomics.confluence.plugins.cron.impl;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -47,10 +48,12 @@ public class JobTypeServiceImpl implements JobTypeService {
 	public void createJobType(HttpServletRequest request) {
 
 		String name = request.getParameter("name");
+		String url = request.getParameter("url");
 		JobType jobType;
 		checkNewJobTypeName(request);
 		jobType = ao.create(JobType.class);
 		jobType.setName(name);
+		jobType.setUrl(url);
 
 		jobType.save();
 	}
@@ -76,17 +79,28 @@ public class JobTypeServiceImpl implements JobTypeService {
 		}
 	}
 
+
+
 	@Override
 	public Map<String, String> getJobTypeAttributes(JobType jobType) throws IllegalArgumentException, IllegalAccessException, InvocationTargetException {
 		Map<String, String> attributes = new HashMap<>();
 		for (Method method: JobType.class.getDeclaredMethods()) {
 			if (method.getReturnType().equals(String.class)) {
-				attributes.put(method.getName(), (String) method.invoke(jobType));
+				attributes.put(method.getName().substring(3).toLowerCase(), (String) method.invoke(jobType));
 			}
 
 		}
 		return null;
 	}
 
-
+	@Override
+	public List<String> getJobTypeFieldNames() {
+		List<String> methodNames = new ArrayList<String>();
+		for (Method method: JobType.class.getDeclaredMethods()) {
+			if (method.getReturnType().equals(String.class)) {
+				methodNames.add(method.getName().substring(3).toLowerCase());
+			}
+		}
+		return methodNames;
+	}
 }

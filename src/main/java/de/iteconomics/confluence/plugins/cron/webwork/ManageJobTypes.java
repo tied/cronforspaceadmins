@@ -1,6 +1,10 @@
 package de.iteconomics.confluence.plugins.cron.webwork;
 
+import java.lang.reflect.InvocationTargetException;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import javax.inject.Inject;
 
@@ -31,5 +35,18 @@ public class ManageJobTypes extends ConfluenceActionSupport {
 	public List<JobType> getAllJobTypes() {
 		List<JobType> jobTypes = jobTypeService.getAllJobTypes();
 		return jobTypes;
+	}
+
+	public Map<String, String> getJobTypeAttributes() {
+		Map<String, String> result = new HashMap<>();
+		result.put("test", "testvalue");
+		return result;
+	}
+
+	// Todo: Handle exceptions, don't throw them!!
+	public List<String> getJobTypeFields() throws IllegalArgumentException, IllegalAccessException, InvocationTargetException {
+		List<String> list = new ArrayList<String>();
+		list.addAll(jobTypeService.getJobTypeFieldNames());
+		return list;
 	}
 }
