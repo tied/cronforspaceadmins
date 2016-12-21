@@ -1,3 +1,5 @@
+$webResourceManager.requireResourcesForContext("cron-configuration-screen")
+
 <html>
   <head>
     <meta name="decorator" content="atl.admin"/>
@@ -18,6 +20,7 @@
 		<tr>
 			<td>${jobtype.name}</td>
 			<td>${jobtype.url}</td>
+			<td>${jobtype.httpMethod}</td>
 			<td><a href="/confluence/plugins/cron-for-space-admins/DeleteJobType.action?id=${jobtype.ID}">delete</a></td>		
 		</tr>
 		#end
@@ -28,14 +31,23 @@
 	<h3>Create Job Type</h3>
 	<fieldset class="top-label">
 	<div class="field-group top-label">
-		<label for="name">Name</label>
-		<input class="text" type="text" name="name">
+		<label for="name">Name<span class="aui-icon aui-icon-required">Required</span></label>
+		<input data-aui-validation-job-type-name="$action.jobTypeNameValidationString" data-aui-validation-field data-aui-validation-required data-aui-validation-required-msg="You must provide a job type name" class="text" type="text" name="name">
 	</div>
 	<div class="field-group top-label">	
-		<label for="url">URL</label>
-		<input class="text" type="text" name="url">
-	</div>	
+		<label for="url">URL<span class="aui-icon aui-icon-required">Required</span></label>
+		<input data-aui-validation-field data-aui-validation-required data-aui-validation-required-msg="You must provide a URL" class="text" type="text" name="url">
+	</div>
 	<div class="field-group top-label">	
+		<label for="http-method">Http method<span class="aui-icon aui-icon-required">Required</span></label>
+		<select data-aui-validation-field data-aui-validation-required data-aui-validation-required-msg="You must provide an Http method" class="text" type="text" name="http-method">
+			<option value="GET">GET</option>
+			<option value="POST">POST</option>
+			<option value="PUT">PUT</option>
+			<option value="DELETE">DELETE</option>
+		</select>
+	</div>		
+	<div class="field-group top-label">
 		<button class="aui-button" type="submit">save</button>
 	</div>
 	</fieldset>

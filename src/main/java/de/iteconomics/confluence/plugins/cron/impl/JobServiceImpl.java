@@ -1,21 +1,41 @@
 package de.iteconomics.confluence.plugins.cron.impl;
 
+import java.io.IOException;
+import java.io.Serializable;
+import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
+
+import java.net.URL;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 
-//import org.slf4j.Logger;
-//import org.slf4j.LoggerFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.inject.Inject;
 import javax.inject.Named;
 
 import com.atlassian.activeobjects.external.ActiveObjects;
 import com.atlassian.plugin.spring.scanner.annotation.imports.ComponentImport;
+import com.atlassian.scheduler.JobRunner;
+import com.atlassian.scheduler.JobRunnerRequest;
+import com.atlassian.scheduler.JobRunnerResponse;
+import com.atlassian.scheduler.SchedulerService;
+import com.atlassian.scheduler.SchedulerServiceException;
+import com.atlassian.scheduler.config.JobConfig;
+import com.atlassian.scheduler.config.JobId;
+import com.atlassian.scheduler.config.JobRunnerKey;
+import com.atlassian.scheduler.config.Schedule;
 import com.google.common.collect.Lists;
 
 import de.iteconomics.confluence.plugins.cron.api.JobService;
+import de.iteconomics.confluence.plugins.cron.api.JobTypeService;
 import de.iteconomics.confluence.plugins.cron.entities.Job;
+import de.iteconomics.confluence.plugins.cron.entities.JobType;
 import de.iteconomics.confluence.plugins.cron.exceptions.JobException;
 import net.java.ao.Query;
 
@@ -25,13 +45,26 @@ public class JobServiceImpl implements JobService {
 
 	@ComponentImport
 	private ActiveObjects ao;
+	@ComponentImport
+	private SchedulerService schedulerService;
+	private JobTypeService jobTypeService;
 
-//	private final static Logger logger = LoggerFactory.getLogger(JobServiceImpl.class);
+	private final static Logger logger = LoggerFactory.getLogger(JobServiceImpl.class);
 
 	@Inject
 	@Override
 	public void setAo(ActiveObjects ao) {
 		this.ao = ao;
+	}
+
+	@Inject
+	public void setJobTypeService(JobTypeService jobTypeService) {
+		this.jobTypeService = jobTypeService;
+	}
+
+	@Inject
+	public void setSchedulerService(SchedulerService schedulerService) {
+		this.schedulerService = schedulerService;
 	}
 
 	@Override
@@ -41,29 +74,100 @@ public class JobServiceImpl implements JobService {
 
 	@Override
 	public void createJob(HttpServletRequest request) {
-
 		String name = request.getParameter("name");
 		String jobTypeID = request.getParameter("job-type");
 		String cronExpression = request.getParameter("cron-expression");
-
+		String spaceKey = request.getParameter("spacekey");
+		String jobKey = jobTypeID + ":" + spaceKey + ":" + name;
 		Job job;
-//		checkNewJobName(request);
+		checkUniqueJobNamePerSpace(request, spaceKey);
+		String safeID = getSafeJobTypeID(jobTypeID);
 		job = ao.create(Job.class);
 		job.setName(name);
-		job.setJobTypeID(jobTypeID);
+		job.setJobTypeID(safeID);
 		job.setCronExpression(cronExpression);
-
+		job.setSpaceKey(spaceKey);
+		job.setJobKey(jobKey);
 		job.save();
+		registerJob(job);
+	}
+
+	private void registerJob(Job job) {
+		JobRunnerKey jobRunnerKey = JobRunnerKey.of(job.getJobKey() + ":runner");
+		Schedule schedule = Schedule.forCronExpression(job.getCronExpression());
+		Map<String, Serializable> jobParameters = new HashMap<>();
+		JobType jobType = jobTypeService.getJobTypeByID(job.getJobTypeID());
+		String url = jobType.getUrl();
+		jobParameters.put("url", url);
+		JobConfig jobConfig = JobConfig.forJobRunnerKey(jobRunnerKey).withSchedule(schedule).withParameters(jobParameters);
+		JobId jobId = JobId.of(job.getJobKey());
+		JobRunner jobRunner = new JobRunner() {
+
+			@Override
+			public JobRunnerResponse runJob(JobRunnerRequest request) {
+				String urlString = (String) request.getJobConfig().getParameters().get("url");
+				URL url = null;
+				HttpURLConnection conn = null;
+
+				try {
+					url = new URL(urlString);
+					conn = (HttpURLConnection) url.openConnection();
+					conn.setRequestMethod("GET");
+					conn.setRequestProperty("Accept", "application/json");
+					logger.error(conn.getResponseMessage());
+				} catch (MalformedURLException e) {
+					logger.error("Could not process request. URL is invalid");
+				} catch (IOException e) {
+					logger.error("Connection failed to url: " + urlString);
+				}
+
+				conn.disconnect();
+
+				return null;
+			}
+
+		};
+		try {
+			schedulerService.registerJobRunner(jobRunnerKey, jobRunner);
+			schedulerService.scheduleJob(jobId, jobConfig);
+		} catch (SchedulerServiceException e) {
+			logger.error(e.getMessage());
+		}
+	}
+
+	private String getSafeJobTypeID(String jobTypeIDFromRequest) {
+		if (jobTypeIDFromRequest == null) {
+			throw new JobException("Cannot create: job type id is 'null'.");
+		}
+		int jobTypeID;
+		try {
+			jobTypeID = Integer.parseInt(jobTypeIDFromRequest);
+		} catch (NumberFormatException e) {
+			throw new JobException("Cannot create: job id " + jobTypeIDFromRequest + "is invalid.");
+		}
+		List<JobType> allJobTypes = jobTypeService.getAllJobTypes();
+		for (JobType jobType: allJobTypes) {
+			if (jobType.getID() == (jobTypeID)) {
+				return jobTypeIDFromRequest;
+			}
+		}
+
+		throw new JobException("Cannot create: There is no job type with the id " + jobTypeIDFromRequest + ".");
 	}
 
 
-	// change to only check for jobs in the same space
-	private void checkNewJobName(HttpServletRequest request) {
+	private void checkUniqueJobNamePerSpace(HttpServletRequest request, String spaceKey) {
 		String name = request.getParameter("name");
 
 		Job[] jobs = ao.find(Job.class, Query.select().where("name = ?", name));
 
-		if (jobs.length > 0) {
+		List<Job> jobsInSpace = new ArrayList<>();
+		for (Job job: jobs) {
+			if (job.getSpaceKey().equals(spaceKey)) {
+				jobsInSpace.add(job);
+			}
+		}
+		if (jobsInSpace.size() > 0) {
 			throw new JobException("Cannot create: job with name " + name + "already exists.");
 		}
 	}

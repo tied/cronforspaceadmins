@@ -49,4 +49,19 @@ public class ManageJobTypes extends ConfluenceActionSupport {
 		list.addAll(jobTypeService.getJobTypeFieldNames());
 		return list;
 	}
+
+	public String getJobTypeNameValidationString() {
+		StringBuilder validationStringBuilder = new StringBuilder();
+		for (JobType jobType: jobTypeService.getAllJobTypes()) {
+			validationStringBuilder.append(jobType.getName() + "|");
+		}
+
+		String validationString = validationStringBuilder.toString();
+		if (validationString.length() > 0) {
+			validationString = validationString.substring(0, validationString.length() - 1);
+		}
+
+		return validationString;
+	}
+
 }

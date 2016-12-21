@@ -49,10 +49,12 @@ public class JobTypeServiceImpl implements JobTypeService {
 
 		String name = request.getParameter("name");
 		String url = request.getParameter("url");
+		String httpMethod = request.getParameter("http-method");
 		JobType jobType;
 		checkNewJobTypeName(request);
 		jobType = ao.create(JobType.class);
 		jobType.setName(name);
+		jobType.setHttpMethod(httpMethod);
 		jobType.setUrl(url);
 
 		jobType.save();
@@ -106,11 +108,26 @@ public class JobTypeServiceImpl implements JobTypeService {
 
 	@Override
 	public JobType getJobTypeByID(String id) {
+
+		if (!isValidID(id)) {
+			return null;
+		}
+
 		JobType[] matches = ao.find(JobType.class, Query.select().where("id = ?", id));
+
 		if (matches.length != 1) {
 			throw new JobTypeException("Cannot get job: more than one job with id " + id + " exist.");
 		}
 
 		return matches[0];
+	}
+
+	private boolean isValidID(String id) {
+		try {
+			Integer.parseInt(id);
+		} catch (NumberFormatException e ) {
+			return false;
+		}
+		return true;
 	}
 }

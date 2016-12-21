@@ -9,9 +9,13 @@ public interface Job extends Entity {
 
 	String getName();
 	String getJobTypeID();
+	String getSpaceKey();
 	String getCronExpression();
+	String getJobKey();
 
 	void setName(String name);
 	void setJobTypeID(String ID);
+	void setSpaceKey(String spaceKey);
 	void setCronExpression(String cronExpression);
+	void setJobKey(String jobKey);
 }

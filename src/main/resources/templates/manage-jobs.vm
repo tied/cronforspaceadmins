@@ -37,37 +37,62 @@ $webResourceManager.requireResourcesForContext("cron-space-admin-screen")
 									<td>${job.name}</td>
 									<td>$action.getJobTypeByID($job.jobTypeID).name</td>
 									<td>${job.cronExpression}</td>
-									<td><a href="/confluence/plugins/cron-for-space-admins/DeleteJob.action?id=${job.ID}">delete</a></td>		
+									<td><a href="/confluence/plugins/cron-for-space-admins/DeleteJob.action?id=${job.ID}&spacekey=${action.getSpaceKey()}">delete</a></td>		
 								</tr>
 								#end
 							</tbody>
 						</table>
 						<br/><br/>
+						#if ($req.getParameter("save-error"))
+						<div class="aui-message aui-message-error">
+							<p class="title">
+								<strong>Error</strong>
+							</p>
+							<p>There was an error while saving the job.</p>
+						</div>
+						#end
+						#if ($req.getParameter("delete-error"))
+						<div class="aui-message aui-message-error">
+							<p class="title">
+								<strong>Error</strong>
+							</p>
+							<p>There was an error while deleting the job.</p>
+						</div>
+						#end						
 						<form class="aui top-label" method="post" action="SaveJob.action">
 							<h3>Create Job</h3>
 							<fieldset class="top-label">
 							<div class="field-group top-label">
-								<label for="name">Name</label>
-								<input class="text" type="text" name="name">
+								<label for="name">Name<span class="aui-icon aui-icon-required">Required</span></label>
+								<input data-aui-validation-job-name="$action.jobNameValidationString" data-aui-validation-field data-aui-validation-required data-aui-validation-required-msg="You must provide a job name" class="text" type="text" name="name">
 							</div>
 							<div class="field-group top-label">
-								<label for="job-type">Type</label>
-								<select id="select-job-type" name="job-type">
-									<option value="none">-- none --</option>
+								<label for="job-type">Type<span class="aui-icon aui-icon-required">Required</span></label>
+								<select data-aui-validation-field data-aui-validation-required data-aui-validation-required-msg="You must pick a job type" id="select-job-type" name="job-type">
+									<option value="">-- none --</option>
 									#foreach ($jobType in $action.allJobTypes)
 										<option value="$jobType.ID">$jobType.name</option>
 									#end
 								</select>
 							</div>
 							<div class="field-group top-label">
-								<label for="cron-expression">Cron Expression</label>
-								<input class="text" type="text" name="cron-expression">
+								<label for="cron-expression">Cron Expression<span class="aui-icon aui-icon-required">Required</span></label>
+								<input data-aui-validation-field data-aui-validation-cron-expression="valid" data-aui-validation-required="required" data-aui-validation-required-msg="You must provide a cron expression" class="text" type="text" name="cron-expression">
 							</div>
+							<input type="hidden" name="spacekey" value="$action.getSpaceKey()"/>
 							<div class="field-group top-label">	
 								<button class="aui-button" type="submit">save</button>
 							</div>
 							</fieldset>
-						</form>            
+						</form>
+						
+						<h3>Registered job keys:</h3>
+						<ul>
+						#foreach ($jobkey in $action.allRegisteredJobs)
+						<li>$jobkey</li>
+						#end
+						</ul>
+						            
                 </div>
             </body>
         #end
