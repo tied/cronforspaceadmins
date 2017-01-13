@@ -1,16 +1,8 @@
 package de.iteconomics.confluence.plugins.cron.impl;
 
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
-
-//import org.slf4j.Logger;
-//import org.slf4j.LoggerFactory;
 
 import javax.inject.Inject;
 import javax.inject.Named;
@@ -31,8 +23,6 @@ public class JobTypeServiceImpl implements JobTypeService {
 	@ComponentImport
 	private ActiveObjects ao;
 
-//	private final static Logger logger = LoggerFactory.getLogger(JobTypeServiceImpl.class);
-
 	@Inject
 	@Override
 	public void setAo(ActiveObjects ao) {
@@ -46,18 +36,20 @@ public class JobTypeServiceImpl implements JobTypeService {
 
 	@Override
 	public void createJobType(HttpServletRequest request) {
+		checkNewJobTypeName(request);
+		JobType jobType = ao.create(JobType.class);
+		initializeJobType(jobType, request);
+		jobType.save();
+	}
 
+	private void initializeJobType(JobType jobType, HttpServletRequest request) {
 		String name = request.getParameter("name");
 		String url = request.getParameter("url");
 		String httpMethod = request.getParameter("http-method");
-		JobType jobType;
-		checkNewJobTypeName(request);
-		jobType = ao.create(JobType.class);
+
 		jobType.setName(name);
 		jobType.setHttpMethod(httpMethod);
 		jobType.setUrl(url);
-
-		jobType.save();
 	}
 
 	private void checkNewJobTypeName(HttpServletRequest request) {
@@ -72,62 +64,41 @@ public class JobTypeServiceImpl implements JobTypeService {
 
 	@Override
 	public void deleteJobType(HttpServletRequest request) {
+		JobType jobType = getJobTypeIfExists(request);
+		ao.delete(jobType);
+	}
+
+	private JobType getJobTypeIfExists(HttpServletRequest request) {
 		String id = request.getParameter("id");
 		JobType[] jobTypes = ao.find(JobType.class, Query.select().where("id = ?", id));
-		if (jobTypes.length != 1)
+		if (jobTypes.length != 1) {
 			throw new JobTypeException("Cannot delete: job type with id" + id + " does not exist.");
-		if (jobTypes.length == 1) {
-			ao.delete(jobTypes[0]);
 		}
-	}
-
-
-
-	@Override
-	public Map<String, String> getJobTypeAttributes(JobType jobType) throws IllegalArgumentException, IllegalAccessException, InvocationTargetException {
-		Map<String, String> attributes = new HashMap<>();
-		for (Method method: JobType.class.getDeclaredMethods()) {
-			if (method.getReturnType().equals(String.class)) {
-				attributes.put(method.getName().substring(3).toLowerCase(), (String) method.invoke(jobType));
-			}
-
-		}
-		return null;
-	}
-
-	@Override
-	public List<String> getJobTypeFieldNames() {
-		List<String> methodNames = new ArrayList<String>();
-		for (Method method: JobType.class.getDeclaredMethods()) {
-			if (method.getReturnType().equals(String.class)) {
-				methodNames.add(method.getName().substring(3).toLowerCase());
-			}
-		}
-		return methodNames;
+		return jobTypes[0];
 	}
 
 	@Override
 	public JobType getJobTypeByID(String id) {
+		checkValidID(id);
 
-		if (!isValidID(id)) {
-			return null;
-		}
-
-		JobType[] matches = ao.find(JobType.class, Query.select().where("id = ?", id));
-
-		if (matches.length != 1) {
-			throw new JobTypeException("Cannot get job: more than one job with id " + id + " exist.");
-		}
-
-		return matches[0];
+		return getJobTypeIfExists(id);
 	}
 
-	private boolean isValidID(String id) {
+	private void checkValidID(String id) {
 		try {
 			Integer.parseInt(id);
 		} catch (NumberFormatException e ) {
-			return false;
+			throw new JobTypeException("Cannot parse job type id to int: " + id);
 		}
-		return true;
+	}
+
+	private JobType getJobTypeIfExists(String id) {
+		JobType[] matches = ao.find(JobType.class, Query.select().where("ID = ?", id));
+
+		if (matches.length != 1) {
+			throw new JobTypeException("Cannot get job type: job type with id " + id + " does not exist.");
+		}
+
+		return matches[0];
 	}
 }

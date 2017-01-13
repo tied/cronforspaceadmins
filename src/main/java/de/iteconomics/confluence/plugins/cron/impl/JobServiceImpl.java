@@ -70,22 +70,28 @@ public class JobServiceImpl implements JobService {
 
 	@Override
 	public void createJob(HttpServletRequest request) {
+		checkUniqueJobNamePerSpace(request);
+
+		Job job = ao.create(Job.class);
+		initializeJob(job, request);
+		job.save();
+
+		registerJob(job);
+	}
+
+	private void initializeJob(Job job, HttpServletRequest request) {
 		String name = request.getParameter("name");
 		String jobTypeID = request.getParameter("job-type");
 		String cronExpression = request.getParameter("cron-expression");
 		String spaceKey = request.getParameter("spacekey");
 		String jobKey = jobTypeID + ":" + spaceKey + ":" + name;
-		Job job;
-		checkUniqueJobNamePerSpace(request, spaceKey);
 		String safeID = getSafeJobTypeID(jobTypeID);
-		job = ao.create(Job.class);
+
 		job.setName(name);
 		job.setJobTypeID(safeID);
 		job.setCronExpression(cronExpression);
 		job.setSpaceKey(spaceKey);
 		job.setJobKey(jobKey);
-		job.save();
-		registerJob(job);
 	}
 
 	@Override
@@ -99,74 +105,120 @@ public class JobServiceImpl implements JobService {
 	@Override
 	public void registerJob(Job job) {
 		JobRunnerKey jobRunnerKey = JobRunnerKey.of(job.getJobKey() + ":runner");
-		Schedule schedule = Schedule.forCronExpression(job.getCronExpression());
-		Map<String, Serializable> jobParameters = new HashMap<>();
-		JobType jobType = jobTypeService.getJobTypeByID(job.getJobTypeID());
-		String url = jobType.getUrl();
-		jobParameters.put("url", url);
-		JobConfig jobConfig = JobConfig.forJobRunnerKey(jobRunnerKey).withSchedule(schedule).withParameters(jobParameters);
-		JobId jobId = JobId.of(job.getJobKey());
+
+		registerJobRunner(jobRunnerKey);
+		scheduleJob(job, jobRunnerKey);
+	}
+
+	private void registerJobRunner(JobRunnerKey jobRunnerKey) {
 		JobRunner jobRunner = new CronJobRunner();
+		schedulerService.registerJobRunner(jobRunnerKey, jobRunner);
+	}
+
+	private void scheduleJob(Job job, JobRunnerKey jobRunnerKey) {
+		JobConfig jobConfig = getJobConfig(job, jobRunnerKey);
+
 		try {
-			schedulerService.registerJobRunner(jobRunnerKey, jobRunner);
-			schedulerService.scheduleJob(jobId, jobConfig);
+			schedulerService.scheduleJob(JobId.of(job.getJobKey()), jobConfig);
 		} catch (SchedulerServiceException e) {
-			logger.error(e.getMessage());
+			logger.error("could not schedule job with key: " + job.getJobKey());
 		}
+	}
+
+	private JobConfig getJobConfig(Job job, JobRunnerKey jobRunnerKey) {
+		Schedule schedule = Schedule.forCronExpression(job.getCronExpression());
+
+		Map<String, Serializable> jobParameters = getJobParameters(job);
+		JobConfig jobConfig = JobConfig.forJobRunnerKey(jobRunnerKey).withSchedule(schedule).withParameters(jobParameters);
+
+		return jobConfig;
+	}
+
+	private Map<String, Serializable> getJobParameters(Job job) {
+		Map<String, Serializable> jobParameters = new HashMap<>();
+		jobParameters.put("url", getUrl(job));
+		return jobParameters;
+	}
+
+	private String getUrl(Job job) {
+		JobType jobType = jobTypeService.getJobTypeByID(job.getJobTypeID());
+		return jobType.getUrl();
 	}
 
 	private String getSafeJobTypeID(String jobTypeIDFromRequest) {
 		if (jobTypeIDFromRequest == null) {
 			throw new JobException("Cannot create: job type id is 'null'.");
 		}
-		int jobTypeID;
-		try {
-			jobTypeID = Integer.parseInt(jobTypeIDFromRequest);
-		} catch (NumberFormatException e) {
-			throw new JobException("Cannot create: job id " + jobTypeIDFromRequest + "is invalid.");
-		}
-		List<JobType> allJobTypes = jobTypeService.getAllJobTypes();
-		for (JobType jobType: allJobTypes) {
-			if (jobType.getID() == (jobTypeID)) {
-				return jobTypeIDFromRequest;
-			}
+
+		if (!isValidJobTypeId(jobTypeIDFromRequest)) {
+			throw new JobException("Cannot create: There is no job type with the id " + jobTypeIDFromRequest + ".");
 		}
 
-		throw new JobException("Cannot create: There is no job type with the id " + jobTypeIDFromRequest + ".");
+		return jobTypeIDFromRequest;
 	}
 
 
-	private void checkUniqueJobNamePerSpace(HttpServletRequest request, String spaceKey) {
-		String name = request.getParameter("name");
+	private boolean isValidJobTypeId(String jobTypeIDFromRequest) {
+		int jobTypeID = asInt(jobTypeIDFromRequest);
 
-		Job[] jobs = ao.find(Job.class, Query.select().where("name = ?", name));
+		return jobTypeExists(jobTypeID);
+	}
 
-		List<Job> jobsInSpace = new ArrayList<>();
-		for (Job job: jobs) {
-			if (job.getSpaceKey().equals(spaceKey)) {
-				jobsInSpace.add(job);
+	private boolean jobTypeExists(int jobTypeID) {
+		boolean jobTypeExists = false;
+		List<JobType> allJobTypes = jobTypeService.getAllJobTypes();
+		for (JobType jobType: allJobTypes) {
+			if (jobType.getID() == jobTypeID) {
+				jobTypeExists = true;
 			}
 		}
-		if (jobsInSpace.size() > 0) {
-			throw new JobException("Cannot create: job with name " + name + "already exists.");
+
+		return jobTypeExists;
+	}
+
+	private int asInt(String jobTypeIDFromRequest) {
+		try {
+			return Integer.parseInt(jobTypeIDFromRequest);
+		} catch (NumberFormatException e) {
+			throw new JobException("Cannot create: job id " + jobTypeIDFromRequest + "is invalid.");
+		}
+	}
+
+	private void checkUniqueJobNamePerSpace(HttpServletRequest request) {
+		String name = request.getParameter("name");
+		String spaceKey = request.getParameter("spacekey");
+
+		Job[] jobsWithSameName = ao.find(Job.class, Query.select().where("NAME = ?", name));
+
+		for (Job job: jobsWithSameName) {
+			if (job.getSpaceKey().equals(spaceKey)) {
+				throw new JobException("Cannot create: job with name " + name + "already exists.");
+			}
 		}
 	}
 
 	@Override
 	public void deleteJob(HttpServletRequest request) {
+		Job job = getJobIfExists(request);
+		ao.delete(job);
+	}
+
+	private Job getJobIfExists(HttpServletRequest request) {
 		String id = request.getParameter("id");
 		Job[] jobs= ao.find(Job.class, Query.select().where("id = ?", id));
-		if (jobs.length != 1)
+
+		if (jobs.length != 1) {
 			throw new JobException("Cannot delete: job with id " + id + " does not exist.");
-		if (jobs.length == 1) {
-			ao.delete(jobs[0]);
 		}
+
+		return jobs[0];
 	}
 
 	@Override
 	public boolean isEnabled(Job job) {
 		JobRunnerKey jobRunnerKey = JobRunnerKey.of(job.getJobKey() + ":runner");
 		Set<JobRunnerKey> registeredJobRunnerKeys = schedulerService.getRegisteredJobRunnerKeys();
+
 		boolean isEnabled = false;
 		for (JobRunnerKey key: registeredJobRunnerKeys) {
 			if (key.equals(jobRunnerKey)) {

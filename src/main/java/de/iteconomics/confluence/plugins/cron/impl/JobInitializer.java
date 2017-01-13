@@ -74,7 +74,6 @@ public class JobInitializer implements DisposableBean {
 				}
 				return null;
 			}
-
 		});
 	}
 
@@ -82,5 +81,4 @@ public class JobInitializer implements DisposableBean {
 	public void destroy() throws Exception {
 		eventPublisher.unregister(this);
 	}
-
 }

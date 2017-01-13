@@ -37,19 +37,6 @@ public class ManageJobTypes extends ConfluenceActionSupport {
 		return jobTypes;
 	}
 
-	public Map<String, String> getJobTypeAttributes() {
-		Map<String, String> result = new HashMap<>();
-		result.put("test", "testvalue");
-		return result;
-	}
-
-	// Todo: Handle exceptions, don't throw them!!
-	public List<String> getJobTypeFields() throws IllegalArgumentException, IllegalAccessException, InvocationTargetException {
-		List<String> list = new ArrayList<String>();
-		list.addAll(jobTypeService.getJobTypeFieldNames());
-		return list;
-	}
-
 	public String getJobTypeNameValidationString() {
 		StringBuilder validationStringBuilder = new StringBuilder();
 		for (JobType jobType: jobTypeService.getAllJobTypes()) {
