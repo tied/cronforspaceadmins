@@ -2,7 +2,6 @@ package de.iteconomics.confluence.plugins.cron.webwork;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 import javax.inject.Inject;
@@ -10,14 +9,11 @@ import javax.inject.Inject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.atlassian.confluence.schedule.ScheduledJobStatus;
-import com.atlassian.confluence.schedule.managers.ScheduledJobManager;
 import com.atlassian.confluence.spaces.actions.SpaceAdminAction;
 import com.atlassian.plugin.spring.scanner.annotation.component.Scanned;
 import com.atlassian.plugin.spring.scanner.annotation.imports.ComponentImport;
 import com.atlassian.scheduler.SchedulerService;
 import com.atlassian.scheduler.config.JobRunnerKey;
-import com.atlassian.spring.container.ContainerManager;
 
 import de.iteconomics.confluence.plugins.cron.api.JobService;
 import de.iteconomics.confluence.plugins.cron.api.JobTypeService;
@@ -81,30 +77,18 @@ public class ManageJobs extends SpaceAdminAction {
 
 	public List<String> getAllRegisteredJobs() {
 
-//        ScheduledJobManager jobManager = (ScheduledJobManager) ContainerManager.getComponent("scheduledJobManager");
-//        List<ScheduledJobStatus> jobs = jobManager.getScheduledJobs();
-//        logger.error("all job keys:");
-//        for (ScheduledJobStatus job: jobs) {
-//        	logger.error("jobs id:" + job.getJobId());
-//        	logger.error("cron expression: " + jobManager.getCronExpression(job.getKey()));
-//        }
-
 		List<String> keysAsStrings = new ArrayList<>();
 
-		// commented out for debugging
-//		Set<JobRunnerKey> keys= schedulerService.getRegisteredJobRunnerKeys();
+		Set<JobRunnerKey> keys= schedulerService.getRegisteredJobRunnerKeys();
 
-		Set<JobRunnerKey> keys = schedulerService.getJobRunnerKeysForAllScheduledJobs();
-
-		// commented out for debugging
         for (JobRunnerKey key: keys) {
             keysAsStrings.add(key.toString());
         }
 
-        //        pluginScheduler.scheduleJob("Awesome job", TestTask.class, parameters, new Date(), 20000L);
-
         return keysAsStrings;
-//        return Response.ok(new MyJobControllerModel("Hello World")).build();
+	}
 
+	public boolean isEnabled(Job job) {
+		return jobService.isEnabled(job);
 	}
 }

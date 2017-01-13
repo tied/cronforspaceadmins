@@ -1,35 +1,30 @@
 package de.iteconomics.confluence.plugins.cron.impl;
 
-import java.io.IOException;
 import java.io.Serializable;
-import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
-
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
+import javax.inject.Inject;
+import javax.inject.Named;
 import javax.servlet.http.HttpServletRequest;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.inject.Inject;
-import javax.inject.Named;
-
 import com.atlassian.activeobjects.external.ActiveObjects;
 import com.atlassian.plugin.spring.scanner.annotation.imports.ComponentImport;
 import com.atlassian.scheduler.JobRunner;
-import com.atlassian.scheduler.JobRunnerRequest;
-import com.atlassian.scheduler.JobRunnerResponse;
 import com.atlassian.scheduler.SchedulerService;
 import com.atlassian.scheduler.SchedulerServiceException;
 import com.atlassian.scheduler.config.JobConfig;
 import com.atlassian.scheduler.config.JobId;
 import com.atlassian.scheduler.config.JobRunnerKey;
 import com.atlassian.scheduler.config.Schedule;
+
 import com.google.common.collect.Lists;
 
 import de.iteconomics.confluence.plugins.cron.api.JobService;
@@ -37,6 +32,7 @@ import de.iteconomics.confluence.plugins.cron.api.JobTypeService;
 import de.iteconomics.confluence.plugins.cron.entities.Job;
 import de.iteconomics.confluence.plugins.cron.entities.JobType;
 import de.iteconomics.confluence.plugins.cron.exceptions.JobException;
+
 import net.java.ao.Query;
 
 
@@ -47,9 +43,10 @@ public class JobServiceImpl implements JobService {
 	private ActiveObjects ao;
 	@ComponentImport
 	private SchedulerService schedulerService;
+	@Inject
 	private JobTypeService jobTypeService;
 
-	private final static Logger logger = LoggerFactory.getLogger(JobServiceImpl.class);
+	final static Logger logger = LoggerFactory.getLogger(JobServiceImpl.class);
 
 	@Inject
 	@Override
@@ -57,7 +54,6 @@ public class JobServiceImpl implements JobService {
 		this.ao = ao;
 	}
 
-	@Inject
 	public void setJobTypeService(JobTypeService jobTypeService) {
 		this.jobTypeService = jobTypeService;
 	}
@@ -92,7 +88,16 @@ public class JobServiceImpl implements JobService {
 		registerJob(job);
 	}
 
-	private void registerJob(Job job) {
+	@Override
+	public void registerAllJobs() {
+		List<Job> allJobs = getAllJobs();
+		for (Job job: allJobs) {
+			registerJob(job);
+		}
+	}
+
+	@Override
+	public void registerJob(Job job) {
 		JobRunnerKey jobRunnerKey = JobRunnerKey.of(job.getJobKey() + ":runner");
 		Schedule schedule = Schedule.forCronExpression(job.getCronExpression());
 		Map<String, Serializable> jobParameters = new HashMap<>();
@@ -101,32 +106,7 @@ public class JobServiceImpl implements JobService {
 		jobParameters.put("url", url);
 		JobConfig jobConfig = JobConfig.forJobRunnerKey(jobRunnerKey).withSchedule(schedule).withParameters(jobParameters);
 		JobId jobId = JobId.of(job.getJobKey());
-		JobRunner jobRunner = new JobRunner() {
-
-			@Override
-			public JobRunnerResponse runJob(JobRunnerRequest request) {
-				String urlString = (String) request.getJobConfig().getParameters().get("url");
-				URL url = null;
-				HttpURLConnection conn = null;
-
-				try {
-					url = new URL(urlString);
-					conn = (HttpURLConnection) url.openConnection();
-					conn.setRequestMethod("GET");
-					conn.setRequestProperty("Accept", "application/json");
-					logger.error(conn.getResponseMessage());
-				} catch (MalformedURLException e) {
-					logger.error("Could not process request. URL is invalid");
-				} catch (IOException e) {
-					logger.error("Connection failed to url: " + urlString);
-				}
-
-				conn.disconnect();
-
-				return null;
-			}
-
-		};
+		JobRunner jobRunner = new CronJobRunner();
 		try {
 			schedulerService.registerJobRunner(jobRunnerKey, jobRunner);
 			schedulerService.scheduleJob(jobId, jobConfig);
@@ -181,5 +161,31 @@ public class JobServiceImpl implements JobService {
 		if (jobs.length == 1) {
 			ao.delete(jobs[0]);
 		}
+	}
+
+	@Override
+	public boolean isEnabled(Job job) {
+		JobRunnerKey jobRunnerKey = JobRunnerKey.of(job.getJobKey() + ":runner");
+		Set<JobRunnerKey> registeredJobRunnerKeys = schedulerService.getRegisteredJobRunnerKeys();
+		boolean isEnabled = false;
+		for (JobRunnerKey key: registeredJobRunnerKeys) {
+			if (key.equals(jobRunnerKey)) {
+				isEnabled = true;
+				break;
+			}
+		}
+
+		return isEnabled;
+	}
+
+	@Override
+	public Set<Job> getDisabledJobs() {
+		Set<Job> disabledJobs = new HashSet<>();
+		for (Job job: getAllJobs()) {
+			if (!isEnabled(job)) {
+				disabledJobs.add(job);
+			}
+		}
+		return disabledJobs;
 	}
 }

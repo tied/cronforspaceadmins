@@ -25,6 +25,12 @@
             <version>${confluence.version}</version>
             <scope>provided</scope>
         </dependency>
+				<dependency>
+				    <groupId>org.springframework</groupId>
+				    <artifactId>spring-beans</artifactId>
+				    <scope>provided</scope>
+				    <version>4.2.5.RELEASE</version>
+				</dependency>        
         <dependency>
             <groupId>com.atlassian.activeobjects</groupId>
             <artifactId>activeobjects-plugin</artifactId>
@@ -155,8 +161,8 @@
         </plugins>
     </build>
     <properties>
-        <confluence.version>6.0.2</confluence.version>
-        <confluence.data.version>6.0.2</confluence.data.version>
+        <confluence.version>6.0.1</confluence.version>
+        <confluence.data.version>6.0.1</confluence.data.version>
         <amps.version>6.2.6</amps.version>
         <plugin.testrunner.version>1.2.3</plugin.testrunner.version>
         <atlassian.spring.scanner.version>1.2.13</atlassian.spring.scanner.version>
