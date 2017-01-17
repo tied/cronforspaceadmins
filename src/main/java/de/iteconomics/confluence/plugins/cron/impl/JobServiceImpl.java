@@ -1,7 +1,6 @@
 package de.iteconomics.confluence.plugins.cron.impl;
 
 import java.io.Serializable;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -79,19 +78,33 @@ public class JobServiceImpl implements JobService {
 		registerJob(job);
 	}
 
+	@Override
+	public void updateJob(HttpServletRequest request) {
+		Job job = getJobIfExists(request);
+		setJobValues(job, request);
+		job.save();
+
+	}
+
 	private void initializeJob(Job job, HttpServletRequest request) {
+		String spaceKey = request.getParameter("spacekey");
+		String jobKey = spaceKey + ":" + job.getID();
+
+		job.setSpaceKey(spaceKey);
+		job.setJobKey(jobKey);
+
+		setJobValues(job, request);
+	}
+
+	private void setJobValues(Job job, HttpServletRequest request) {
 		String name = request.getParameter("name");
 		String jobTypeID = request.getParameter("job-type");
-		String cronExpression = request.getParameter("cron-expression");
-		String spaceKey = request.getParameter("spacekey");
-		String jobKey = jobTypeID + ":" + spaceKey + ":" + name;
 		String safeID = getSafeJobTypeID(jobTypeID);
+		String cronExpression = request.getParameter("cron-expression");
 
 		job.setName(name);
 		job.setJobTypeID(safeID);
 		job.setCronExpression(cronExpression);
-		job.setSpaceKey(spaceKey);
-		job.setJobKey(jobKey);
 	}
 
 	@Override
@@ -100,6 +113,13 @@ public class JobServiceImpl implements JobService {
 		for (Job job: allJobs) {
 			registerJob(job);
 		}
+	}
+
+	@Override
+	public void unregisterJob(HttpServletRequest request) {
+		Job job = getJobIfExists(request);
+		schedulerService.unscheduleJob(JobId.of(job.getJobKey()));
+		schedulerService.unregisterJobRunner(JobRunnerKey.of(job.getJobKey() + ":runner"));
 	}
 
 	@Override
@@ -136,13 +156,10 @@ public class JobServiceImpl implements JobService {
 
 	private Map<String, Serializable> getJobParameters(Job job) {
 		Map<String, Serializable> jobParameters = new HashMap<>();
-		jobParameters.put("url", getUrl(job));
-		return jobParameters;
-	}
-
-	private String getUrl(Job job) {
 		JobType jobType = jobTypeService.getJobTypeByID(job.getJobTypeID());
-		return jobType.getUrl();
+		jobParameters.put("url", jobType.getUrl());
+		jobParameters.put("method", jobType.getHttpMethod());
+		return jobParameters;
 	}
 
 	private String getSafeJobTypeID(String jobTypeIDFromRequest) {
@@ -239,5 +256,11 @@ public class JobServiceImpl implements JobService {
 			}
 		}
 		return disabledJobs;
+	}
+
+	@Override
+	public void registerJob(HttpServletRequest request) {
+		Job job = getJobIfExists(request);
+		registerJob(job);
 	}
 }

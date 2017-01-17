@@ -3,13 +3,60 @@ AJS.toInit(init);
 function init() {
 	console.log("initializing...");
 	AJS.$("#select-job-type").auiSelect2();
-	
+	AJS.$("#edit-job-type").auiSelect2();
+	var dialog = AJS.dialog2("#edit-dialog");
+	AJS.$(".edit-button").click(function(e) {
+		console.log(e);
+		console.log(e.target);
+		AJS.$("#edit-job-name").val(AJS.$(e.target).data("jobName"));
+		AJS.$(".jobtype-option").each(function(i) {
+			
+			if ($(this).val() == AJS.$(e.target).data("jobType")) {
+				console.log("type in button: " + AJS.$(e.target).data("jobType"));
+				console.log("option " + i +":" + $(this).val());
+				console.log("equal? " + ($(this).val() == AJS.$(e.target).data("jobType")));
+				$(this).attr("selected", "selected");
+			} else {
+				console.log("type in button: " + AJS.$(e.target).data("jobType"));
+				console.log("option " + i +":" + $(this).val());
+				console.log("equal? " + ($(this).val() == AJS.$(e.target).data("jobType")));				
+			}
+		});
+		AJS.$("#edit-job-cron-expression").val(AJS.$(e.target).data("cronExpression"));		
+		AJS.$("#edit-job-id").val(AJS.$(e.target).data("jobId"));
+		AJS.$("#edit-job-name").attr("data-current-name", AJS.$(e.target).data("jobName"));
+		dialog.show();
+	});
+	AJS.$("#close-dialog").click(function() {
+		console.log("close button clicked");
+		dialog.hide();
+	});
+	AJS.$("#submit-dialog").click(function() {
+		AJS.$("#edit-form").submit();
+	});	
 	AJS.formValidation.register(['job-name'], function(field) {
 			console.log("validator called");
 			var jobsString = field.args('job-name');
 			var jobs= [];
 			if (jobsString) {
 				jobs = jobsString.split('|');
+			}
+			console.log("all forbidden names:");
+			for (name in jobs) {
+				console.log(jobs[name]);
+			}
+			if (field.$el.attr("data-is-edit") == "true") {
+				console.log("this is an edit");
+				var indexOfCurrentName = jobs.indexOf(field.$el.attr("data-current-name"));
+				if (indexOfCurrentName > -1) {
+					jobs.splice(indexOfCurrentName, 1);
+				}
+				console.log("all forbidden names after removal:");
+				for (name in jobs) {
+					console.log(jobs[name]);
+				}				
+			} else {
+				console.log("this is not an edit");
 			}
 			var valid = true;
 			for (job in jobs) {

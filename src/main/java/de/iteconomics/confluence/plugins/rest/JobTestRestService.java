@@ -22,7 +22,16 @@ public class JobTestRestService {
     @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
     public Response getMessage()
     {
-    	logger.error("######## Test Rest service was called!!!");
+    	logger.error("######## Test Rest service was called - http method: GET");
+    	return Response.ok(new JobTestRestServiceModel("Hello World")).build();
+    }
+
+    @POST
+    @AnonymousAllowed
+    @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
+    public Response postMessage()
+    {
+    	logger.error("######## Test Rest service was called - http method: GET");
     	return Response.ok(new JobTestRestServiceModel("Hello World")).build();
     }
 }

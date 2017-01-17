@@ -17,4 +17,5 @@ public interface JobTypeService {
 	void deleteJobType(HttpServletRequest request);
 	void setAo(ActiveObjects ao);
 	JobType getJobTypeByID(String id);
+	void updateJobType(HttpServletRequest request);
 }

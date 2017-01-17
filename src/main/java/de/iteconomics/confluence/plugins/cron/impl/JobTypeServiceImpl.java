@@ -38,11 +38,11 @@ public class JobTypeServiceImpl implements JobTypeService {
 	public void createJobType(HttpServletRequest request) {
 		checkNewJobTypeName(request);
 		JobType jobType = ao.create(JobType.class);
-		initializeJobType(jobType, request);
+		setJobTypeValues(jobType, request);
 		jobType.save();
 	}
 
-	private void initializeJobType(JobType jobType, HttpServletRequest request) {
+	private void setJobTypeValues(JobType jobType, HttpServletRequest request) {
 		String name = request.getParameter("name");
 		String url = request.getParameter("url");
 		String httpMethod = request.getParameter("http-method");
@@ -100,5 +100,12 @@ public class JobTypeServiceImpl implements JobTypeService {
 		}
 
 		return matches[0];
+	}
+
+	@Override
+	public void updateJobType(HttpServletRequest request) {
+		JobType jobType = getJobTypeIfExists(request);
+		setJobTypeValues(jobType, request);
+		jobType.save();
 	}
 }
