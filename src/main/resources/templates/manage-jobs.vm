@@ -42,20 +42,8 @@ $webResourceManager.requireResourcesForContext("cron-space-admin-screen")
 										<aui-toggle id="toggle-test" label="testing the toggle button" data-is-enabled="${action.isEnabled($job)}" data-job-id="${job.ID}" data-space-key="${action.spaceKey}" #if (${action.isEnabled($job)}) checked="" #end></aui-toggle>
 									</td>
 									<td>
-										<a href="/confluence/plugins/cron-for-space-admins/DeleteJob.action?id=${job.ID}&spacekey=${action.getSpaceKey()}">delete</a>
-									</td>
-									<td>		
-										#if (${action.isEnabled($job)})
-											<a href="/confluence/plugins/cron-for-space-admins/UnregisterJob.action?id=${job.ID}&spacekey=${action.getSpaceKey()}">disable</a>
-										#else
-											<a href="/confluence/plugins/cron-for-space-admins/RegisterJob.action?id=${job.ID}&spacekey=${action.getSpaceKey()}">enable</a>
-										#end
-									</td>
-									<td>
-										<button class="edit-button aui-button aui-button-link" type="button" data-job-id="${job.ID}" data-job-name="${job.name}" data-job-type="${job.jobTypeID}" data-cron-expression="${job.cronExpression}">Edit</button>
-									</td>	
-									<td>
-
+										<button class="delete-button aui-button aui-button-link" type="button" data-job-id="${job.ID}" data-space-key="${action.spaceKey}"><span class="aui-icon aui-icon-small aui-iconfont-delete">Delete</span></button>
+										<button class="edit-button aui-button aui-button-link" type="button" data-job-id="${job.ID}" data-job-name="${job.name}" data-job-type="${job.jobTypeID}" data-cron-expression="${job.cronExpression}"><span class="aui-icon aui-icon-small aui-iconfont-edit">Edit</span></button>
 									</td>	
 								</tr>
 								#end
