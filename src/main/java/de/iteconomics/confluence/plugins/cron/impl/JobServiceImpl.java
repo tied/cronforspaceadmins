@@ -216,6 +216,7 @@ public class JobServiceImpl implements JobService {
 
 	@Override
 	public void deleteJob(HttpServletRequest request) {
+		unregisterJob(request);
 		Job job = getJobIfExists(request);
 		ao.delete(job);
 	}
