@@ -39,11 +39,7 @@ $webResourceManager.requireResourcesForContext("cron-space-admin-screen")
 									<td>$action.getJobTypeByID($job.jobTypeID).name</td>
 									<td>${job.cronExpression}</td>
 									<td>
-										#if (${action.isEnabled($job)})
-											active
-										#else
-											inactive
-										#end										
+										<aui-toggle id="toggle-test" label="testing the toggle button" data-is-enabled="${action.isEnabled($job)}" data-job-id="${job.ID}" data-space-key="${action.spaceKey}" #if (${action.isEnabled($job)}) checked="" #end></aui-toggle>
 									</td>
 									<td>
 										<a href="/confluence/plugins/cron-for-space-admins/DeleteJob.action?id=${job.ID}&spacekey=${action.getSpaceKey()}">delete</a>
@@ -57,7 +53,10 @@ $webResourceManager.requireResourcesForContext("cron-space-admin-screen")
 									</td>
 									<td>
 										<button class="edit-button aui-button aui-button-link" type="button" data-job-id="${job.ID}" data-job-name="${job.name}" data-job-type="${job.jobTypeID}" data-cron-expression="${job.cronExpression}">Edit</button>
-									</td>		
+									</td>	
+									<td>
+
+									</td>	
 								</tr>
 								#end
 							</tbody>

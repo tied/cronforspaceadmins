@@ -33,7 +33,16 @@ function init() {
 	});
 	AJS.$("#submit-dialog").click(function() {
 		AJS.$("#edit-form").submit();
-	});	
+	});
+	AJS.$("#toggle-test").click(function(e) {
+		var actionUrl;
+		if (AJS.$(e.target).parent().attr("data-is-enabled") === "true") {
+			actionUrl = "/plugins/cron-for-space-admins/UnregisterJob.action";
+		} else {
+			actionUrl = "/plugins/cron-for-space-admins/RegisterJob.action";
+		}
+		window.location.replace(AJS.contextPath() + actionUrl + "?id=" + AJS.$(e.target).parent().attr("data-job-id") + "&spacekey=" + AJS.$(e.target).parent().attr("data-space-key"));
+	})
 	AJS.formValidation.register(['job-name'], function(field) {
 			console.log("validator called");
 			var jobsString = field.args('job-name');
