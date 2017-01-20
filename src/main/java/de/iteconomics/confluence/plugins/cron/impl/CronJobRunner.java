@@ -34,7 +34,7 @@ final class CronJobRunner implements JobRunner {
 			url = new URL(urlString);
 			conn = (HttpURLConnection) url.openConnection();
 			conn.setRequestMethod(httpMethod);
-			conn.setRequestProperty("Accept", "application/json");
+			conn.setRequestProperty("Accept", "text/plain");
 		} catch (MalformedURLException e) {
 			logger.error("Could not process request. URL is invalid");
 			throw new JobException("Could not execute job, invalid url: " + urlString);

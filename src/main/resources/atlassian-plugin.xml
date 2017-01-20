@@ -92,4 +92,7 @@
   <rest name="Job Test Rest Service" i18n-name-key="job-test-rest-service.name" key="job-test-rest-service" path="/jobtestrestservice" version="1.0">
     <description key="job-test-rest-service.description">The Job Test Rest Service Plugin</description>
   </rest>
+  <rest name="JobType Parameters Provider" i18n-name-key="job-type-parameters-provider.name" key="job-type-prameters-provider" path="/jobtype" version="1.0">
+    <description key="job-type-parameter-provider.description">Provides the parameters of a job type</description>
+  </rest>  
 </atlassian-plugin>

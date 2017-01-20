@@ -19,6 +19,7 @@ import de.iteconomics.confluence.plugins.cron.api.JobService;
 import de.iteconomics.confluence.plugins.cron.api.JobTypeService;
 import de.iteconomics.confluence.plugins.cron.entities.Job;
 import de.iteconomics.confluence.plugins.cron.entities.JobType;
+import de.iteconomics.confluence.plugins.cron.exceptions.JobTypeException;
 
 @Scanned
 public class ManageJobs extends SpaceAdminAction {
@@ -53,7 +54,13 @@ public class ManageJobs extends SpaceAdminAction {
 	}
 
 	public JobType getJobTypeByID(String id) {
-		return jobTypeService.getJobTypeByID(id);
+		try {
+			return jobTypeService.getJobTypeByID(id);
+		} catch (JobTypeException e) {
+			logger.error("There is not JobType with the id " + id + ".");
+			return null;
+		}
+
 	}
 
 	public String getJobNameValidationString() {

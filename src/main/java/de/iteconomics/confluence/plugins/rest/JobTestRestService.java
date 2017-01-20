@@ -26,12 +26,13 @@ public class JobTestRestService {
     	return Response.ok(new JobTestRestServiceModel("Hello World")).build();
     }
 
-    @POST
+    @GET
     @AnonymousAllowed
-    @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
-    public Response postMessage()
+    @Produces({MediaType.TEXT_PLAIN})
+    @Path("{param}")
+    public String postMessage(@PathParam("param") String param)
     {
-    	logger.error("######## Test Rest service was called - http method: GET");
-    	return Response.ok(new JobTestRestServiceModel("Hello World")).build();
+    	logger.error("######## Test Rest service was called - http method: GET, parameter: " + param);
+    	return "all is well";
     }
 }

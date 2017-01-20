@@ -1,8 +1,12 @@
 package de.iteconomics.confluence.plugins.cron.impl;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.inject.Inject;
 import javax.inject.Named;
@@ -22,6 +26,8 @@ public class JobTypeServiceImpl implements JobTypeService {
 
 	@ComponentImport
 	private ActiveObjects ao;
+
+	private static Logger logger = LoggerFactory.getLogger(JobTypeServiceImpl.class);
 
 	@Inject
 	@Override
@@ -45,11 +51,60 @@ public class JobTypeServiceImpl implements JobTypeService {
 	private void setJobTypeValues(JobType jobType, HttpServletRequest request) {
 		String name = request.getParameter("name");
 		String url = request.getParameter("url");
+		logger.error("url: " + url);
+		String parameterNames = getParameterNames(url);
+		logger.error("parameter names: " + parameterNames);
 		String httpMethod = request.getParameter("http-method");
 
 		jobType.setName(name);
 		jobType.setHttpMethod(httpMethod);
+		jobType.setParameterNames(parameterNames);
 		jobType.setUrl(url);
+	}
+
+	private String getParameterNames(String url) {
+		logger.error("getParameterNames called");
+		String parameterNames = "";
+		for (String name: getParameterNamesList(url)) {
+			logger.error("param name: " + name);
+			parameterNames += name;
+			parameterNames += "|";
+		}
+
+		if (parameterNames.length() > 0) {
+			parameterNames = parameterNames.substring(0, parameterNames.length() -1);
+		}
+
+		return parameterNames;
+	}
+
+	private List<String> getParameterNamesList(String url) {
+		return getParameterNamesList(url, new ArrayList<String>());
+	}
+
+	private List<String> getParameterNamesList(String url, List<String> parameterNames) {
+
+		logger.error("url in geParameterNamesList: " + url);
+
+		if (url == null) {
+			return parameterNames;
+		}
+		int nextParamStart = url.indexOf("{");
+		logger.error("next param start: " + nextParamStart);
+		if (nextParamStart == -1) {
+			return parameterNames;
+		}
+
+		int nextParamEnd = url.indexOf("}");
+		logger.error("next param end: " + nextParamEnd);
+
+		if (nextParamEnd < nextParamStart) {
+			return parameterNames;
+		}
+
+		parameterNames.add(url.substring(nextParamStart + 1, nextParamEnd));
+
+		return getParameterNamesList(url.substring(nextParamEnd + 1), parameterNames);
 	}
 
 	private void checkNewJobTypeName(HttpServletRequest request) {

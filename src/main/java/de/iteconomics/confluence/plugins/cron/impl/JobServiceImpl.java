@@ -1,6 +1,7 @@
 package de.iteconomics.confluence.plugins.cron.impl;
 
 import java.io.Serializable;
+import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -33,7 +34,6 @@ import de.iteconomics.confluence.plugins.cron.entities.JobType;
 import de.iteconomics.confluence.plugins.cron.exceptions.JobException;
 
 import net.java.ao.Query;
-
 
 @Named
 public class JobServiceImpl implements JobService {
@@ -83,7 +83,6 @@ public class JobServiceImpl implements JobService {
 		Job job = getJobIfExists(request);
 		setJobValues(job, request);
 		job.save();
-
 	}
 
 	private void initializeJob(Job job, HttpServletRequest request) {
@@ -101,10 +100,39 @@ public class JobServiceImpl implements JobService {
 		String jobTypeID = request.getParameter("job-type");
 		String safeID = getSafeJobTypeID(jobTypeID);
 		String cronExpression = request.getParameter("cron-expression");
+		String parameterString = getParameterString(request);
 
 		job.setName(name);
 		job.setJobTypeID(safeID);
 		job.setCronExpression(cronExpression);
+		job.setParameters(parameterString);
+	}
+
+	private String getParameterString(HttpServletRequest request) {
+		String prefix = "parameter-";
+		String parameterString = "";
+		Enumeration<?> parameterNames = request.getParameterNames();
+		while (parameterNames.hasMoreElements()) {
+			String key = (String) parameterNames.nextElement();
+			if (key.startsWith(prefix)) {
+				String[] values = request.getParameterValues(key);
+				String value = values[0];
+				for (char c: value.toCharArray()) {
+					if (!Character.isLetterOrDigit(c)) {
+						throw new JobException("Only alphanumeric characters are allowed in parameters");
+					}
+				}
+				parameterString += key.substring(prefix.length());
+				parameterString += ":";
+				parameterString += (value);
+				parameterString += "|";
+			}
+		}
+		if (parameterString.length() > 0) {
+			parameterString = parameterString.substring(0, parameterString.length() -1);
+		}
+
+		return parameterString;
 	}
 
 	@Override
@@ -136,7 +164,7 @@ public class JobServiceImpl implements JobService {
 	}
 
 	private void scheduleJob(Job job, JobRunnerKey jobRunnerKey) {
-		JobConfig jobConfig = getJobConfig(job, jobRunnerKey);
+		JobConfig jobConfig = createJobConfig(job, jobRunnerKey);
 
 		try {
 			schedulerService.scheduleJob(JobId.of(job.getJobKey()), jobConfig);
@@ -145,7 +173,7 @@ public class JobServiceImpl implements JobService {
 		}
 	}
 
-	private JobConfig getJobConfig(Job job, JobRunnerKey jobRunnerKey) {
+	private JobConfig createJobConfig(Job job, JobRunnerKey jobRunnerKey) {
 		Schedule schedule = Schedule.forCronExpression(job.getCronExpression());
 
 		Map<String, Serializable> jobParameters = getJobParameters(job);
@@ -157,9 +185,34 @@ public class JobServiceImpl implements JobService {
 	private Map<String, Serializable> getJobParameters(Job job) {
 		Map<String, Serializable> jobParameters = new HashMap<>();
 		JobType jobType = jobTypeService.getJobTypeByID(job.getJobTypeID());
-		jobParameters.put("url", jobType.getUrl());
+		String url = getUrlWithParameters(jobType.getUrl(), job.getParameters());
+
+		jobParameters.put("url", url);
 		jobParameters.put("method", jobType.getHttpMethod());
 		return jobParameters;
+	}
+
+	private String getUrlWithParameters(String url, String parametersString) {
+		Map<String, String> parameters = extractParameters(parametersString);
+
+		String urlWithParameters = url;
+		for (String key: parameters.keySet()) {
+			urlWithParameters = urlWithParameters.replace("{" + key + "}", parameters.get(key));
+		}
+
+		return urlWithParameters;
+	}
+
+	private Map<String, String> extractParameters(String parametersString) {
+		logger.error("Extracting parameters string: " + parametersString);
+		Map<String, String> parameters = new HashMap<>();
+		for (String keyValuePair: parametersString.split("\\|")) {
+			String key = keyValuePair.split(":")[0];
+			String value = keyValuePair.split(":")[1];
+			parameters.put(key, value);
+		}
+
+		return parameters;
 	}
 
 	private String getSafeJobTypeID(String jobTypeIDFromRequest) {

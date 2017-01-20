@@ -28,7 +28,13 @@ $webResourceManager.requireResourcesForContext("cron-space-admin-screen")
 								<tr>
 									<th id="name">Name</th>
 									<th id="job-type">Job Type</th>
-									<th id="cron-expression">Cron Expression</th>
+									<th id="cron-expression">
+										Cron Expression
+										<a class="cron-tooltip" title="Format: seconds minutes hours dayOfWeek month dayOfMonth year">
+											<span class="aui-icon aui-icon-small aui-iconfont-info">info</span>
+										</a>
+									</th>
+									<th>Parameters</th>
 									<th id="status">Status</th>
 								</tr>
 							</thead>
@@ -36,14 +42,21 @@ $webResourceManager.requireResourcesForContext("cron-space-admin-screen")
 								#foreach ($job in ${action.allJobs})
 								<tr>
 									<td>${job.name}</td>
-									<td>$action.getJobTypeByID($job.jobTypeID).name</td>
+									#if ($!action.getJobTypeByID($job.jobTypeID))
+										<td>$action.getJobTypeByID($job.jobTypeID).name</td>
+									#else
+										<td><div class="aui-message aui-message-warning">This job type has been deleted</div></td>
+									#end
 									<td>${job.cronExpression}</td>
+									<td>${job.parameters}</td>
 									<td>
-										<aui-toggle id="toggle-test" label="testing the toggle button" data-is-enabled="${action.isEnabled($job)}" data-job-id="${job.ID}" data-space-key="${action.spaceKey}" #if (${action.isEnabled($job)}) checked="" #end></aui-toggle>
+											<aui-toggle id="toggle-status" label="testing the toggle button" data-is-enabled="${action.isEnabled($job)}" data-job-id="${job.ID}" data-space-key="${action.spaceKey}" #if (${action.isEnabled($job)}) checked="" #end></aui-toggle>
 									</td>
 									<td>
 										<button class="delete-button aui-button aui-button-link" type="button" data-job-id="${job.ID}" data-space-key="${action.spaceKey}"><span class="aui-icon aui-icon-small aui-iconfont-delete">Delete</span></button>
-										<button class="edit-button aui-button aui-button-link" type="button" data-job-id="${job.ID}" data-job-name="${job.name}" data-job-type="${job.jobTypeID}" data-cron-expression="${job.cronExpression}"><span class="aui-icon aui-icon-small aui-iconfont-edit">Edit</span></button>
+										<button class="edit-button aui-button aui-button-link" type="button" data-job-id="${job.ID}" data-job-name="${job.name}" data-job-type="${job.jobTypeID}" data-cron-expression="${job.cronExpression}" data-parameters="${job.parameters}">
+											<span class="aui-icon aui-icon-small aui-iconfont-edit" data-job-id="${job.ID}" data-job-name="${job.name}" data-job-type="${job.jobTypeID}" data-cron-expression="${job.cronExpression}" data-parameters="${job.parameters}">Edit</span>
+										</button>
 									</td>	
 								</tr>
 								#end
@@ -82,8 +95,14 @@ $webResourceManager.requireResourcesForContext("cron-space-admin-screen")
 									#end
 								</select>
 							</div>
+							<div id="create-job-parameters">
+							</div>
 							<div class="field-group top-label">
-								<label for="cron-expression">Cron Expression<span class="aui-icon aui-icon-required">Required</span></label>
+								<label for="cron-expression">Cron Expression<span class="aui-icon aui-icon-required">Required</span>
+									<a class="cron-tooltip" title="Format: seconds minutes hours dayOfWeek month dayOfMonth year">
+										<span class="aui-icon aui-icon-small aui-iconfont-info">info</span>
+									</a>								
+								</label>
 								<input data-aui-validation-field data-aui-validation-cron-expression="valid" data-aui-validation-required="required" data-aui-validation-required-msg="You must provide a cron expression" class="text" type="text" name="cron-expression">
 							</div>
 							<input type="hidden" name="spacekey" value="$action.getSpaceKey()"/>
@@ -110,7 +129,6 @@ $webResourceManager.requireResourcesForContext("cron-space-admin-screen")
 							    <!-- Main dialog content -->
 							    <div class="aui-dialog2-content">
 										<form id="edit-form" class="aui top-label" method="post" action="EditJob.action">
-											<h3>Edit Job</h3>
 											<fieldset class="top-label">
 											<div class="field-group top-label">
 												<label for="name">Name<span class="aui-icon aui-icon-required">Required</span></label>
@@ -125,13 +143,20 @@ $webResourceManager.requireResourcesForContext("cron-space-admin-screen")
 													#end
 												</select>
 											</div>
+											<div id="edit-job-parameters">
+											</div>
 											<div class="field-group top-label">
-												<label for="cron-expression">Cron Expression<span class="aui-icon aui-icon-required">Required</span></label>
+												<label for="cron-expression">Cron Expression<span class="aui-icon aui-icon-required">Required</span>
+													<a class="cron-tooltip" title="Format: seconds minutes hours dayOfWeek month dayOfMonth year">
+														<span class="aui-icon aui-icon-small aui-iconfont-info">info</span>
+													</a>
+												</label>
 												<input id="edit-job-cron-expression" data-aui-validation-field data-aui-validation-cron-expression="valid" data-aui-validation-required="required" data-aui-validation-required-msg="You must provide a cron expression" class="text" type="text" name="cron-expression">
 											</div>
 											<input type="hidden" name="spacekey" value="$action.getSpaceKey()"/>
 											<input id="edit-job-id" type="hidden" name="id" />
 											</fieldset>
+											<span id="parameter-string" data-parameters=""/>
 										</form>
 							    </div>
 							    <!-- Dialog footer -->

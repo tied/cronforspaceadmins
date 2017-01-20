@@ -9,8 +9,10 @@ public interface JobType extends Entity {
 	String getName();
 	String getHttpMethod();
 	String getUrl();
+	String getParameterNames();
 
 	void setName(String name);
 	void setHttpMethod(String httpMethod);
 	void setUrl(String url);
+	void setParameterNames(String parameterNames);
 }

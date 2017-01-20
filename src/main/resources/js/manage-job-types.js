@@ -27,6 +27,10 @@ function init() {
 		AJS.$("#edit-job-type-name").attr("data-current-name", AJS.$(e.target).data("jobTypeName"));
 		dialog.show();
 	});
+	AJS.$(".delete-button").click(function(e) {
+		var url = AJS.contextPath() + "/plugins/cron-for-space-admins/DeleteJobType.action?id=" + AJS.$(e.target).attr("data-job-type-id");
+		window.location.replace(url);		
+	})	
 	AJS.$("#close-dialog").click(function() {
 		console.log("close button clicked");
 		dialog.hide()

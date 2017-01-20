@@ -13,6 +13,8 @@ $webResourceManager.requireResourcesForContext("cron-configuration-screen")
 		<tr>
 			<th id="name">Name</th>
 			<th id="url">URL</th>
+			<th id="http-method">Http method</th>
+			<th id="parameters">parameters</th>
 		</tr>
 	</thead>
 	<tbody>
@@ -21,8 +23,11 @@ $webResourceManager.requireResourcesForContext("cron-configuration-screen")
 			<td>${jobtype.name}</td>
 			<td>${jobtype.url}</td>
 			<td>${jobtype.httpMethod}</td>
-			<td><a href="/confluence/plugins/cron-for-space-admins/DeleteJobType.action?id=${jobtype.ID}">delete</a></td>
-			<td><button class="edit-button aui-button aui-button-link" type="button" data-job-type-id="${jobtype.ID}" data-job-type-name="${jobtype.name}" data-job-type-url="${jobtype.url}" data-job-type-method="${jobtype.httpMethod}">Edit</button></td>		
+			<td>$!jobtype.parameterNames</td>
+			<td>
+				<button class="delete-button aui-button aui-button-link" type="button" data-job-type-id="${jobtype.ID}"><span class="aui-icon aui-icon-small aui-iconfont-delete">Delete</span></button>
+				<button class="edit-button aui-button aui-button-link" type="button" data-job-type-id="${jobtype.ID}" data-job-type-name="${jobtype.name}" data-job-type-url="${jobtype.url}" data-job-type-method="${jobtype.httpMethod}"><span class="aui-icon aui-icon-small aui-iconfont-edit">Edit</span></button></td>		
+			</td>
 		</tr>
 		#end
 	</tbody>
@@ -73,7 +78,7 @@ $webResourceManager.requireResourcesForContext("cron-configuration-screen")
 						</div>
 						<div class="field-group top-label">
 							<label for="select-job-type-method">Http method<span class="aui-icon aui-icon-required">Required</span></label>
-							<aui-select data-aui-validation-field data-aui-validation-required data-aui-validation-required-msg="You must pick an http method" id="select-job-type-method" name="http-method">
+							<aui-select data-aui-validation-field data-aui-validation-required data-aui-validation-required-msg="You must pick an http method" id="select-job-type-method" name="http-metho">d
 								<aui-option class="method-option" value="GET">GET</aui-option>
 								<aui-option class="method-option" value="POST">POST</aui-option>
 								<aui-option class="method-option" value="PUT">PUT</aui-option>
