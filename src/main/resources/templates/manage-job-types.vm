@@ -23,10 +23,10 @@ $webResourceManager.requireResourcesForContext("cron-configuration-screen")
 			<td>${jobtype.name}</td>
 			<td>${jobtype.url}</td>
 			<td>${jobtype.httpMethod}</td>
-			<td>$!jobtype.parameterNames</td>
+			<td>$!{jobtype.parameterNames}</td>
 			<td>
-				<button class="delete-button aui-button aui-button-link" type="button" data-job-type-id="${jobtype.ID}"><span class="aui-icon aui-icon-small aui-iconfont-delete">Delete</span></button>
-				<button class="edit-button aui-button aui-button-link" type="button" data-job-type-id="${jobtype.ID}" data-job-type-name="${jobtype.name}" data-job-type-url="${jobtype.url}" data-job-type-method="${jobtype.httpMethod}"><span class="aui-icon aui-icon-small aui-iconfont-edit">Edit</span></button></td>		
+				<button class="delete-button aui-button aui-button-link" type="button" data-job-type-id="${jobtype.ID}"><span class="aui-icon aui-icon-small aui-iconfont-delete" data-job-type-id="${jobtype.ID}">Delete</span></button>
+				<button class="edit-button aui-button aui-button-link" type="button" data-job-type-id="${jobtype.ID}" data-job-type-name="${jobtype.name}" data-job-type-url="${jobtype.url}" data-job-type-parameters="${jobtype.parameterNames}" data-job-type-method="${jobtype.httpMethod}"><span class="aui-icon aui-icon-small aui-iconfont-edit" data-job-type-id="${jobtype.ID}" data-job-type-name="${jobtype.name}" data-job-type-url="${jobtype.url}" data-job-type-parameters="${jobtype.parameterNames}" data-job-type-method="${jobtype.httpMethod}">Edit</span></button></td>		
 			</td>
 		</tr>
 		#end
@@ -44,6 +44,10 @@ $webResourceManager.requireResourcesForContext("cron-configuration-screen")
 		<label for="url">URL<span class="aui-icon aui-icon-required">Required</span></label>
 		<input data-aui-validation-field data-aui-validation-required data-aui-validation-required-msg="You must provide a URL" class="text" type="text" name="url">
 	</div>
+	<div class="field-group top-label">
+		<label for="parameters">Parameters</label>
+		<textarea class="textarea" name="parameters" rows="2" cols="10"></textarea>		
+	</div>	
 	<div class="field-group top-label">	
 		<label for="edit-http-method">Http method<span class="aui-icon aui-icon-required">Required</span></label>
 		<aui-select id="edit-http-method" name="http-method">
@@ -77,8 +81,12 @@ $webResourceManager.requireResourcesForContext("cron-configuration-screen")
 							<input id="edit-job-type-url" data-aui-validation-required="required" data-aui-validation-required-msg="You must provide an url" class="text" type="text" name="url">
 						</div>
 						<div class="field-group top-label">
+							<label for="parameters">Parameters</label>
+							<textarea id="edit-job-type-parameters" class="textarea" name="parameters" rows="2" cols="10"></textarea>		
+						</div>						
+						<div class="field-group top-label">
 							<label for="select-job-type-method">Http method<span class="aui-icon aui-icon-required">Required</span></label>
-							<aui-select data-aui-validation-field data-aui-validation-required data-aui-validation-required-msg="You must pick an http method" id="select-job-type-method" name="http-metho">d
+							<aui-select data-aui-validation-field data-aui-validation-required data-aui-validation-required-msg="You must pick an http method" id="select-job-type-method" name="http-method">
 								<aui-option class="method-option" value="GET">GET</aui-option>
 								<aui-option class="method-option" value="POST">POST</aui-option>
 								<aui-option class="method-option" value="PUT">PUT</aui-option>

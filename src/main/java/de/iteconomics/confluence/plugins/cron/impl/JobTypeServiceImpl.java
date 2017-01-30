@@ -1,7 +1,11 @@
 package de.iteconomics.confluence.plugins.cron.impl;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -51,60 +55,45 @@ public class JobTypeServiceImpl implements JobTypeService {
 	private void setJobTypeValues(JobType jobType, HttpServletRequest request) {
 		String name = request.getParameter("name");
 		String url = request.getParameter("url");
-		logger.error("url: " + url);
-		String parameterNames = getParameterNames(url);
-		logger.error("parameter names: " + parameterNames);
+		String parameterNames = request.getParameter("parameters");
 		String httpMethod = request.getParameter("http-method");
+		String allParameters = getAllParameters(url, parameterNames);
+		assertNoDuplicateParameterNames(allParameters);
 
 		jobType.setName(name);
 		jobType.setHttpMethod(httpMethod);
-		jobType.setParameterNames(parameterNames);
+		jobType.setParameterNames(allParameters);
 		jobType.setUrl(url);
 	}
 
-	private String getParameterNames(String url) {
-		logger.error("getParameterNames called");
-		String parameterNames = "";
-		for (String name: getParameterNamesList(url)) {
-			logger.error("param name: " + name);
-			parameterNames += name;
-			parameterNames += "|";
+	private String getAllParameters(String url, String parameterNames) {
+		List<String> pathParameters = new ArrayList<>();
+		Matcher m = Pattern.compile("\\{(.*?)\\}").matcher(url);
+		while (m.find()) {
+			String param = m.group().substring(1, m.group().length() -1);
+			pathParameters.add(param);
 		}
 
-		if (parameterNames.length() > 0) {
-			parameterNames = parameterNames.substring(0, parameterNames.length() -1);
+		String allParameters = parameterNames;
+		for (String pathParameter: pathParameters) {
+			logger.error("adding path parameter: " + pathParameter);
+			allParameters += System.getProperty("line.separator");
+			allParameters += pathParameter;
 		}
 
-		return parameterNames;
+		logger.error("all parameters: " + allParameters);
+
+		return allParameters;
 	}
 
-	private List<String> getParameterNamesList(String url) {
-		return getParameterNamesList(url, new ArrayList<String>());
-	}
+	private void assertNoDuplicateParameterNames(String parameterNames) {
 
-	private List<String> getParameterNamesList(String url, List<String> parameterNames) {
+		List<String> parameters = Arrays.asList(parameterNames.split(System.getProperty("line.separator")));
 
-		logger.error("url in geParameterNamesList: " + url);
-
-		if (url == null) {
-			return parameterNames;
-		}
-		int nextParamStart = url.indexOf("{");
-		logger.error("next param start: " + nextParamStart);
-		if (nextParamStart == -1) {
-			return parameterNames;
+		if (parameters.size() != new HashSet<String>(parameters).size()) {
+			throw new JobTypeException("All parameter names must be unique across all kinds of parameters");
 		}
 
-		int nextParamEnd = url.indexOf("}");
-		logger.error("next param end: " + nextParamEnd);
-
-		if (nextParamEnd < nextParamStart) {
-			return parameterNames;
-		}
-
-		parameterNames.add(url.substring(nextParamStart + 1, nextParamEnd));
-
-		return getParameterNamesList(url.substring(nextParamEnd + 1), parameterNames);
 	}
 
 	private void checkNewJobTypeName(HttpServletRequest request) {

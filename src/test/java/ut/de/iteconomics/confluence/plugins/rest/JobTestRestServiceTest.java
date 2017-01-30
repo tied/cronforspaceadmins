@@ -25,11 +25,6 @@ public class JobTestRestServiceTest {
 
     @Test
     public void messageIsValid() {
-        JobTestRestService resource = new JobTestRestService();
 
-        Response response = resource.getMessage();
-        final JobTestRestServiceModel message = (JobTestRestServiceModel) response.getEntity();
-
-        assertEquals("wrong message","Hello World",message.getMessage());
     }
 }

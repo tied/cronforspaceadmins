@@ -19,6 +19,11 @@
       <attribute value="jar:file:/home/ckirchhoff/.m2/repository/javax/ws/rs/jsr311-api/1.1.1/jsr311-api-1.1.1-javadoc.jar!/" name="javadoc_location"/>
     </attributes>
   </classpathentry>
+  <classpathentry kind="var" path="M2_REPO/javax/json/javax.json-api/1.0/javax.json-api-1.0.jar" sourcepath="M2_REPO/javax/json/javax.json-api/1.0/javax.json-api-1.0-sources.jar">
+    <attributes>
+      <attribute value="jar:file:/home/ckirchhoff/.m2/repository/javax/json/javax.json-api/1.0/javax.json-api-1.0-javadoc.jar!/" name="javadoc_location"/>
+    </attributes>
+  </classpathentry>
   <classpathentry kind="var" path="M2_REPO/javax/inject/javax.inject/1/javax.inject-1.jar" sourcepath="M2_REPO/javax/inject/javax.inject/1/javax.inject-1-sources.jar">
     <attributes>
       <attribute value="jar:file:/home/ckirchhoff/.m2/repository/javax/inject/javax.inject/1/javax.inject-1-javadoc.jar!/" name="javadoc_location"/>
@@ -1163,6 +1168,21 @@
       <attribute value="jar:file:/home/ckirchhoff/.m2/repository/com/atlassian/plugins/atlassian-whitelist-api-plugin/3.0.2/atlassian-whitelist-api-plugin-3.0.2-javadoc.jar!/" name="javadoc_location"/>
     </attributes>
   </classpathentry>
+  <classpathentry kind="var" path="M2_REPO/org/glassfish/javax.json/1.0.4/javax.json-1.0.4.jar" sourcepath="M2_REPO/org/glassfish/javax.json/1.0.4/javax.json-1.0.4-sources.jar">
+    <attributes>
+      <attribute value="jar:file:/home/ckirchhoff/.m2/repository/org/glassfish/javax.json/1.0.4/javax.json-1.0.4-javadoc.jar!/" name="javadoc_location"/>
+    </attributes>
+  </classpathentry>
+  <classpathentry kind="var" path="M2_REPO/com/sun/jersey/jersey-client/1.8-atlassian-16/jersey-client-1.8-atlassian-16.jar" sourcepath="M2_REPO/com/sun/jersey/jersey-client/1.8-atlassian-16/jersey-client-1.8-atlassian-16-sources.jar">
+    <attributes>
+      <attribute value="jar:file:/home/ckirchhoff/.m2/repository/com/sun/jersey/jersey-client/1.8-atlassian-16/jersey-client-1.8-atlassian-16-javadoc.jar!/" name="javadoc_location"/>
+    </attributes>
+  </classpathentry>
+  <classpathentry kind="var" path="M2_REPO/com/sun/jersey/jersey-core/1.8-atlassian-16/jersey-core-1.8-atlassian-16.jar" sourcepath="M2_REPO/com/sun/jersey/jersey-core/1.8-atlassian-16/jersey-core-1.8-atlassian-16-sources.jar">
+    <attributes>
+      <attribute value="jar:file:/home/ckirchhoff/.m2/repository/com/sun/jersey/jersey-core/1.8-atlassian-16/jersey-core-1.8-atlassian-16-javadoc.jar!/" name="javadoc_location"/>
+    </attributes>
+  </classpathentry>
   <classpathentry kind="var" path="M2_REPO/com/atlassian/activeobjects/activeobjects-plugin/1.2.3/activeobjects-plugin-1.2.3.jar" sourcepath="M2_REPO/com/atlassian/activeobjects/activeobjects-plugin/1.2.3/activeobjects-plugin-1.2.3-sources.jar">
     <attributes>
       <attribute value="jar:file:/home/ckirchhoff/.m2/repository/com/atlassian/activeobjects/activeobjects-plugin/1.2.3/activeobjects-plugin-1.2.3-javadoc.jar!/" name="javadoc_location"/>
@@ -1216,11 +1236,6 @@
   <classpathentry kind="var" path="M2_REPO/com/sun/jersey/jersey-server/1.0.3/jersey-server-1.0.3.jar" sourcepath="M2_REPO/com/sun/jersey/jersey-server/1.0.3/jersey-server-1.0.3-sources.jar">
     <attributes>
       <attribute value="jar:file:/home/ckirchhoff/.m2/repository/com/sun/jersey/jersey-server/1.0.3/jersey-server-1.0.3-javadoc.jar!/" name="javadoc_location"/>
-    </attributes>
-  </classpathentry>
-  <classpathentry kind="var" path="M2_REPO/com/sun/jersey/jersey-core/1.0.3/jersey-core-1.0.3.jar" sourcepath="M2_REPO/com/sun/jersey/jersey-core/1.0.3/jersey-core-1.0.3-sources.jar">
-    <attributes>
-      <attribute value="jar:file:/home/ckirchhoff/.m2/repository/com/sun/jersey/jersey-core/1.0.3/jersey-core-1.0.3-javadoc.jar!/" name="javadoc_location"/>
     </attributes>
   </classpathentry>
   <classpathentry kind="var" path="M2_REPO/com/sun/jersey/jersey-json/1.0.3/jersey-json-1.0.3.jar" sourcepath="M2_REPO/com/sun/jersey/jersey-json/1.0.3/jersey-json-1.0.3-sources.jar">

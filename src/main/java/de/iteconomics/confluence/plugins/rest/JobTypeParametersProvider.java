@@ -6,11 +6,8 @@ import com.atlassian.plugins.rest.common.security.AnonymousAllowed;
 import de.iteconomics.confluence.plugins.cron.api.JobTypeService;
 import de.iteconomics.confluence.plugins.cron.entities.JobType;
 
-import java.util.List;
-
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

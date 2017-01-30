@@ -47,6 +47,7 @@ public class JobTypeServiceTest {
 	}
 
 	@Test
+	@Ignore
 	public void shouldCreateJobIfNameIsNew() {
 		when(ao.find(eq(JobType.class), any())).thenReturn(new JobType[0]);
 		when(ao.create(JobType.class)).thenReturn(jobType1);

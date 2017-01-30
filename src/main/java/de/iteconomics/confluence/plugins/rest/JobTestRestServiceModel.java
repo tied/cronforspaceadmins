@@ -1,25 +1,29 @@
 package de.iteconomics.confluence.plugins.rest;
 
-import javax.xml.bind.annotation.*;
-@XmlRootElement(name = "message")
-@XmlAccessorType(XmlAccessType.FIELD)
 public class JobTestRestServiceModel {
 
-    @XmlElement(name = "value")
-    private String message;
+    private String param1;
+    private String param2;
 
     public JobTestRestServiceModel() {
     }
 
-    public JobTestRestServiceModel(String message) {
-        this.message = message;
+    public JobTestRestServiceModel(String param1, String param2) {
+    	this.param1 = param1;
+    	this.param2 = param2;
     }
 
-    public String getMessage() {
-        return message;
+    public String getParam1() {
+        return param1;
+    }
+    public String getParam2() {
+        return param2;
     }
 
-    public void setMessage(String message) {
-        this.message = message;
+    public void setParam1(String param1) {
+        this.param1 = param1;
+    }
+    public void setParam2(String param2) {
+        this.param2 = param2;
     }
 }

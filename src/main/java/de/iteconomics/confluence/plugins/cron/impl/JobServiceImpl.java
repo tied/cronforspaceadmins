@@ -7,6 +7,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import javax.inject.Inject;
 import javax.inject.Named;
@@ -91,7 +93,6 @@ public class JobServiceImpl implements JobService {
 
 		job.setSpaceKey(spaceKey);
 		job.setJobKey(jobKey);
-
 		setJobValues(job, request);
 	}
 
@@ -123,9 +124,9 @@ public class JobServiceImpl implements JobService {
 					}
 				}
 				parameterString += key.substring(prefix.length());
-				parameterString += ":";
+				parameterString += "=";
 				parameterString += (value);
-				parameterString += "|";
+				parameterString += "&";
 			}
 		}
 		if (parameterString.length() > 0) {
@@ -184,31 +185,67 @@ public class JobServiceImpl implements JobService {
 
 	private Map<String, Serializable> getJobParameters(Job job) {
 		Map<String, Serializable> jobParameters = new HashMap<>();
+
 		JobType jobType = jobTypeService.getJobTypeByID(job.getJobTypeID());
-		String url = getUrlWithParameters(jobType.getUrl(), job.getParameters());
+		Set<String> pathParameterNames = getPathParameterNames(jobType.getUrl());
+		Map<String, String> parametersMap = getParametersAsMap(job.getParameters());
+		String url = getUrlWithParameters(jobType.getUrl(), parametersMap);
+		String nonPathParameters = getNonPathParameters(job.getParameters(), pathParameterNames);
 
 		jobParameters.put("url", url);
+		jobParameters.put("queryString", nonPathParameters);
 		jobParameters.put("method", jobType.getHttpMethod());
+
 		return jobParameters;
 	}
 
-	private String getUrlWithParameters(String url, String parametersString) {
-		Map<String, String> parameters = extractParameters(parametersString);
-
-		String urlWithParameters = url;
-		for (String key: parameters.keySet()) {
-			urlWithParameters = urlWithParameters.replace("{" + key + "}", parameters.get(key));
+	private String getNonPathParameters(String parameters, Set<String> pathParameterNames) {
+		String result = "";
+		for (String keyValuePair: parameters.split("&")) {
+			String key = keyValuePair.split("=")[0];
+			if (!pathParameterNames.contains(key)) {
+				result += keyValuePair;
+				result += "&";
+			}
+		}
+		if (result.length() > 0) {
+			result = result.substring(0, result.length() - 1);
 		}
 
-		return urlWithParameters;
+		return result;
 	}
 
-	private Map<String, String> extractParameters(String parametersString) {
-		logger.error("Extracting parameters string: " + parametersString);
+	private Set<String> getPathParameterNames(String url) {
+		Set<String> parameters= new HashSet<>();
+		Matcher m = Pattern.compile("\\{(.*?)\\}").matcher(url);
+		while (m.find()) {
+			String param = m.group().substring(1, m.group().length() - 1);
+			parameters.add(param);
+		}
+
+		return parameters;
+	}
+
+	private String getUrlWithParameters(String url, Map<String, String> parametersMap) {
+		String result = url;
+
+		for (String parameter: getPathParameterNames(url)) {
+			logger.error("parameter: " + parameter);
+			logger.error("elements of parameters map: ");
+			for (String key: parametersMap.keySet()) {
+				logger.error(key);
+			}
+			result = result.replace("{" + parameter + "}", parametersMap.get(parameter));
+		}
+
+		return result;
+	}
+
+	private Map<String, String> getParametersAsMap(String parametersString) {
 		Map<String, String> parameters = new HashMap<>();
-		for (String keyValuePair: parametersString.split("\\|")) {
-			String key = keyValuePair.split(":")[0];
-			String value = keyValuePair.split(":")[1];
+		for (String keyValuePair: parametersString.split("&")) {
+			String key = keyValuePair.split("=")[0];
+			String value = keyValuePair.split("=")[1];
 			parameters.put(key, value);
 		}
 

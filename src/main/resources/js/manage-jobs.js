@@ -86,9 +86,11 @@ function init() {
 	}
 	
 	function insertParameterFields(data, div) {
-		parameters = data.split("|");
+		console.log(data);
+		parameters = data.split("\n");
+		console.log(parameters);
 		for (index in parameters) {
-			var parameter = parameters[index];
+			var parameter = parameters[index].trim();
 			if (parameter) {
 				div.append(getParameterFieldGroup(parameter));
 			}

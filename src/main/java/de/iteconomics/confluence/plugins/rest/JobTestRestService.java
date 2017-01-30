@@ -3,8 +3,9 @@ package de.iteconomics.confluence.plugins.rest;
 import com.atlassian.plugins.rest.common.security.AnonymousAllowed;
 
 import javax.ws.rs.*;
+import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
+import javax.ws.rs.core.UriInfo;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -17,20 +18,32 @@ public class JobTestRestService {
 
 	private static Logger logger = LoggerFactory.getLogger(JobTestRestService.class);
 
-    @GET
+    @POST
     @AnonymousAllowed
-    @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
-    public Response getMessage()
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces({MediaType.TEXT_PLAIN})
+    @Path("yetanother/{param}/endpoint")
+    public String getAnotherMessage(@PathParam("param") String param, JobTestRestServiceModel data, @Context UriInfo ui)
     {
-    	logger.error("######## Test Rest service was called - http method: GET");
-    	return Response.ok(new JobTestRestServiceModel("Hello World")).build();
+    	logger.error("path param: " + param);
+    	logger.error("XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXxx");
+    	logger.error("first form param: " + data.getParam1());
+    	logger.error("second form param: " + data.getParam2());
+    	logger.error("all query param keys and values in the context: ");
+    	for (String key: ui.getQueryParameters().keySet()) {
+    		logger.error("key: " + key + ", value: " + ui.getQueryParameters().getFirst(key));
+    	}
+    	logger.error("all path param keys and values in the context: ");
+    	for (String key: ui.getPathParameters().keySet()) {
+    		logger.error("key: " + key + ", value: " + ui.getPathParameters().getFirst(key));
+    	}
+    	return "Imma postin'";
     }
 
     @GET
     @AnonymousAllowed
     @Produces({MediaType.TEXT_PLAIN})
-    @Path("{param}")
-    public String postMessage(@PathParam("param") String param)
+    public String postMessage(@QueryParam("param") String param)
     {
     	logger.error("######## Test Rest service was called - http method: GET, parameter: " + param);
     	return "all is well";

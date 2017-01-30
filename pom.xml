@@ -11,20 +11,39 @@
     </organization>
     <name>cron</name>
     <description>This is the de.iteconomics.confluence.plugins:cron plugin for Atlassian Confluence.</description>
-    <packaging>atlassian-plugin</packaging>
+    <packaging>atlassian-plugin</packaging>    
     <dependencies>
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
             <version>4.10</version>
             <scope>test</scope>
-        </dependency>
+        </dependency>        
         <dependency>
             <groupId>com.atlassian.confluence</groupId>
             <artifactId>confluence</artifactId>
             <version>${confluence.version}</version>
             <scope>provided</scope>
         </dependency>
+				<dependency>
+				    <groupId>javax.json</groupId>
+				    <artifactId>javax.json-api</artifactId>
+				    <version>1.0</version>
+				</dependency>
+				<dependency>
+				    <groupId>org.glassfish</groupId>
+				    <artifactId>javax.json</artifactId>
+				    <version>1.0.4</version>
+				</dependency>
+        <dependency>
+        	<groupId>com.sun.jersey</groupId>
+        	<artifactId>jersey-client</artifactId>
+        	<version>1.8-atlassian-16</version>
+        	<scope>provided</scope>
+        </dependency>
+
+
+        
 				<dependency>
 				    <groupId>org.springframework</groupId>
 				    <artifactId>spring-beans</artifactId>

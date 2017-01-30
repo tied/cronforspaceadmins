@@ -9,18 +9,14 @@ function init() {
 		AJS.$("#edit-job-type-url").val(AJS.$(e.target).data("jobTypeUrl"));
 		AJS.$("#edit-job-type-method").val(AJS.$(e.target).data("jobTypeMethod"));
 		AJS.$("#edit-job-type-id").val(AJS.$(e.target).data("jobTypeId"));
+		AJS.$("#edit-job-type-parameters").val(AJS.$(e.target).data("jobTypeParameters"));
 		
 		AJS.$(".method-option").each(function(i) {
+			var currentOption = $(this);
 			
-			if ($(this).val() == AJS.$(e.target).data("jobTypeMethod")) {
-				console.log("method in button: " + AJS.$(e.target).data("jobTypeMethod"));
-				console.log("option " + i +":" + $(this).val());
-				console.log("equal? " + ($(this).val() == AJS.$(e.target).data("jobTypeMethod")));
-				$(this).attr("selected", "selected");
-			} else {
-				console.log("method in button: " + AJS.$(e.target).data("jobTypeMethod"));
-				console.log("option " + i +":" + $(this).val());
-				console.log("equal? " + ($(this).val() == AJS.$(e.target).data("jobTypeMethod")));				
+			if (currentOption.val() == AJS.$(e.target).data("jobTypeMethod")) {				
+				currentOption.attr("selected", "selected");
+				currentOption.parent().parent().find(".select2-chosen").html(currentOption.html());				
 			}
 		});		
 		
