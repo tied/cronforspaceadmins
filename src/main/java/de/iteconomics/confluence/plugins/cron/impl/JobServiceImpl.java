@@ -88,7 +88,7 @@ public class JobServiceImpl implements JobService {
 	}
 
 	private void initializeJob(Job job, HttpServletRequest request) {
-		String spaceKey = request.getParameter("spacekey");
+		String spaceKey = request.getParameter("spacekey").trim();
 		String jobKey = spaceKey + ":" + job.getID();
 
 		job.setSpaceKey(spaceKey);
@@ -97,10 +97,10 @@ public class JobServiceImpl implements JobService {
 	}
 
 	private void setJobValues(Job job, HttpServletRequest request) {
-		String name = request.getParameter("name");
-		String jobTypeID = request.getParameter("job-type");
+		String name = request.getParameter("name").trim();
+		String jobTypeID = request.getParameter("job-type").trim();
 		String safeID = getSafeJobTypeID(jobTypeID);
-		String cronExpression = request.getParameter("cron-expression");
+		String cronExpression = request.getParameter("cron-expression").trim();
 		String parameterString = getParameterString(request);
 
 		job.setName(name);
@@ -114,10 +114,10 @@ public class JobServiceImpl implements JobService {
 		String parameterString = "";
 		Enumeration<?> parameterNames = request.getParameterNames();
 		while (parameterNames.hasMoreElements()) {
-			String key = (String) parameterNames.nextElement();
+			String key = ((String) parameterNames.nextElement()).trim();
 			if (key.startsWith(prefix)) {
 				String[] values = request.getParameterValues(key);
-				String value = values[0];
+				String value = values[0].trim();
 				for (char c: value.toCharArray()) {
 					if (!Character.isLetterOrDigit(c)) {
 						throw new JobException("Only alphanumeric characters are allowed in parameters");
@@ -292,8 +292,8 @@ public class JobServiceImpl implements JobService {
 	}
 
 	private void checkUniqueJobNamePerSpace(HttpServletRequest request) {
-		String name = request.getParameter("name");
-		String spaceKey = request.getParameter("spacekey");
+		String name = request.getParameter("name").trim();
+		String spaceKey = request.getParameter("spacekey").trim();
 
 		Job[] jobsWithSameName = ao.find(Job.class, Query.select().where("NAME = ?", name));
 
@@ -312,7 +312,7 @@ public class JobServiceImpl implements JobService {
 	}
 
 	private Job getJobIfExists(HttpServletRequest request) {
-		String id = request.getParameter("id");
+		String id = request.getParameter("id").trim();
 		Job[] jobs= ao.find(Job.class, Query.select().where("id = ?", id));
 
 		if (jobs.length != 1) {

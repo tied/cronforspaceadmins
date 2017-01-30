@@ -53,10 +53,11 @@ public class JobTypeServiceImpl implements JobTypeService {
 	}
 
 	private void setJobTypeValues(JobType jobType, HttpServletRequest request) {
-		String name = request.getParameter("name");
-		String url = request.getParameter("url");
-		String parameterNames = request.getParameter("parameters");
-		String httpMethod = request.getParameter("http-method");
+		String name = request.getParameter("name").trim();
+		String url = request.getParameter("url").trim();
+		String parameterNames = request.getParameter("parameters").trim();
+		String httpMethod = request.getParameter("http-method").trim();
+		checkIsValidMethod(httpMethod);
 		String allParameters = getAllParameters(url, parameterNames);
 		assertNoDuplicateParameterNames(allParameters);
 
@@ -64,6 +65,19 @@ public class JobTypeServiceImpl implements JobTypeService {
 		jobType.setHttpMethod(httpMethod);
 		jobType.setParameterNames(allParameters);
 		jobType.setUrl(url);
+	}
+
+	private void checkIsValidMethod(String httpMethod) {
+		if (httpMethod.equals("GET") ||
+				httpMethod.equals("GET") ||
+				httpMethod.equals("GET") ||
+				httpMethod.equals("GET")
+			)
+		{
+			return;
+		}
+
+		throw new JobTypeException("Invalid http method: " + httpMethod + ". Only GET, POST, PUT, and DELETE are allowed.");
 	}
 
 	private String getAllParameters(String url, String parameterNames) {
@@ -97,7 +111,7 @@ public class JobTypeServiceImpl implements JobTypeService {
 	}
 
 	private void checkNewJobTypeName(HttpServletRequest request) {
-		String name = request.getParameter("name");
+		String name = request.getParameter("name").trim();
 
 		JobType[] jobTypes = ao.find(JobType.class, Query.select().where("name = ?", name));
 
@@ -113,7 +127,7 @@ public class JobTypeServiceImpl implements JobTypeService {
 	}
 
 	private JobType getJobTypeIfExists(HttpServletRequest request) {
-		String id = request.getParameter("id");
+		String id = request.getParameter("id").trim();
 		JobType[] jobTypes = ao.find(JobType.class, Query.select().where("id = ?", id));
 		if (jobTypes.length != 1) {
 			throw new JobTypeException("Cannot delete: job type with id" + id + " does not exist.");
