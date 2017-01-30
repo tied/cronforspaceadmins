@@ -55,6 +55,9 @@ public class JobTypeServiceImpl implements JobTypeService {
 	private void setJobTypeValues(JobType jobType, HttpServletRequest request) {
 		String name = request.getParameter("name").trim();
 		String url = request.getParameter("url").trim();
+		if (url.charAt(url.length() -1) == '/') {
+			url = url.substring(0, url.length() -1);
+		}
 		String parameterNames = request.getParameter("parameters").trim();
 		String httpMethod = request.getParameter("http-method").trim();
 		checkIsValidMethod(httpMethod);
