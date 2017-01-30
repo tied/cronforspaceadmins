@@ -14,6 +14,7 @@ import com.atlassian.scheduler.JobRunnerResponse;
 
 import com.sun.jersey.api.client.Client;
 import com.sun.jersey.api.client.WebResource;
+import com.sun.jersey.api.client.WebResource.Builder;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -39,31 +40,54 @@ final class CronJobRunner implements JobRunner {
 	public JobRunnerResponse runJob(JobRunnerRequest request) {
 		Map<String, Serializable> parameters = request.getJobConfig().getParameters();
 		String urlString = (String) parameters.get("url");
-
 		String queryString = (String) parameters.get("queryString");
+		if (queryString == null) {
+			queryString = "";
+		}
 		String requestBody = "";
-
 		String httpMethod = (String) parameters.get("method");
-		if (httpMethod.equals("GET")) {
-			urlString += "?";
-			urlString += queryString;
-		} else if (httpMethod.equals("POST")) {
-			requestBody = queryString;
+
+//		if (httpMethod.equals("GET")) {
+//			urlString += "?";
+//			urlString += queryString;
+//		} else if (httpMethod.equals("POST")) {
+//			requestBody = queryString;
+//		}
+
+		if (httpMethod.equals("GET") || httpMethod.equals("DELETE")) {
+			if (queryString != "") {
+				urlString += "?" + queryString;
+			}
 		}
 
 		Client client = Client.create();
-		logger.error("http method: " + httpMethod);
-		logger.error("url: " + urlString);
 		WebResource webResource = client.resource(urlString);
+		Builder builder = webResource.accept(MediaType.MEDIA_TYPE_WILDCARD);
 
-		if (!requestBody.equals("")) {
-			String response = webResource
-				.accept(MediaType.MEDIA_TYPE_WILDCARD)
-				.type(MediaType.APPLICATION_JSON)
-				.post(String.class, getJsonFromQueryString(queryString));
-		} else {
-			String response = webResource.accept(MediaType.MEDIA_TYPE_WILDCARD)
-				.get(String.class);
+		if (httpMethod.equals("POST") || httpMethod.equals("PUT")) {
+			if (queryString != "") {
+				requestBody = getJsonFromQueryString(queryString);
+				builder.type(MediaType.APPLICATION_JSON);
+			}
+		}
+
+		String response = "";
+		if (httpMethod.equals("GET")) {
+			response = builder.get(String.class);
+		} else if (httpMethod.equals("POST")) {
+			if (requestBody.equals("")) {
+				response = builder.post(String.class);
+			} else {
+				response = builder.post(String.class, requestBody);
+			}
+		} else if (httpMethod.equals("PUT")) {
+			if (requestBody.equals("")) {
+				response = builder.post(String.class);
+			} else {
+				response = builder.post(String.class, requestBody);
+			}
+		} else if (httpMethod.equals("DELETE")) {
+			response = builder.get(String.class);
 		}
 
 		return null;
