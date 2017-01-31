@@ -58,6 +58,9 @@ public class JobTypeServiceImpl implements JobTypeService {
 		if (url.charAt(url.length() -1) == '/') {
 			url = url.substring(0, url.length() -1);
 		}
+		if (url.contains(" ")) {
+			throw new JobTypeException("Invalid URL: " + url + ". URLs must not contain whitespace.");
+		}
 		String parameterNames = request.getParameter("parameters").trim();
 		String httpMethod = request.getParameter("http-method").trim();
 		checkIsValidMethod(httpMethod);
@@ -130,7 +133,12 @@ public class JobTypeServiceImpl implements JobTypeService {
 	}
 
 	private JobType getJobTypeIfExists(HttpServletRequest request) {
-		String id = request.getParameter("id").trim();
+		String id = request.getParameter("id");
+		if (id == null) {
+			id = "";
+		} else {
+			id = id.trim();
+		}
 		JobType[] jobTypes = ao.find(JobType.class, Query.select().where("id = ?", id));
 		if (jobTypes.length != 1) {
 			throw new JobTypeException("Cannot delete: job type with id" + id + " does not exist.");
