@@ -6,11 +6,26 @@ function init() {
 	
 	AJS.$(".edit-button").click(function(e) {
 		AJS.$("#edit-job-type-name").val(AJS.$(e.target).data("jobTypeName"));
-		AJS.$("#edit-job-type-url").val(AJS.$(e.target).data("jobTypeUrl"));
+		var url = AJS.$(e.target).data("jobTypeUrl");
+		AJS.$("#edit-job-type-url").val(url);
 		AJS.$("#edit-job-type-method").val(AJS.$(e.target).data("jobTypeMethod"));
 		AJS.$("#edit-job-type-id").val(AJS.$(e.target).data("jobTypeId"));
-		AJS.$("#edit-job-type-parameters").val(AJS.$(e.target).data("jobTypeParameters"));
+		var parameterString = AJS.$(e.target).data("jobTypeParameters");
+		console.log("parameters before splitting: " + parameterString);
+		var parameters = parameterString.trim().split(/\s+/);
+		console.log("parameters after splitting: " + parameters);		
+		var nonPathParameters = "";
+		for (i in parameters) {
+			var parameter = parameters[i];
+			if (url.indexOf("{" + parameter + "}") === -1) {
+				nonPathParameters += parameter + "\n";
+			}			
+		}
+		if (nonPathParameters.length !== 0) {
+			nonPathParameters = nonPathParameters.substring(0, nonPathParameters.length -1);
+		}
 		
+		AJS.$("#edit-job-type-parameters").val(nonPathParameters);
 		AJS.$(".method-option").each(function(i) {
 			var currentOption = $(this);
 			
