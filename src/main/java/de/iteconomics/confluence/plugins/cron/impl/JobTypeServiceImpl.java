@@ -75,9 +75,9 @@ public class JobTypeServiceImpl implements JobTypeService {
 
 	private void checkIsValidMethod(String httpMethod) {
 		if (httpMethod.equals("GET") ||
-				httpMethod.equals("GET") ||
-				httpMethod.equals("GET") ||
-				httpMethod.equals("GET")
+				httpMethod.equals("POST") ||
+				httpMethod.equals("PUT") ||
+				httpMethod.equals("DELETE")
 			)
 		{
 			return;
