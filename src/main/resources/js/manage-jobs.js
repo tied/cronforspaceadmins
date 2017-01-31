@@ -3,7 +3,7 @@ AJS.toInit(init);
 function init() {
 	console.log("initializing...");
 	
-	AJS.$("#select-job-type").auiSelect2();
+	AJS.$("#create-job-type").auiSelect2();
 	AJS.$("#edit-job-type").auiSelect2();
 	var dialog = AJS.dialog2("#edit-dialog");
 	AJS.$(".edit-button").on("click", function(e) {
@@ -12,7 +12,7 @@ function init() {
 		console.log(AJS.$(e.target).parent().data("jobName"));
 		console.log(AJS.$(e.target).parent().attr("data-job-name"));
 		
-		AJS.$("#edit-job-name").val(AJS.$(e.target).data("jobName"));
+		AJS.$("#edit-name").val(AJS.$(e.target).data("jobName"));
 		AJS.$(".jobtype-option").each(function(i) {
 			var currentOption = $(this);
 			var parent = currentOption.parent();
@@ -29,9 +29,9 @@ function init() {
 				console.log("equal? " + ($(this).val() == AJS.$(e.target).data("jobType")));				
 			}
 		});
-		AJS.$("#edit-job-cron-expression").val(AJS.$(e.target).data("cronExpression"));		
+		AJS.$("#edit-cron-expression").val(AJS.$(e.target).data("cronExpression"));		
 		AJS.$("#edit-job-id").val(AJS.$(e.target).data("jobId"));
-		AJS.$("#edit-job-name").attr("data-current-name", AJS.$(e.target).data("jobName"));
+		AJS.$("#edit-name").attr("data-current-name", AJS.$(e.target).data("jobName"));
 		AJS.$("#parameter-string").attr("data-parameters", AJS.$(e.target).data("parameters"));
 		dialog.show();
 	});
@@ -60,8 +60,8 @@ function init() {
 		$(this).tooltip();
 	})
 	
-	AJS.$("#select-job-type").on("change", function() {
-		var jobTypeId = AJS.$("#select-job-type").val();
+	AJS.$("#create-job-type").on("change", function() {
+		var jobTypeId = AJS.$("#create-job-type").val();
 		AJS.$.get(AJS.contextPath() + "/rest/jobtype/1.0/parameters/" + jobTypeId)
 			.done(function(data) {
 				var parametersDiv = AJS.$("#create-job-parameters");
@@ -98,14 +98,23 @@ function init() {
 	}
 
 	function prefillParameterFields() {
+		console.log("all is well (1)");
 		var parameterString = AJS.$("#parameter-string").data("parameters");
-		var keyValuePairs = parameterString.split("|");
+		console.log("all is well (2)");
+		var keyValuePairs = parameterString.split("&");
+		console.log("all is well (3)");
+		console.log("kyeValuePairs: " + keyValuePairs);
 		for (index in keyValuePairs) {
+			console.log("all is well (4)");
 			var keyValuePair = keyValuePairs[index];
-			var name = keyValuePair.split(":")[0];
-			var value = keyValuePair.split(":")[1];
+			console.log("keyValuePair: " + keyValuePair);
+			var name = keyValuePair.split("=")[0];
+			console.log("name: " + name);
+			var value = keyValuePair.split("=")[1];
+			console.log("value: " + value);
 			AJS.$("#parameter-" + name).val(value);
 		}
+		console.log("all is well (5)");
 	}
 	
 	function getParameterFieldGroup(parameter) {

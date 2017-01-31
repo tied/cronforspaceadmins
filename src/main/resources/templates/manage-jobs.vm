@@ -83,12 +83,12 @@ $webResourceManager.requireResourcesForContext("cron-space-admin-screen")
 							<h3>Create Job</h3>
 							<fieldset class="top-label">
 							<div class="field-group top-label">
-								<label for="name">Name<span class="aui-icon aui-icon-required">Required</span></label>
-								<input data-aui-validation-job-name="$action.getJobNameValidationString()" data-is-edit="false" data-aui-validation-field data-aui-validation-required data-aui-validation-required-msg="You must provide a job name" class="text" type="text" name="name">
+								<label for="create-name">Name<span class="aui-icon aui-icon-required">Required</span></label>
+								<input id="create-name" data-aui-validation-job-name="$action.getJobNameValidationString()" data-is-edit="false" data-aui-validation-field data-aui-validation-required data-aui-validation-required-msg="You must provide a job name" class="text" type="text" name="name">
 							</div>
 							<div class="field-group top-label">
-								<label for="job-type">Type<span class="aui-icon aui-icon-required">Required</span></label>
-								<select data-aui-validation-field data-aui-validation-required data-aui-validation-required-msg="You must pick a job type" id="select-job-type" name="job-type">
+								<label for="create-job-type">Type<span class="aui-icon aui-icon-required">Required</span></label>
+								<select id="create-job-type" data-aui-validation-field data-aui-validation-required data-aui-validation-required-msg="You must pick a job type" name="job-type">
 									<option value="">-- none --</option>
 									#foreach ($jobType in $action.allJobTypes)
 										<option value="$jobType.ID">$jobType.name</option>
@@ -98,12 +98,12 @@ $webResourceManager.requireResourcesForContext("cron-space-admin-screen")
 							<div id="create-job-parameters">
 							</div>
 							<div class="field-group top-label">
-								<label for="cron-expression">Cron Expression<span class="aui-icon aui-icon-required">Required</span>
+								<label for="create-cron-expression">Cron Expression<span class="aui-icon aui-icon-required">Required</span>
 									<a class="cron-tooltip" title="Format: seconds minutes hours dayOfWeek month dayOfMonth year">
 										<span class="aui-icon aui-icon-small aui-iconfont-info">info</span>
 									</a>								
 								</label>
-								<input data-aui-validation-field data-aui-validation-cron-expression="valid" data-aui-validation-required="required" data-aui-validation-required-msg="You must provide a cron expression" class="text" type="text" name="cron-expression">
+								<input id="create-cron-expression" data-aui-validation-field data-aui-validation-cron-expression="valid" data-aui-validation-required="required" data-aui-validation-required-msg="You must provide a cron expression" class="text" type="text" name="cron-expression">
 							</div>
 							<input type="hidden" name="spacekey" value="$action.getSpaceKey()"/>
 							<div class="field-group top-label">	
@@ -131,11 +131,11 @@ $webResourceManager.requireResourcesForContext("cron-space-admin-screen")
 										<form id="edit-form" class="aui top-label" method="post" action="EditJob.action">
 											<fieldset class="top-label">
 											<div class="field-group top-label">
-												<label for="name">Name<span class="aui-icon aui-icon-required">Required</span></label>
-												<input id="edit-job-name" data-aui-validation-job-name="$action.jobNameValidationString" data-is-edit="true" data-current-name="" data-aui-validation-field data-aui-validation-required data-aui-validation-required-msg="You must provide a job name" class="text" type="text" name="name"></input>
+												<label for="edit-name">Name<span class="aui-icon aui-icon-required">Required</span></label>
+												<input id="edit-name" data-aui-validation-job-name="$action.jobNameValidationString" data-is-edit="true" data-current-name="" data-aui-validation-field data-aui-validation-required data-aui-validation-required-msg="You must provide a job name" class="text" type="text" name="name"></input>
 											</div>
 											<div class="field-group top-label">
-												<label for="job-type">Type<span class="aui-icon aui-icon-required">Required</span></label>
+												<label for="edit-job-type">Type<span class="aui-icon aui-icon-required">Required</span></label>
 												<select id="edit-job-type" data-aui-validation-field data-aui-validation-required data-aui-validation-required-msg="You must pick a job type" name="job-type">
 													<option value="">-- none --</option>
 													#foreach ($jobType in $action.allJobTypes)
@@ -146,12 +146,12 @@ $webResourceManager.requireResourcesForContext("cron-space-admin-screen")
 											<div id="edit-job-parameters">
 											</div>
 											<div class="field-group top-label">
-												<label for="cron-expression">Cron Expression<span class="aui-icon aui-icon-required">Required</span>
+												<label for="edit-cron-expression">Cron Expression<span class="aui-icon aui-icon-required">Required</span>
 													<a class="cron-tooltip" title="Format: seconds minutes hours dayOfWeek month dayOfMonth year">
 														<span class="aui-icon aui-icon-small aui-iconfont-info">info</span>
 													</a>
 												</label>
-												<input id="edit-job-cron-expression" data-aui-validation-field data-aui-validation-cron-expression="valid" data-aui-validation-required="required" data-aui-validation-required-msg="You must provide a cron expression" class="text" type="text" name="cron-expression">
+												<input id="edit-cron-expression" data-aui-validation-field data-aui-validation-cron-expression="valid" data-aui-validation-required="required" data-aui-validation-required-msg="You must provide a cron expression" class="text" type="text" name="cron-expression">
 											</div>
 											<input type="hidden" name="spacekey" value="$action.getSpaceKey()"/>
 											<input id="edit-job-id" type="hidden" name="id" />

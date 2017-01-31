@@ -37,20 +37,20 @@ $webResourceManager.requireResourcesForContext("cron-configuration-screen")
 	<h3>Create Job Type</h3>
 	<fieldset class="top-label">
 	<div class="field-group top-label">
-		<label for="name">Name<span class="aui-icon aui-icon-required">Required</span></label>
-		<input data-aui-validation-job-type-name="$action.jobTypeNameValidationString" data-is-edit="false" data-aui-validation-field data-aui-validation-required data-aui-validation-required-msg="You must provide a job type name" class="text" type="text" name="name">
+		<label for="create-job-type-name">Name<span class="aui-icon aui-icon-required">Required</span></label>
+		<input id="create-job-type-name" data-aui-validation-job-type-name="$action.jobTypeNameValidationString" data-is-edit="false" data-aui-validation-field data-aui-validation-required data-aui-validation-required-msg="You must provide a job type name" class="text" type="text" name="name">
 	</div>
 	<div class="field-group top-label">	
-		<label for="url">URL<span class="aui-icon aui-icon-required">Required</span></label>
-		<input data-aui-validation-field data-aui-validation-doesnotcontain=" " data-aui-validation-doesnotcontain-msg="The URL may not contain whitespace" data-aui-validation-required data-aui-validation-required-msg="You must provide a URL" class="text" type="text" name="url">
+		<label for="create-job-type-url">URL<span class="aui-icon aui-icon-required">Required</span></label>
+		<input id="create-job-type-url" data-aui-validation-field data-aui-validation-doesnotcontain=" " data-aui-validation-doesnotcontain-msg="The URL may not contain whitespace" data-aui-validation-required data-aui-validation-required-msg="You must provide a URL" class="text" type="text" name="url">
 	</div>
-	<div class="field-group top-label">
-		<label for="parameters">Parameters</label>
-		<textarea class="textarea" name="parameters" rows="2" cols="10"></textarea>		
+	<div class="field-group top-label">	
+		<label for="create-job-type-parameters">Parameters</label>
+		<textarea id="create-job-type-parameters" class="textarea" name="parameters" rows="2" cols="10"></textarea>		
 	</div>	
 	<div class="field-group top-label">	
-		<label for="edit-http-method">Http method<span class="aui-icon aui-icon-required">Required</span></label>
-		<aui-select id="edit-http-method" name="http-method">
+		<label for="create-job-type-http-method">Http method<span class="aui-icon aui-icon-required">Required</span></label>
+		<aui-select id="create-job-type-http-method" name="http-method">
 			<aui-option selected="selected" value="GET">GET</aui-option>
 			<aui-option value="POST">POST</aui-option>
 			<aui-option value="PUT">PUT</aui-option>
@@ -73,7 +73,7 @@ $webResourceManager.requireResourcesForContext("cron-configuration-screen")
 					<form id="edit-form" class="aui top-label" method="post" action="EditJobType.action">
 						<fieldset class="top-label">
 						<div class="field-group top-label">
-							<label for="name">Name<span class="aui-icon aui-icon-required">Required</span></label>
+							<label for="edit-job-type-name">Name<span class="aui-icon aui-icon-required">Required</span></label>
 							<input id="edit-job-type-name" data-is-edit="true" data-current-name="" data-aui-validation-job-type-name="$action.jobTypeNameValidationString" data-is-edit="true" data-current-name="" data-aui-validation-field data-aui-validation-required data-aui-validation-required-msg="You must provide a job type name" class="text" type="text" name="name"></input>
 						</div>
 						<div class="field-group top-label">
@@ -81,12 +81,12 @@ $webResourceManager.requireResourcesForContext("cron-configuration-screen")
 							<input id="edit-job-type-url" data-aui-validation-field data-aui-validation-doesnotcontain=" " data-aui-validation-doesnotcontain-msg="The URL may not contain whitespace" data-aui-validation-required="required" data-aui-validation-required-msg="You must provide an url" class="text" type="text" name="url">
 						</div>
 						<div class="field-group top-label">
-							<label for="parameters">Parameters</label>
+							<label for="edit-job-type-parameters">Parameters</label>
 							<textarea id="edit-job-type-parameters" class="textarea" name="parameters" rows="2" cols="10"></textarea>		
 						</div>						
 						<div class="field-group top-label">
-							<label for="select-job-type-method">Http method<span class="aui-icon aui-icon-required">Required</span></label>
-							<aui-select data-aui-validation-field data-aui-validation-required data-aui-validation-required-msg="You must pick an http method" id="select-job-type-method" name="http-method">
+							<label for="edit-job-type-method">Http method<span class="aui-icon aui-icon-required">Required</span></label>
+							<aui-select id="edit-job-type-method" data-aui-validation-field data-aui-validation-required data-aui-validation-required-msg="You must pick an http method" name="http-method">
 								<aui-option class="method-option" value="GET">GET</aui-option>
 								<aui-option class="method-option" value="POST">POST</aui-option>
 								<aui-option class="method-option" value="PUT">PUT</aui-option>
