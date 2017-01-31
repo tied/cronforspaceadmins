@@ -71,6 +71,7 @@ public class JobServiceImpl implements JobService {
 
 	@Override
 	public void createJob(HttpServletRequest request) {
+		checkRequestParametersNotNull(request);
 		checkUniqueJobNamePerSpace(request);
 
 		Job job = ao.create(Job.class);
@@ -82,9 +83,18 @@ public class JobServiceImpl implements JobService {
 
 	@Override
 	public void updateJob(HttpServletRequest request) {
+		checkRequestParametersNotNull(request);
 		Job job = getJobIfExists(request);
 		setJobValues(job, request);
 		job.save();
+	}
+
+	private void checkRequestParametersNotNull(HttpServletRequest request) {
+		for (String parameter: new String[] {"name", "job-type", "spaceKey", "cron-expression"}) {
+			if (request.getParameter(parameter) == null) {
+				throw new JobException("Cannot create job: " + parameter + " may not be null.");
+			}
+		}
 	}
 
 	private void initializeJob(Job job, HttpServletRequest request) {

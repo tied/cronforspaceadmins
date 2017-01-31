@@ -46,10 +46,26 @@ public class JobTypeServiceImpl implements JobTypeService {
 
 	@Override
 	public void createJobType(HttpServletRequest request) {
+		checkRequestParametersNotNull(request);
 		checkNewJobTypeName(request);
 		JobType jobType = ao.create(JobType.class);
 		setJobTypeValues(jobType, request);
 		jobType.save();
+	}
+
+	@Override
+	public void updateJobType(HttpServletRequest request) {
+		JobType jobType = getJobTypeIfExists(request);
+		setJobTypeValues(jobType, request);
+		jobType.save();
+	}
+
+	private void checkRequestParametersNotNull(HttpServletRequest request) {
+		for (String parameter: new String[] {"name", "url", "http-method"}) {
+			if (request.getParameter(parameter) == null) {
+				throw new JobTypeException("Cannot create job type: " + parameter + " may not be null");
+			}
+		}
 	}
 
 	private void setJobTypeValues(JobType jobType, HttpServletRequest request) {
@@ -61,7 +77,12 @@ public class JobTypeServiceImpl implements JobTypeService {
 		if (url.contains(" ")) {
 			throw new JobTypeException("Invalid URL: " + url + ". URLs must not contain whitespace.");
 		}
-		String parameterNames = request.getParameter("parameters").trim();
+		String parameterNames = request.getParameter("parameters");
+		if (parameterNames == null) {
+			parameterNames = "";
+		} else {
+			parameterNames = parameterNames.trim();
+		}
 		String httpMethod = request.getParameter("http-method").trim();
 		checkIsValidMethod(httpMethod);
 		String allParameters = getAllParameters(url, parameterNames);
@@ -169,12 +190,5 @@ public class JobTypeServiceImpl implements JobTypeService {
 		}
 
 		return matches[0];
-	}
-
-	@Override
-	public void updateJobType(HttpServletRequest request) {
-		JobType jobType = getJobTypeIfExists(request);
-		setJobTypeValues(jobType, request);
-		jobType.save();
 	}
 }
