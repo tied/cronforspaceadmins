@@ -47,7 +47,9 @@ public class SaveJob extends ConfluenceActionSupport {
 	    	jobService.createJob(request);
 	    } catch (JobException e) {
 		    try {
-				ServletActionContext.getResponse().sendRedirect(baseUrl + "/plugins/cron-for-space-admins/ManageJobs.action?key=" + spaceKey + "&save-error=true");
+		    	logger.error("There was an error while saving the job");
+		    	logger.error(e.getMessage());
+		    	ServletActionContext.getResponse().sendRedirect(baseUrl + "/plugins/cron-for-space-admins/ManageJobs.action?key=" + spaceKey + "&save-error=true");
 				return NONE;
 			} catch (IOException e2) {
 				return SUCCESS;
