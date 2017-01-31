@@ -42,7 +42,7 @@ $webResourceManager.requireResourcesForContext("cron-configuration-screen")
 	</div>
 	<div class="field-group top-label">	
 		<label for="url">URL<span class="aui-icon aui-icon-required">Required</span></label>
-		<input data-aui-validation-field data-aui-validation-required data-aui-validation-required-msg="You must provide a URL" class="text" type="text" name="url">
+		<input data-aui-validation-field data-aui-validation-doesnotcontain=" " data-aui-validation-doesnotcontain-msg="The URL may not contain whitespace" data-aui-validation-required data-aui-validation-required-msg="You must provide a URL" class="text" type="text" name="url">
 	</div>
 	<div class="field-group top-label">
 		<label for="parameters">Parameters</label>
@@ -78,7 +78,7 @@ $webResourceManager.requireResourcesForContext("cron-configuration-screen")
 						</div>
 						<div class="field-group top-label">
 							<label for="edit-job-type-url">URL<span class="aui-icon aui-icon-required">Required</span></label>
-							<input id="edit-job-type-url" data-aui-validation-required="required" data-aui-validation-required-msg="You must provide an url" class="text" type="text" name="url">
+							<input id="edit-job-type-url" data-aui-validation-field data-aui-validation-doesnotcontain=" " data-aui-validation-doesnotcontain-msg="The URL may not contain whitespace" data-aui-validation-required="required" data-aui-validation-required-msg="You must provide an url" class="text" type="text" name="url">
 						</div>
 						<div class="field-group top-label">
 							<label for="parameters">Parameters</label>
