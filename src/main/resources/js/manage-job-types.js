@@ -36,6 +36,10 @@ function init() {
 		});		
 		
 		AJS.$("#edit-job-type-name").attr("data-current-name", AJS.$(e.target).data("jobTypeName"));
+		// hack to trigger validation
+		AJS.$("#edit-job-type-name").change();		
+		AJS.$("#edit-job-type-url").change();		
+		AJS.$("#edit-job-type-id").change();		
 		dialog.show();
 	});
 	AJS.$(".delete-button").click(function(e) {
