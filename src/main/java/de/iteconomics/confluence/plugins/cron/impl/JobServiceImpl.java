@@ -90,7 +90,7 @@ public class JobServiceImpl implements JobService {
 	}
 
 	private void checkRequestParametersNotNull(HttpServletRequest request) {
-		for (String parameter: new String[] {"name", "job-type", "spaceKey", "cron-expression"}) {
+		for (String parameter: new String[] {"name", "job-type", "spacekey", "cron-expression"}) {
 			if (request.getParameter(parameter) == null) {
 				throw new JobException("Cannot create job: " + parameter + " may not be null.");
 			}
