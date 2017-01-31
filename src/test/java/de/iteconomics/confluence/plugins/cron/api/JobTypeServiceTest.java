@@ -1,9 +1,6 @@
 package de.iteconomics.confluence.plugins.cron.api;
 
-import static org.junit.Assert.*;
-
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
@@ -47,11 +44,12 @@ public class JobTypeServiceTest {
 	}
 
 	@Test
-	@Ignore
 	public void shouldCreateJobIfNameIsNew() {
 		when(ao.find(eq(JobType.class), any())).thenReturn(new JobType[0]);
 		when(ao.create(JobType.class)).thenReturn(jobType1);
 		when(request.getParameter("name")).thenReturn("jobType1");
+		when(request.getParameter("url")).thenReturn("someUrl");
+		when(request.getParameter("http-method")).thenReturn("GET");
 		underTest.setAo(ao);
 
 		underTest.createJobType(request);
@@ -61,12 +59,13 @@ public class JobTypeServiceTest {
 		verify(jobType1).save();
 	}
 
-	@Ignore
 	@Test(expected=JobTypeException.class)
 	public void shouldThrowExceptionWhenCreatingJobWithExistingName() {
 		when(ao.find(eq(JobType.class), any())).thenReturn(new JobType[1]);
 		when(ao.create(JobType.class)).thenReturn(jobType1);
 		when(request.getParameter("name")).thenReturn("jobType1");
+		when(request.getParameter("url")).thenReturn("someUrl");
+		when(request.getParameter("http-method")).thenReturn("GET");
 		underTest.setAo(ao);
 
 		underTest.createJobType(request);
