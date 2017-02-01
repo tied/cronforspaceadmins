@@ -19,7 +19,9 @@ import com.atlassian.activeobjects.external.ActiveObjects;
 import com.atlassian.plugin.spring.scanner.annotation.imports.ComponentImport;
 import com.google.common.collect.Lists;
 
+import de.iteconomics.confluence.plugins.cron.api.JobService;
 import de.iteconomics.confluence.plugins.cron.api.JobTypeService;
+import de.iteconomics.confluence.plugins.cron.entities.Job;
 import de.iteconomics.confluence.plugins.cron.entities.JobType;
 import de.iteconomics.confluence.plugins.cron.exceptions.JobTypeException;
 import net.java.ao.Query;
@@ -30,13 +32,19 @@ public class JobTypeServiceImpl implements JobTypeService {
 
 	@ComponentImport
 	private ActiveObjects ao;
-
+	private JobService jobService;
 	private static Logger logger = LoggerFactory.getLogger(JobTypeServiceImpl.class);
 
 	@Inject
 	@Override
 	public void setAo(ActiveObjects ao) {
 		this.ao = ao;
+	}
+
+	@Inject
+	@Override
+	public void setJobService(JobService jobService) {
+		this.jobService = jobService;
 	}
 
 	@Override
@@ -150,6 +158,10 @@ public class JobTypeServiceImpl implements JobTypeService {
 	@Override
 	public void deleteJobType(HttpServletRequest request) {
 		JobType jobType = getJobTypeIfExists(request);
+		List<Job> jobs = jobService.getJobsByJobTypeID(jobType.getID());
+		for (Job job: jobs) {
+			jobService.unregisterJob(job);
+		}
 		ao.delete(jobType);
 	}
 

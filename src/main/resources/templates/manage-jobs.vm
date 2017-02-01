@@ -50,7 +50,9 @@ $webResourceManager.requireResourcesForContext("cron-space-admin-screen")
 									<td>${job.cronExpression}</td>
 									<td>${job.parameters}</td>
 									<td>
+									#if ($!action.getJobTypeByID($job.jobTypeID))
 											<aui-toggle id="toggle-status" label="testing the toggle button" data-is-enabled="${action.isEnabled($job)}" data-job-id="${job.ID}" data-space-key="${action.spaceKey}" #if (${action.isEnabled($job)}) checked="" #end></aui-toggle>
+									#end									
 									</td>
 									<td>
 										<button class="delete-button aui-button aui-button-link" type="button" data-job-id="${job.ID}" data-space-key="${action.spaceKey}"><span class="aui-icon aui-icon-small aui-iconfont-delete">Delete</span></button>
@@ -121,7 +123,7 @@ $webResourceManager.requireResourcesForContext("cron-space-admin-screen")
 						<h3>All jobs in the database:</h3>
 						<ul>
 						#foreach ($job in $action.allJobs)
-						<li>job: $job.name, space: $job.spaceKey</li>
+						<li>job: $job.name, space: $job.spaceKey, id: $job.ID, job type id: $job.jobTypeID</li>
 						#end
 						</ul>
 						            

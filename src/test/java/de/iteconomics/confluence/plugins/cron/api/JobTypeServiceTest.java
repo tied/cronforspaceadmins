@@ -8,9 +8,13 @@ import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.mockito.Mockito.*;
 
+import java.util.ArrayList;
+
 import javax.servlet.http.HttpServletRequest;
 
 import com.atlassian.activeobjects.external.ActiveObjects;
+
+import de.iteconomics.confluence.plugins.cron.entities.Job;
 import de.iteconomics.confluence.plugins.cron.entities.JobType;
 import de.iteconomics.confluence.plugins.cron.impl.JobTypeServiceImpl;
 import de.iteconomics.confluence.plugins.cron.exceptions.JobTypeException;
@@ -25,6 +29,8 @@ public class JobTypeServiceTest {
 	private JobType jobType1;
 	@Mock
 	private HttpServletRequest request;
+	@Mock
+	private JobService jobService;
 
 	public JobTypeServiceTest() {
 	}
@@ -72,10 +78,12 @@ public class JobTypeServiceTest {
 	}
 
 	@Test
-	public void shouldDeleteJobIfExists() {
+	public void shouldDeleteJobTypeIfExists() {
 		when(ao.find(eq(JobType.class), any())).thenReturn(new JobType[] {jobType1});
 		when(request.getParameter("name")).thenReturn("jobType1");
+		when(jobService.getJobsByJobTypeID(anyInt())).thenReturn(new ArrayList<Job>());
 		underTest.setAo(ao);
+		underTest.setJobService(jobService);
 
 		underTest.deleteJobType(request);
 

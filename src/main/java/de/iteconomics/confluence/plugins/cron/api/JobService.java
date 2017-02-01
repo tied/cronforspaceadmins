@@ -26,5 +26,6 @@ public interface JobService {
 	void updateJob(HttpServletRequest request);
 	void unregisterJob(HttpServletRequest request);
 	List<Job> getJobs(String spaceKey);
+	List<Job> getJobsByJobTypeID(int jobTypeID);
 	void deleteJob(Job job);
 }
