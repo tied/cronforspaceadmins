@@ -1,6 +1,8 @@
 package de.iteconomics.confluence.plugins.cron.impl;
 
 import java.io.Serializable;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -16,6 +18,8 @@ import com.sun.jersey.api.client.Client;
 import com.sun.jersey.api.client.WebResource;
 import com.sun.jersey.api.client.WebResource.Builder;
 
+import de.iteconomics.confluence.plugins.cron.exceptions.CronJobRunnerException;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -28,11 +32,15 @@ final class CronJobRunner implements JobRunner {
 		if (queryString == null || queryString.equals("")) {
 			return "";
 		}
-		String[] keyValuePairs = queryString.split("&");
+		String[] elements = queryString.split("&");
 		JsonObjectBuilder builder = Json.createBuilderFactory(new HashMap<String, Object>()).createObjectBuilder();
-		for (String keyValuePair: keyValuePairs) {
-			String key = keyValuePair.split("=")[0];
-			String name = keyValuePair.split("=")[1];
+		for (String element: elements) {
+			String[] keyValuePair = element.split("=");
+			if (keyValuePair.length != 2) {
+				throw new CronJobRunnerException("Unable to run Job: invalid parameters string: " + queryString);
+			}
+			String key = keyValuePair[0];
+			String name = keyValuePair[1];
 			builder.add(key, name);
 		}
 
@@ -50,13 +58,6 @@ final class CronJobRunner implements JobRunner {
 		String requestBody = "";
 		String httpMethod = (String) parameters.get("method");
 
-//		if (httpMethod.equals("GET")) {
-//			urlString += "?";
-//			urlString += queryString;
-//		} else if (httpMethod.equals("POST")) {
-//			requestBody = queryString;
-//		}
-
 		if (httpMethod.equals("GET") || httpMethod.equals("DELETE")) {
 			if (queryString != "") {
 				urlString += "?" + queryString;
@@ -64,7 +65,14 @@ final class CronJobRunner implements JobRunner {
 		}
 
 		Client client = Client.create();
-		WebResource webResource = client.resource(urlString);
+		URI uri;
+		try {
+			uri = new URI(urlString);
+		} catch (URISyntaxException e) {
+			throw new CronJobRunnerException("Cannot run job. Invalid URI: " + urlString);
+		}
+
+		WebResource webResource = client.resource(uri);
 		Builder builder = webResource.accept(MediaType.MEDIA_TYPE_WILDCARD);
 
 		if (httpMethod.equals("POST") || httpMethod.equals("PUT")) {
@@ -91,6 +99,9 @@ final class CronJobRunner implements JobRunner {
 			}
 		} else if (httpMethod.equals("DELETE")) {
 			response = builder.get(String.class);
+		} else {
+			throw new CronJobRunnerException("Cannot run job. Unsupported http method: " +
+					httpMethod + ". Only GET, POST, PUT and DELETE are supported.");
 		}
 
 		return null;
