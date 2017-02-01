@@ -118,6 +118,12 @@ $webResourceManager.requireResourcesForContext("cron-space-admin-screen")
 						<li>$jobkey</li>
 						#end
 						</ul>
+						<h3>All jobs in the database:</h3>
+						<ul>
+						#foreach ($job in $action.allJobs)
+						<li>job: $job.name, space: $job.spaceKey</li>
+						#end
+						</ul>
 						            
                 </div>
                 
