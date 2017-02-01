@@ -25,6 +25,7 @@
     <dependency>com.atlassian.auiplugin:ajs</dependency>
     <dependency>com.atlassian.auiplugin:aui-form-validation</dependency>
     <dependency>com.atlassian.auiplugin:aui-select</dependency>
+    <dependency>com.atlassian.auiplugin:aui-toggle</dependency>    
     <resource type="download" name="cron.css" location="/css/cron.css"/>
     <resource type="download" name="manage-job-types.js" location="/js/manage-job-types.js"/>
     <resource type="download" name="images/" location="/images"/>

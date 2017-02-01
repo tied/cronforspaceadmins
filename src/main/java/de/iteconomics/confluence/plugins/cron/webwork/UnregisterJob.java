@@ -35,7 +35,11 @@ public class UnregisterJob extends ConfluenceActionSupport {
 	    String baseUrl = settingsManager.getGlobalSettings().getBaseUrl();
 
 	    try {
-			ServletActionContext.getResponse().sendRedirect(baseUrl + "/plugins/cron-for-space-admins/ManageJobs.action?key=" + spaceKey);
+	    	if (spaceKey.equals("jobTypeAdmin")) {
+	    		ServletActionContext.getResponse().sendRedirect(baseUrl + "/plugins/cron-for-space-admins/ManageJobTypes.action");
+	    	} else {
+	    		ServletActionContext.getResponse().sendRedirect(baseUrl + "/plugins/cron-for-space-admins/ManageJobs.action?key=" + spaceKey);
+	    	}
 		} catch (IOException e) {
 			return SUCCESS;
 		}

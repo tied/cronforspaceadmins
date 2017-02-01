@@ -51,7 +51,7 @@ $webResourceManager.requireResourcesForContext("cron-space-admin-screen")
 									<td>${job.parameters}</td>
 									<td>
 									#if ($!action.getJobTypeByID($job.jobTypeID))
-											<aui-toggle id="toggle-status" label="testing the toggle button" data-is-enabled="${action.isEnabled($job)}" data-job-id="${job.ID}" data-space-key="${action.spaceKey}" #if (${action.isEnabled($job)}) checked="" #end></aui-toggle>
+											<aui-toggle id="toggle-status" class="toggle-status" label="testing the toggle button" data-is-enabled="${action.isEnabled($job)}" data-job-id="${job.ID}" data-space-key="${action.spaceKey}" #if (${action.isEnabled($job)}) checked="" #end></aui-toggle>
 									#end									
 									</td>
 									<td>

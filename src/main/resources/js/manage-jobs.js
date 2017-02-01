@@ -46,7 +46,7 @@ function init() {
 	AJS.$("#submit-dialog").click(function() {
 		AJS.$("#edit-form").submit();
 	});
-	AJS.$(".aui-toggle-input").click(function(e) {
+	AJS.$(".toggle-status").click(function(e) {
 		var actionUrl;
 		if (AJS.$(e.target).parent().attr("data-is-enabled") === "true") {
 			actionUrl = "/plugins/cron-for-space-admins/UnregisterJob.action";

@@ -52,7 +52,18 @@ function init() {
 	});
 	AJS.$("#submit-dialog").click(function() {
 		AJS.$("#edit-form").submit();
-	});	
+	});
+	
+	AJS.$(".toggle-status").click(function(e) {
+		AJS.$(e.target).parent()[0].busy = true;
+		var actionUrl;
+		if (AJS.$(e.target).parent().attr("data-is-enabled") === "true") {
+			actionUrl = "/plugins/cron-for-space-admins/UnregisterJob.action";
+		} else {
+			actionUrl = "/plugins/cron-for-space-admins/RegisterJob.action";
+		}
+		window.location.replace(AJS.contextPath() + actionUrl + "?id=" + AJS.$(e.target).parent().attr("data-job-id") + "&spacekey=jobTypeAdmin");
+	});
 	
 	AJS.formValidation.register(['job-type-name'], function(field) {
 		var jobTypesString = field.args('job-type-name');

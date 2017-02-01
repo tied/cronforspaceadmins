@@ -4,10 +4,16 @@ import java.util.List;
 
 import javax.inject.Inject;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.atlassian.confluence.core.ConfluenceActionSupport;
 
+import de.iteconomics.confluence.plugins.cron.api.JobService;
 import de.iteconomics.confluence.plugins.cron.api.JobTypeService;
+import de.iteconomics.confluence.plugins.cron.entities.Job;
 import de.iteconomics.confluence.plugins.cron.entities.JobType;
+import de.iteconomics.confluence.plugins.cron.exceptions.JobTypeException;
 
 public class ManageJobTypes extends ConfluenceActionSupport {
 
@@ -15,12 +21,14 @@ public class ManageJobTypes extends ConfluenceActionSupport {
 	 *
 	 */
 	private static final long serialVersionUID = -6061253789428293167L;
+	private static final Logger logger = LoggerFactory.getLogger(ManageJobTypes.class);
+	private final JobTypeService jobTypeService;
+	private final JobService jobService;
 
 	@Inject
-	private final JobTypeService jobTypeService;
-
-	public ManageJobTypes(JobTypeService jobTypeService) {
+	public ManageJobTypes(JobTypeService jobTypeService, JobService jobService) {
 		this.jobTypeService = jobTypeService;
+		this.jobService = jobService;
 	}
 
 	@Override
@@ -29,8 +37,24 @@ public class ManageJobTypes extends ConfluenceActionSupport {
 	}
 
 	public List<JobType> getAllJobTypes() {
-		List<JobType> jobTypes = jobTypeService.getAllJobTypes();
-		return jobTypes;
+		return jobTypeService.getAllJobTypes();
+	}
+
+	public List<Job> getAllJobs() {
+		return jobService.getAllJobs();
+	}
+
+	public JobType getJobTypeByID(String id) {
+		try {
+			return jobTypeService.getJobTypeByID(id);
+		} catch (JobTypeException e) {
+			logger.error("There is not JobType with the id " + id + ".");
+			return null;
+		}
+	}
+
+	public boolean isEnabled(Job job) {
+		return jobService.isEnabled(job);
 	}
 
 	public String getJobTypeNameValidationString() {
