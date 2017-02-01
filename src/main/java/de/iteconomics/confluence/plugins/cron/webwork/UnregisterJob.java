@@ -9,7 +9,6 @@ import com.atlassian.confluence.core.ConfluenceActionSupport;
 import com.opensymphony.webwork.ServletActionContext;
 
 import de.iteconomics.confluence.plugins.cron.api.JobService;
-import de.iteconomics.confluence.plugins.cron.exceptions.JobException;
 
 
 public class UnregisterJob extends ConfluenceActionSupport {
