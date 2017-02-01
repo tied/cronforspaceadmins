@@ -43,9 +43,12 @@ public class ManageJobs extends SpaceAdminAction {
 		this.schedulerService = schedulerService;
 	}
 
+	public List<Job> getJobs(String spaceKey) {
+		return jobService.getJobs(spaceKey);
+	}
+
 	public List<Job> getAllJobs() {
-		List<Job> jobs = jobService.getAllJobs();
-		return jobs;
+		return jobService.getAllJobs();
 	}
 
 	public List<JobType> getAllJobTypes() {

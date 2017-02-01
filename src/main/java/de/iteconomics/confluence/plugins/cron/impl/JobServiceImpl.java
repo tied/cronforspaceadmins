@@ -1,6 +1,7 @@
 package de.iteconomics.confluence.plugins.cron.impl;
 
 import java.io.Serializable;
+import java.util.Arrays;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -266,9 +267,17 @@ public class JobServiceImpl implements JobService {
 
 	private Map<String, String> getParametersAsMap(String parametersString) {
 		Map<String, String> parameters = new HashMap<>();
-		for (String keyValuePair: parametersString.split("&")) {
-			String key = keyValuePair.split("=")[0];
-			String value = keyValuePair.split("=")[1];
+		if (parametersString == null || parametersString.equals("")) {
+			return parameters;
+		}
+
+		for (String element: parametersString.split("&")) {
+			String[] keyValuePair = element.split("=");
+			if (keyValuePair.length != 2) {
+				throw new JobException("Invalid parameter string: " + parametersString);
+			}
+			String key = keyValuePair[0];
+			String value = keyValuePair[1];
 			parameters.put(key, value);
 		}
 
@@ -376,5 +385,11 @@ public class JobServiceImpl implements JobService {
 	public void registerJob(HttpServletRequest request) {
 		Job job = getJobIfExists(request);
 		registerJob(job);
+	}
+
+	@Override
+	public List<Job> getJobs(String spaceKey) {
+		Job[] jobs = ao.find(Job.class, Query.select().where("SPACE_KEY = ?", spaceKey));
+		return Arrays.asList(jobs);
 	}
 }

@@ -39,7 +39,7 @@ $webResourceManager.requireResourcesForContext("cron-space-admin-screen")
 								</tr>
 							</thead>
 							<tbody>
-								#foreach ($job in ${action.allJobs})
+								#foreach ($job in ${action.getJobs($action.spaceKey)})
 								<tr>
 									<td>${job.name}</td>
 									#if ($!action.getJobTypeByID($job.jobTypeID))
