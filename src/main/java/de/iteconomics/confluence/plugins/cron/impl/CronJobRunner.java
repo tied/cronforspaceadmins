@@ -25,6 +25,9 @@ final class CronJobRunner implements JobRunner {
 	private static Logger logger = LoggerFactory.getLogger(CronJobRunner.class);
 
 	private String getJsonFromQueryString(String queryString) {
+		if (queryString == null || queryString.equals("")) {
+			return "";
+		}
 		String[] keyValuePairs = queryString.split("&");
 		JsonObjectBuilder builder = Json.createBuilderFactory(new HashMap<String, Object>()).createObjectBuilder();
 		for (String keyValuePair: keyValuePairs) {
