@@ -337,10 +337,15 @@ public class JobServiceImpl implements JobService {
 	}
 
 	@Override
-	public void deleteJob(HttpServletRequest request) {
-		Job job = getJobIfExists(request);
+	public void deleteJob(Job job) {
 		unregisterJob(job);
 		ao.delete(job);
+	}
+
+	@Override
+	public void deleteJob(HttpServletRequest request) {
+		Job job = getJobIfExists(request);
+		deleteJob(job);
 	}
 
 	private Job getJobIfExists(HttpServletRequest request) {
