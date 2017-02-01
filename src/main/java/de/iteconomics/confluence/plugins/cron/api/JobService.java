@@ -22,6 +22,7 @@ public interface JobService {
 	Set<Job> getDisabledJobs();
 	void registerJob(Job job);
 	void registerJob(HttpServletRequest request);
-	void unregisterJob(HttpServletRequest request);
+	void unregisterJob(Job job);
 	void updateJob(HttpServletRequest request);
+	void unregisterJob(HttpServletRequest request);
 }

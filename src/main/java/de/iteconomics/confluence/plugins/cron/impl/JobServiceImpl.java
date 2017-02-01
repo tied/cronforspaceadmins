@@ -85,8 +85,21 @@ public class JobServiceImpl implements JobService {
 	public void updateJob(HttpServletRequest request) {
 		checkRequestParametersNotNull(request);
 		Job job = getJobIfExists(request);
+		boolean reregisterNecessary = isReregisterNecessary(job, request);
 		setJobValues(job, request);
 		job.save();
+
+		if (reregisterNecessary) {
+			unregisterJob(job);
+			registerJob(job);
+		}
+	}
+
+	private boolean isReregisterNecessary(Job job, HttpServletRequest request) {
+		return (!job.getCronExpression().equals(request.getParameter("cron-expression").trim()) ||
+				!job.getJobTypeID().equals(request.getParameter("job-type").trim()) ||
+				!job.getParameters().equals(getParameterString(request))
+				);
 	}
 
 	private void checkRequestParametersNotNull(HttpServletRequest request) {
@@ -157,6 +170,11 @@ public class JobServiceImpl implements JobService {
 	@Override
 	public void unregisterJob(HttpServletRequest request) {
 		Job job = getJobIfExists(request);
+		unregisterJob(job);
+	}
+
+	@Override
+	public void unregisterJob(Job job) {
 		schedulerService.unscheduleJob(JobId.of(job.getJobKey()));
 		schedulerService.unregisterJobRunner(JobRunnerKey.of(job.getJobKey() + ":runner"));
 	}
@@ -240,11 +258,6 @@ public class JobServiceImpl implements JobService {
 		String result = url;
 
 		for (String parameter: getPathParameterNames(url)) {
-			logger.error("parameter: " + parameter);
-			logger.error("elements of parameters map: ");
-			for (String key: parametersMap.keySet()) {
-				logger.error(key);
-			}
 			result = result.replace("{" + parameter + "}", parametersMap.get(parameter));
 		}
 
@@ -316,8 +329,8 @@ public class JobServiceImpl implements JobService {
 
 	@Override
 	public void deleteJob(HttpServletRequest request) {
-		unregisterJob(request);
 		Job job = getJobIfExists(request);
+		unregisterJob(job);
 		ao.delete(job);
 	}
 
