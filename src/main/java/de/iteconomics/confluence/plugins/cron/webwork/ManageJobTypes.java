@@ -53,6 +53,14 @@ public class ManageJobTypes extends ConfluenceActionSupport {
 		}
 	}
 
+	public String[] formatParameters(String unformatted) {
+		return jobTypeService.formatParameters(unformatted);
+	}
+
+	public String[] formatJobParameters(String unformatted) {
+		return jobService.formatParameters(unformatted);
+	}
+
 	public boolean isEnabled(Job job) {
 		return jobService.isEnabled(job);
 	}

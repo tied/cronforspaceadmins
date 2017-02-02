@@ -7,7 +7,6 @@ $webResourceManager.requireResourcesForContext("cron-configuration-screen")
   </head>
   
   <body>
-<h2>Job types</h2>
 <table class="aui">
 	<thead>
 		<tr>
@@ -24,7 +23,15 @@ $webResourceManager.requireResourcesForContext("cron-configuration-screen")
 			<td>${jobtype.name}</td>
 			<td>${jobtype.url}</td>
 			<td>${jobtype.httpMethod}</td>
-			<td>$!{jobtype.parameterNames}</td>
+			<td>
+			#if ($jobtype.parameterNames && ($jobtype.parameterNames != ""))
+			<ul>
+			#foreach($param in	${action.formatParameters($jobtype.parameterNames)})
+				<li>$param</li>
+			#end
+			</ul>
+			#end
+			</td>
 			<td>
 			#if(${jobtype.authenticationRequired} == true)
 				yes
@@ -74,8 +81,8 @@ $webResourceManager.requireResourcesForContext("cron-configuration-screen")
 	</div>
 	</fieldset>
 </form>
-<br/>
-<h2>Jobs</h2>
+<br/><br/>
+<h3>Jobs</h3>
 	<table class="aui">
 		<thead>
 			<tr>
@@ -103,7 +110,15 @@ $webResourceManager.requireResourcesForContext("cron-configuration-screen")
 				#end
 				<td>${job.spaceKey}</td>
 				<td>${job.cronExpression}</td>
-				<td>${job.parameters}</td>
+				<td>
+				#if ($job.parameters && ($job.parameters != ""))
+				<ul>
+				#foreach($param in ${action.formatJobParameters($job.parameters)})
+					<li>$param</li>
+				#end
+				</ul>
+				#end
+				</td>
 				<td>
 				#if ($!action.getJobTypeByID($job.jobTypeID))
 						<aui-toggle id="toggle-status" class="toggle-status" label="testing the toggle button" data-is-enabled="${action.isEnabled($job)}" data-job-id="${job.ID}" data-space-key="${job.spaceKey}" #if (${action.isEnabled($job)}) checked="" #end></aui-toggle>
@@ -160,7 +175,6 @@ $webResourceManager.requireResourcesForContext("cron-configuration-screen")
 		      </div>
 		    </footer>
 			</section>
-
 
 </body>
 </html>

@@ -19,4 +19,6 @@ public interface JobTypeService {
 	JobType getJobTypeByID(String id);
 	void updateJobType(HttpServletRequest request);
 	void setJobService(JobService jobService);
+	String[] formatParameters(String unformatted);
+	String[] formatJobParameters(String unformatted);
 }

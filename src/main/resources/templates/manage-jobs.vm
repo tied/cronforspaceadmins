@@ -22,7 +22,6 @@ $webResourceManager.requireResourcesForContext("cron-space-admin-screen")
                 <div class="pagecontent">
                     <p></p>
                     
-						<h3>Job Configuration</h3>
 						<table class="aui">
 							<thead>
 								<tr>
@@ -34,7 +33,7 @@ $webResourceManager.requireResourcesForContext("cron-space-admin-screen")
 											<span class="aui-icon aui-icon-small aui-iconfont-info">info</span>
 										</a>
 									</th>
-									<th>Parameters</th>
+									<th id="paramteres">Parameters</th>
 									<th id="status">Status</th>
 								</tr>
 							</thead>
@@ -48,7 +47,15 @@ $webResourceManager.requireResourcesForContext("cron-space-admin-screen")
 										<td><div class="aui-message aui-message-warning">This job type has been deleted</div></td>
 									#end
 									<td>${job.cronExpression}</td>
-									<td>${job.parameters}</td>
+									<td>
+									#if ($job.parameters && ($job.parameters != ""))
+									<ul>
+									#foreach($param in	${action.formatParameters($job.parameters)})
+										<li>$param</li>
+									#end
+									</ul>
+									#end
+									</td>
 									<td>
 									#if ($!action.getJobTypeByID($job.jobTypeID))
 											<aui-toggle id="toggle-status" class="toggle-status" label="testing the toggle button" data-is-enabled="${action.isEnabled($job)}" data-job-id="${job.ID}" data-space-key="${action.spaceKey}" #if (${action.isEnabled($job)}) checked="" #end></aui-toggle>
@@ -115,19 +122,6 @@ $webResourceManager.requireResourcesForContext("cron-space-admin-screen")
 							</fieldset>
 						</form>
 
-						<h3>Registered job keys:</h3>
-						<ul>
-						#foreach ($jobkey in $action.allRegisteredJobs)
-						<li>$jobkey</li>
-						#end
-						</ul>
-						<h3>All jobs in the database:</h3>
-						<ul>
-						#foreach ($job in $action.allJobs)
-						<li>job: $job.name, space: $job.spaceKey, id: $job.ID, job type id: $job.jobTypeID</li>
-						#end
-						</ul>
-						            
                 </div>
                 
                 <section role="dialog" id="edit-dialog" class="aui-layer aui-dialog2 aui-dialog2-medium" aria-hidden="true">

@@ -418,4 +418,9 @@ public class JobServiceImpl implements JobService {
 		Job[] jobs= ao.find(Job.class, Query.select().where("JOB_TYPE_ID = ?", jobTypeID));
 		return Arrays.asList(jobs);
 	}
+
+	@Override
+	public String[] formatParameters(String unformatted) {
+		return unformatted.replaceAll("=", ": ").split("&");
+	}
 }

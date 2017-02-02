@@ -101,4 +101,8 @@ public class ManageJobs extends SpaceAdminAction {
 	public boolean isEnabled(Job job) {
 		return jobService.isEnabled(job);
 	}
+
+	public String[] formatParameters(String unformatted) {
+		return jobService.formatParameters(unformatted);
+	}
 }

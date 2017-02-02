@@ -206,4 +206,14 @@ public class JobTypeServiceImpl implements JobTypeService {
 
 		return matches[0];
 	}
+
+	@Override
+	public String[] formatParameters(String unformatted) {
+		return unformatted.trim().split(System.getProperty("line.separator"));
+	}
+
+	@Override
+	public String[] formatJobParameters(String unformatted) {
+		return jobService.formatParameters(unformatted);
+	}
 }
