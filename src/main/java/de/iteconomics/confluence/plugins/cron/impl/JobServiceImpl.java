@@ -72,7 +72,7 @@ public class JobServiceImpl implements JobService {
 
 	@Override
 	public void createJob(HttpServletRequest request) {
-		checkRequestParametersNotNull(request);
+		checkRequiredRequestParametersNotNull(request);
 		checkUniqueJobNamePerSpace(request);
 
 		Job job = ao.create(Job.class);
@@ -84,7 +84,7 @@ public class JobServiceImpl implements JobService {
 
 	@Override
 	public void updateJob(HttpServletRequest request) {
-		checkRequestParametersNotNull(request);
+		checkRequiredRequestParametersNotNull(request);
 		Job job = getJobIfExists(request);
 		boolean reregisterNecessary = isReregisterNecessary(job, request);
 		setJobValues(job, request);
@@ -103,7 +103,7 @@ public class JobServiceImpl implements JobService {
 				);
 	}
 
-	private void checkRequestParametersNotNull(HttpServletRequest request) {
+	private void checkRequiredRequestParametersNotNull(HttpServletRequest request) {
 		for (String parameter: new String[] {"name", "job-type", "spacekey", "cron-expression"}) {
 			if (request.getParameter(parameter) == null) {
 				throw new JobException("Cannot create job: " + parameter + " may not be null.");
@@ -126,11 +126,24 @@ public class JobServiceImpl implements JobService {
 		String safeID = getSafeJobTypeID(jobTypeID);
 		String cronExpression = request.getParameter("cron-expression").trim();
 		String parameterString = getParameterString(request);
-
+		String username = request.getParameter("username");
+		if (username == null) {
+			username = "";
+		} else {
+			username = username.trim();
+		}
+		String password = request.getParameter("password");
+		if (password== null) {
+			password = "";
+		} else {
+			password = password.trim();
+		}
 		job.setName(name);
 		job.setJobTypeID(safeID);
 		job.setCronExpression(cronExpression);
 		job.setParameters(parameterString);
+		job.setUsername(username);
+		job.setPassword(password);
 	}
 
 	private String getParameterString(HttpServletRequest request) {
@@ -224,6 +237,8 @@ public class JobServiceImpl implements JobService {
 		jobParameters.put("url", url);
 		jobParameters.put("queryString", nonPathParameters);
 		jobParameters.put("method", jobType.getHttpMethod());
+		jobParameters.put("username", job.getUsername());
+		jobParameters.put("password", job.getPassword());
 
 		return jobParameters;
 	}

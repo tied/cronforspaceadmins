@@ -97,8 +97,7 @@ $webResourceManager.requireResourcesForContext("cron-space-admin-screen")
 									#end
 								</select>
 							</div>
-							<div id="create-job-parameters">
-							</div>
+							<div id="create-job-parameters"></div>
 							<div class="field-group top-label">
 								<label for="create-cron-expression">Cron Expression<span class="aui-icon aui-icon-required">Required</span>
 									<a class="cron-tooltip" title="Format: seconds minutes hours dayOfWeek month dayOfMonth year">
@@ -107,6 +106,8 @@ $webResourceManager.requireResourcesForContext("cron-space-admin-screen")
 								</label>
 								<input id="create-cron-expression" data-aui-validation-field data-aui-validation-cron-expression="valid" data-aui-validation-required="required" data-aui-validation-required-msg="You must provide a cron expression" class="text" type="text" name="cron-expression">
 							</div>
+							<div id="create-credentials">
+							</div>							
 							<input type="hidden" name="spacekey" value="$action.getSpaceKey()"/>
 							<div class="field-group top-label">	
 								<button class="aui-button" type="submit">save</button>
@@ -161,6 +162,7 @@ $webResourceManager.requireResourcesForContext("cron-space-admin-screen")
 												</label>
 												<input id="edit-cron-expression" data-aui-validation-field data-aui-validation-cron-expression="valid" data-aui-validation-required="required" data-aui-validation-required-msg="You must provide a cron expression" class="text" type="text" name="cron-expression">
 											</div>
+											<div id="edit-credentials"></div>																		
 											<input type="hidden" name="spacekey" value="$action.getSpaceKey()"/>
 											<input id="edit-job-id" type="hidden" name="id" />
 											</fieldset>

@@ -7,11 +7,6 @@ function init() {
 	AJS.$("#edit-job-type").auiSelect2();
 	var dialog = AJS.dialog2("#edit-dialog");
 	AJS.$(".edit-button").on("click", function(e) {
-		console.log(AJS.$(e.target).data("jobName"));
-		console.log(AJS.$(e.target).attr("data-job-name"));
-		console.log(AJS.$(e.target).parent().data("jobName"));
-		console.log(AJS.$(e.target).parent().attr("data-job-name"));
-		
 		AJS.$("#edit-name").val(AJS.$(e.target).data("jobName"));
 		AJS.$(".jobtype-option").each(function(i) {
 			var currentOption = $(this);
@@ -22,7 +17,9 @@ function init() {
 				console.log("equal? " + ($(this).val() == AJS.$(e.target).data("jobType")));
 				currentOption.attr("selected", "selected");
 				currentOption.parent().parent().find(".select2-chosen").html(currentOption.html());
-				insertEditParameterFields(currentOption.val());
+				console.log("about to enter insertParameterFieldsForJobType for jobType: " + currentOption.val());
+				insertParameterFieldsForJobType(currentOption.val(), "edit");
+				insertCredentialsFieldsForJobType(currentOption.val(), "edit");
 			} else {
 				console.log("type in button: " + AJS.$(e.target).data("jobType"));
 				console.log("option " + i +":" + $(this).val());
@@ -38,7 +35,7 @@ function init() {
 	AJS.$(".delete-button").click(function(e) {
 		var url = AJS.contextPath() + "/plugins/cron-for-space-admins/DeleteJob.action?id=" + AJS.$(e.target).parent().attr("data-job-id") + "&spacekey=" + AJS.$(e.target).parent().attr("data-space-key");
 		window.location.replace(url);		
-	})
+	});
 	AJS.$("#close-dialog").click(function() {
 		console.log("close button clicked");
 		dialog.hide();
@@ -63,30 +60,56 @@ function init() {
 	
 	AJS.$("#create-job-type").on("change", function() {
 		var jobTypeId = AJS.$("#create-job-type").val();
-		AJS.$.get(AJS.contextPath() + "/rest/jobtype/1.0/parameters/" + jobTypeId)
-			.done(function(data) {
-				var parametersDiv = AJS.$("#create-job-parameters");
-				parametersDiv.empty();
-				insertParameterFields(data, parametersDiv);
-			});
+		insertCredentialsFieldsForJobType(jobTypeId, "create");
+		insertParameterFieldsForJobType(jobTypeId, "create");
 	});
 	
 	AJS.$("#edit-job-type").on("change", function() {
 		var jobTypeId = AJS.$("#edit-job-type").val();
-		insertEditParameterFields(jobTypeId);
-	});
+		insertParameterFieldsForJobType(jobTypeId, "edit");
+		insertCredentialsFieldsForJobType(jobTypeId, "edit");
+//		prefillParameterFields();		
+	});	
 	
-	function insertEditParameterFields(jobTypeId) {
-		AJS.$.get(AJS.contextPath() + "/rest/jobtype/1.0/parameters/" + jobTypeId)
+	function insertCredentialsFieldsForJobType(jobTypeId, mode) {
+		AJS.$.get(AJS.contextPath() + "/rest/jobtype/1.0/info/authentication/" + jobTypeId)
 			.done(function(data) {
-				var parametersDiv = AJS.$("#edit-job-parameters");
+				var credentialsDiv = AJS.$("#" + mode + "-credentials");
+				credentialsDiv.empty();
+				if (data === "true") {
+					insertCredentialsFields(credentialsDiv, mode);					
+				}
+			});
+	}
+	
+	function insertCredentialsFields(div, mode) {
+			var inputUsername = "<div class=\"field-group top-label\">";
+			inputUsername += "<label for=\"" + mode + "-username\">'Username' parameter<span class=\"aui-icon aui-icon-required\">Required</span></label>";
+			inputUsername += "<input id=\"" + mode + "-username\" data-aui-validation-field data-aui-validation-required=\"required\" data-aui-validation-required-msg=\"You must provide a username\" name=\"username\" type=\"text\" class=\"text\" />";
+			inputUsername += "</div>";			
+			div.append(inputUsername);
+			var inputPassword = "<div class=\"field-group top-label\">";
+			inputPassword += "<label for=\"" + mode + "-password\">'Password' parameter<span class=\"aui-icon aui-icon-required\">Required</span></label>";
+			inputPassword += "<input id=\"" + mode + "-password\" data-aui-validation-field data-aui-validation-required=\"required\" data-aui-validation-required-msg=\"You must provide a password\" name=\"password\" type=\"text\" class=\"text\" />";
+			inputPassword += "</div>";			
+			div.append(inputPassword);			
+	}	
+	
+	function insertParameterFieldsForJobType(jobTypeId, mode) {
+		AJS.$.get(AJS.contextPath() + "/rest/jobtype/1.0/info/parameters/" + jobTypeId)
+			.done(function(data) {
+				var parametersDiv = AJS.$("#" + mode + "-job-parameters");
 				parametersDiv.empty();
 				insertParameterFields(data, parametersDiv);
-				prefillParameterFields();
+				if (mode === "edit") {
+					prefillParameterFields();
+				}
+				
 			});		
 	}
 	
 	function insertParameterFields(data, div) {
+		console.log("about to insert parameter fields. data: " + data + " div: " + div);
 		console.log(data);
 		parameters = data.split("\n");
 		console.log(parameters);
@@ -97,26 +120,6 @@ function init() {
 			}
 		}
 	}
-
-	function prefillParameterFields() {
-		console.log("all is well (1)");
-		var parameterString = AJS.$("#parameter-string").data("parameters");
-		console.log("all is well (2)");
-		var keyValuePairs = parameterString.split("&");
-		console.log("all is well (3)");
-		console.log("kyeValuePairs: " + keyValuePairs);
-		for (index in keyValuePairs) {
-			console.log("all is well (4)");
-			var keyValuePair = keyValuePairs[index];
-			console.log("keyValuePair: " + keyValuePair);
-			var name = keyValuePair.split("=")[0];
-			console.log("name: " + name);
-			var value = keyValuePair.split("=")[1];
-			console.log("value: " + value);
-			AJS.$("#parameter-" + name).val(value);
-		}
-		console.log("all is well (5)");
-	}
 	
 	function getParameterFieldGroup(parameter) {
 		var field = "<div class=\"field-group top-label\">";
@@ -124,6 +127,26 @@ function init() {
 		field += "<input id=\"parameter-" + parameter + "\" name=\"parameter-" + parameter + "\" class=\"text\" data-aui-validation-field data-aui-validation-required data-aui-validation-required-msg=\"You must provide a value for all parameters\" pattern=\"^[a-zA-Z0-9]+$\" pattern-msg=\"Only alphanumeric characters are allowed for parameters\"/>";
 		field += "</div>";
 		return field;
+	}
+	
+	function prefillParameterFields() {
+		console.log("prefillParameterFields() called");
+		var parameterString = AJS.$("#parameter-string").attr("data-parameters");
+		console.log("parameters string: " + parameterString);
+		var keyValuePairs = parameterString.split("&");
+		for (index in keyValuePairs) {
+			console.log("index: " + index + " keyValuePair: " + keyValuePair)
+			var keyValuePair = keyValuePairs[index];
+			var name = keyValuePair.split("=")[0];
+			var value = keyValuePair.split("=")[1];
+			console.log("name: " + name + ", value: " + value)
+			var target = AJS.$("#parameter-" + name);
+			console.log("target element: " + target);
+			console.log("target element name: " + target.attr("name"));
+			console.log("target element id: " + target.attr("id"));
+			target.val(value);
+			target.append(value);
+		}
 	}
 
 	AJS.formValidation.register(['job-name'], function(field) {
@@ -167,9 +190,6 @@ function init() {
 	
 	AJS.formValidation.register(['cron-expression'], function(field) {
 		
-		console.log(field.$el.val());
-		console.log(field.$el.val().trim());
-		console.log(field.$el.val().trim().split(' '));
 		var elements = field.$el.val().trim().split(' ');
 		if ((elements.length !== 6) && (elements.length !== 7)) {
 			field.invalidate('Invalid cron expression: must consist of five or six elements.');

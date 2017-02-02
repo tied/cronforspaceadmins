@@ -10,9 +10,11 @@ public interface JobType extends Entity {
 	String getHttpMethod();
 	String getUrl();
 	String getParameterNames();
+	boolean isAuthenticationRequired();
 
 	void setName(String name);
 	void setHttpMethod(String httpMethod);
 	void setUrl(String url);
 	void setParameterNames(String parameterNames);
+	void setAuthenticationRequired(boolean authenticationRequired);
 }

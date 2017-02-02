@@ -16,10 +16,10 @@ import org.slf4j.LoggerFactory;
  * A resource of message.
  */
 @Scanned
-@Path("/parameters")
-public class JobTypeParametersProvider {
+@Path("info")
+public class JobTypeInformationProvider {
 
-	private static Logger logger = LoggerFactory.getLogger(JobTypeParametersProvider.class);
+	private static Logger logger = LoggerFactory.getLogger(JobTypeInformationProvider.class);
 	private JobTypeService jobTypeService;
 
 	public void setJobTypeService(JobTypeService jobTypeService) {
@@ -28,12 +28,22 @@ public class JobTypeParametersProvider {
 
     @GET
     @AnonymousAllowed
-    @Path("{id}")
+    @Path("parameters/{id}")
     @Produces({MediaType.TEXT_PLAIN})
-    public String getMessage(@PathParam("id") String id)
+    public String getParameters(@PathParam("id") String id)
     {
     	JobType jobType = jobTypeService.getJobTypeByID(id);
     	return jobType.getParameterNames();
+    }
+
+    @GET
+    @AnonymousAllowed
+    @Path("authentication/{id}")
+    @Produces({MediaType.TEXT_PLAIN})
+    public String isAuthenticationRequired(@PathParam("id") String id)
+    {
+    	JobType jobType = jobTypeService.getJobTypeByID(id);
+    	return Boolean.toString(jobType.isAuthenticationRequired());
     }
 
 }

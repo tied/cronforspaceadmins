@@ -15,8 +15,10 @@ import com.atlassian.scheduler.JobRunnerRequest;
 import com.atlassian.scheduler.JobRunnerResponse;
 
 import com.sun.jersey.api.client.Client;
+//import com.sun.jersey.api.client.authentication.HttpAuthenticationFeature;
 import com.sun.jersey.api.client.WebResource;
 import com.sun.jersey.api.client.WebResource.Builder;
+import com.sun.jersey.api.client.filter.HTTPBasicAuthFilter;
 
 import de.iteconomics.confluence.plugins.cron.exceptions.CronJobRunnerException;
 
@@ -57,14 +59,20 @@ final class CronJobRunner implements JobRunner {
 		}
 		String requestBody = "";
 		String httpMethod = (String) parameters.get("method");
+		String username = (String) parameters.get("username");
+		String password = (String) parameters.get("password");
+
 
 		if (httpMethod.equals("GET") || httpMethod.equals("DELETE")) {
-			if (queryString != "") {
+			if (!queryString.equals("")) {
 				urlString += "?" + queryString;
 			}
 		}
 
 		Client client = Client.create();
+		if (!username.equals("")) {
+			client.addFilter(new HTTPBasicAuthFilter(username, password));
+		}
 		URI uri;
 		try {
 			uri = new URI(urlString);
@@ -103,6 +111,8 @@ final class CronJobRunner implements JobRunner {
 			throw new CronJobRunnerException("Cannot run job. Unsupported http method: " +
 					httpMethod + ". Only GET, POST, PUT and DELETE are supported.");
 		}
+
+		logger.error("response: " + response);
 
 		return null;
 	}

@@ -63,6 +63,7 @@ public class JobTypeServiceImpl implements JobTypeService {
 
 	@Override
 	public void updateJobType(HttpServletRequest request) {
+		checkRequestParametersNotNull(request);
 		JobType jobType = getJobTypeIfExists(request);
 		setJobTypeValues(jobType, request);
 		jobType.save();
@@ -95,10 +96,12 @@ public class JobTypeServiceImpl implements JobTypeService {
 		checkIsValidMethod(httpMethod);
 		String allParameters = getAllParameters(url, parameterNames);
 		assertNoDuplicateParameterNames(allParameters);
+		boolean authenticationRequired = (request.getParameter("authentication") != null);
 
 		jobType.setName(name);
 		jobType.setHttpMethod(httpMethod);
 		jobType.setParameterNames(allParameters);
+		jobType.setAuthenticationRequired(authenticationRequired);
 		jobType.setUrl(url);
 	}
 

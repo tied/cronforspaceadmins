@@ -15,6 +15,7 @@ $webResourceManager.requireResourcesForContext("cron-configuration-screen")
 			<th id="url">URL</th>
 			<th id="http-method">Http method</th>
 			<th id="parameters">parameters</th>
+			<th di="authentication">Athentication required</th>
 		</tr>
 	</thead>
 	<tbody>
@@ -24,6 +25,13 @@ $webResourceManager.requireResourcesForContext("cron-configuration-screen")
 			<td>${jobtype.url}</td>
 			<td>${jobtype.httpMethod}</td>
 			<td>$!{jobtype.parameterNames}</td>
+			<td>
+			#if(${jobtype.authenticationRequired} == true)
+				yes
+			#else
+				no
+			#end
+			</td>
 			<td>
 				<button class="delete-button aui-button aui-button-link" type="button" data-job-type-id="${jobtype.ID}"><span class="aui-icon aui-icon-small aui-iconfont-delete" data-job-type-id="${jobtype.ID}">Delete</span></button>
 				<button class="edit-button aui-button aui-button-link" type="button" data-job-type-id="${jobtype.ID}" data-job-type-name="${jobtype.name}" data-job-type-url="${jobtype.url}" data-job-type-parameters="${jobtype.parameterNames}" data-job-type-method="${jobtype.httpMethod}"><span class="aui-icon aui-icon-small aui-iconfont-edit" data-job-type-id="${jobtype.ID}" data-job-type-name="${jobtype.name}" data-job-type-url="${jobtype.url}" data-job-type-parameters="${jobtype.parameterNames}" data-job-type-method="${jobtype.httpMethod}">Edit</span></button></td>		
@@ -56,7 +64,11 @@ $webResourceManager.requireResourcesForContext("cron-configuration-screen")
 			<aui-option value="PUT">PUT</aui-option>
 			<aui-option value="DELETE">DELETE</aui-option>
 		</aui-select>
-	</div>		
+	</div>
+	<div class="field-group top-label">	
+		<label for="create-job-type-authentication">Requires Authentication</label>
+		<input type="checkbox" id="create-job-type-authentication" class="checkbox" name="authentication"></textarea>		
+	</div>
 	<div class="field-group top-label">
 		<button class="aui-button" type="submit">save</button>
 	</div>
