@@ -1,7 +1,6 @@
 AJS.toInit(init);
 
 function init() {
-	console.log("initializing...");
 	var dialog = AJS.dialog2("#edit-dialog");
 	
 	AJS.$(".edit-button").click(function(e) {
@@ -11,9 +10,7 @@ function init() {
 		AJS.$("#edit-job-type-method").val(AJS.$(e.target).data("jobTypeMethod"));
 		AJS.$("#edit-job-type-id").val(AJS.$(e.target).data("jobTypeId"));
 		var parameterString = AJS.$(e.target).data("jobTypeParameters");
-		console.log("parameters before splitting: " + parameterString);
 		var parameters = parameterString.trim().split(/\s+/);
-		console.log("parameters after splitting: " + parameters);		
 		var nonPathParameters = "";
 		for (i in parameters) {
 			var parameter = parameters[i];
@@ -47,7 +44,6 @@ function init() {
 		window.location.replace(url);		
 	})	
 	AJS.$("#close-dialog").click(function() {
-		console.log("close button clicked");
 		dialog.hide()
 	});
 	AJS.$("#submit-dialog").click(function() {
@@ -72,23 +68,12 @@ function init() {
 			jobTypes = jobTypesString.split('|');
 		}
 		
-		console.log("all forbidden names:");
-		for (name in jobTypes) {
-			console.log(jobTypes[name]);
-		}
 		if (field.$el.attr("data-is-edit") == "true") {
-			console.log("this is an edit");
 			var indexOfCurrentName = jobTypes.indexOf(field.$el.attr("data-current-name"));
 			if (indexOfCurrentName > -1) {
 				jobTypes.splice(indexOfCurrentName, 1);
 			}
-			console.log("all forbidden names after removal:");
-			for (name in jobTypes) {
-				console.log(jobTypes[name]);
-			}				
-		} else {
-			console.log("this is not an edit");
-		}		
+		}
 		
 		var valid = true;
 		for (jobType in jobTypes) {

@@ -1,8 +1,6 @@
 AJS.toInit(init);
 
 function init() {
-	console.log("initializing...");
-	
 	AJS.$("#create-job-type").auiSelect2();
 	AJS.$("#edit-job-type").auiSelect2();
 	var dialog = AJS.dialog2("#edit-dialog");
@@ -12,18 +10,10 @@ function init() {
 			var currentOption = $(this);
 			var parent = currentOption.parent();
 			if (currentOption.val() == AJS.$(e.target).data("jobType")) {
-				console.log("type in button: " + AJS.$(e.target).data("jobType"));
-				console.log("option " + i +":" + $(this).val());
-				console.log("equal? " + ($(this).val() == AJS.$(e.target).data("jobType")));
 				currentOption.attr("selected", "selected");
 				currentOption.parent().parent().find(".select2-chosen").html(currentOption.html());
-				console.log("about to enter insertParameterFieldsForJobType for jobType: " + currentOption.val());
 				insertParameterFieldsForJobType(currentOption.val(), "edit");
 				insertCredentialsFieldsForJobType(currentOption.val(), "edit");
-			} else {
-				console.log("type in button: " + AJS.$(e.target).data("jobType"));
-				console.log("option " + i +":" + $(this).val());
-				console.log("equal? " + ($(this).val() == AJS.$(e.target).data("jobType")));				
 			}
 		});
 		AJS.$("#edit-cron-expression").val(AJS.$(e.target).data("cronExpression"));		
@@ -37,7 +27,6 @@ function init() {
 		window.location.replace(url);		
 	});
 	AJS.$("#close-dialog").click(function() {
-		console.log("close button clicked");
 		dialog.hide();
 	});
 	AJS.$("#submit-dialog").click(function() {
@@ -109,10 +98,7 @@ function init() {
 	}
 	
 	function insertParameterFields(data, div) {
-		console.log("about to insert parameter fields. data: " + data + " div: " + div);
-		console.log(data);
 		parameters = data.split("\n");
-		console.log(parameters);
 		for (index in parameters) {
 			var parameter = parameters[index].trim();
 			if (parameter) {
@@ -130,48 +116,30 @@ function init() {
 	}
 	
 	function prefillParameterFields() {
-		console.log("prefillParameterFields() called");
 		var parameterString = AJS.$("#parameter-string").attr("data-parameters");
-		console.log("parameters string: " + parameterString);
 		var keyValuePairs = parameterString.split("&");
 		for (index in keyValuePairs) {
-			console.log("index: " + index + " keyValuePair: " + keyValuePair)
 			var keyValuePair = keyValuePairs[index];
 			var name = keyValuePair.split("=")[0];
 			var value = keyValuePair.split("=")[1];
-			console.log("name: " + name + ", value: " + value)
 			var target = AJS.$("#parameter-" + name);
-			console.log("target element: " + target);
-			console.log("target element name: " + target.attr("name"));
-			console.log("target element id: " + target.attr("id"));
 			target.val(value);
 			target.append(value);
 		}
 	}
 
 	AJS.formValidation.register(['job-name'], function(field) {
-			console.log("validator called");
 			var jobsString = field.args('job-name');
 			var jobs= [];
 			if (jobsString) {
 				jobs = jobsString.split('|');
 			}
-			console.log("all forbidden names:");
-			for (name in jobs) {
-				console.log(jobs[name]);
-			}
+			
 			if (field.$el.attr("data-is-edit") == "true") {
-				console.log("this is an edit");
 				var indexOfCurrentName = jobs.indexOf(field.$el.attr("data-current-name"));
 				if (indexOfCurrentName > -1) {
 					jobs.splice(indexOfCurrentName, 1);
 				}
-				console.log("all forbidden names after removal:");
-				for (name in jobs) {
-					console.log(jobs[name]);
-				}				
-			} else {
-				console.log("this is not an edit");
 			}
 			var valid = true;
 			for (job in jobs) {
@@ -208,7 +176,6 @@ function init() {
 			year = elements[6];
 		}
 		
-		console.log("seconds: " + seconds);	
 		if (!validate(seconds, 0, 59)) {
 			field.invalidate('Invalid cron expression: ' + seconds + ' is not a valid value for the seconds.');
 			return;			
@@ -272,15 +239,11 @@ function init() {
 	
 	function isValidSingleValue(value, lowerBound, upperBound) {
 		
-		console.log("called: isValidSingleValue(" + value + ", " + lowerBound + ", " + upperBound + ")");
-		
 		if (!value) {
-			console.log("no value, returning false");
 			return false;
 		}
 		
 		if (value.indexOf("-") !== -1 && value.indexOf("/") !== -1) {
-			console.log("there cannot be both a '-' and a '/' in a single value, returning false");
 			return false;
 		} else if (value.indexOf("-") !== -1) {
 			return isValidRange(value, lowerBound, upperBound);
@@ -296,12 +259,10 @@ function init() {
 		var values = value.split("-");
 		
 		if (values.length > 2) {
-			console.log("too many " + separator + " separators, returning false");
 			return false;
 		}
 		
 		if (isNaN(values[0]) || isNaN(values[1]) || values[0] === "" || values[1] === "") {
-			console.log("at least one of " + values[0] + " and " + values[1] + " is not a number, returning false");
 			return false;
 		}
 		
@@ -321,7 +282,6 @@ function init() {
 		}
 		
 		if (start >= end) {
-			console.log("start is NOT lower than end, returning false");
 			return false;
 		}
 		
@@ -333,12 +293,10 @@ function init() {
 		var values = value.split("/");
 		
 		if (values.length > 2) {
-			console.log("too many " + separator + " separators, returning false");
 			return false;
 		}
 		
 		if (isNaN(values[0]) || isNaN(values[1]) || values[0] === "" || values[1] === "") {
-			console.log("at least one of " + values[0] + " and " + values[1] + " is not a number, returning false");
 			return false;
 		}
 		
@@ -359,9 +317,6 @@ function init() {
 		
 		
 		if (!inRange(increment, 1, upperBound - start)) {
-			console.log("increment either too large or < 1, returning false");
-			console.log("increment: " + increment);
-			console.log("max allowed value for increment: " + (upperBound - start));
 			return false;
 		}
 
@@ -370,10 +325,6 @@ function init() {
 		
 	
 	function inRange(number, lowerBound, upperBound) {
-		console.log("number: " + number);
-		console.log("lowerBound: " + lowerBound);
-		console.log("upperBound: " + upperBound);
-		console.log("in range? " + (number >= lowerBound) && (number <= upperBound));
 		return ((number >= lowerBound) && (number <= upperBound));
 	}	
 }
