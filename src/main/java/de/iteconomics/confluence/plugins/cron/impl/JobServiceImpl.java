@@ -155,11 +155,6 @@ public class JobServiceImpl implements JobService {
 			if (key.startsWith(prefix)) {
 				String[] values = request.getParameterValues(key);
 				String value = values[0].trim();
-				for (char c: value.toCharArray()) {
-					if (!Character.isLetterOrDigit(c)) {
-						throw new JobException("Only alphanumeric characters are allowed in parameters");
-					}
-				}
 				parameterString += key.substring(prefix.length());
 				parameterString += "=";
 				parameterString += (value);

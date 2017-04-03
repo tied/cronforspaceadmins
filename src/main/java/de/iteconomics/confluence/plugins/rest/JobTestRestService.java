@@ -2,6 +2,9 @@ package de.iteconomics.confluence.plugins.rest;
 
 import com.atlassian.plugins.rest.common.security.AnonymousAllowed;
 
+import de.iteconomics.confluence.plugins.cron.api.Notifier;
+
+import javax.inject.Inject;
 import javax.ws.rs.*;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
@@ -18,6 +21,13 @@ public class JobTestRestService {
 
 	private static Logger logger = LoggerFactory.getLogger(JobTestRestService.class);
 
+	@Inject
+	private Notifier notifier;
+
+	public JobTestRestService(Notifier notifier) {
+		this.notifier = notifier;
+	}
+
     @POST
     @AnonymousAllowed
     @Consumes(MediaType.APPLICATION_JSON)
@@ -25,6 +35,7 @@ public class JobTestRestService {
     @Path("yetanother/{param}/endpoint")
     public String getAnotherMessage(@PathParam("param") String param, JobTestRestServiceModel data, @Context UriInfo ui)
     {
+    	notifier.sendNotification(data.getParam1(), data.getParam2());
     	logger.error("path param: " + param);
     	logger.error("XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXxx");
     	logger.error("first form param: " + data.getParam1());
@@ -47,5 +58,14 @@ public class JobTestRestService {
     {
     	logger.error("######## Test Rest service was called - http method: GET, parameter: " + param);
     	return "all is well";
+    }
+
+    @POST
+    @AnonymousAllowed
+    @Produces(MediaType.TEXT_PLAIN)
+    public String sendNotificationToDude(@FormParam("username") String username, @FormParam("message") String message)
+    {
+    	notifier.sendNotification(username, message);
+    	return null;
     }
 }

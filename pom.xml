@@ -42,7 +42,12 @@
         	<scope>provided</scope>
         </dependency>
 
-
+				<dependency>
+				  <groupId>com.atlassian.mywork</groupId>
+				  <artifactId>mywork-api</artifactId>
+				  <version>1.0.2</version>
+				  <scope>provided</scope>
+				</dependency>
         
 				<dependency>
 				    <groupId>org.springframework</groupId>

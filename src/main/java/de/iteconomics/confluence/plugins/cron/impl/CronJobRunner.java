@@ -1,8 +1,10 @@
 package de.iteconomics.confluence.plugins.cron.impl;
 
 import java.io.Serializable;
+import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.net.URLEncoder;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -15,7 +17,6 @@ import com.atlassian.scheduler.JobRunnerRequest;
 import com.atlassian.scheduler.JobRunnerResponse;
 
 import com.sun.jersey.api.client.Client;
-//import com.sun.jersey.api.client.authentication.HttpAuthenticationFeature;
 import com.sun.jersey.api.client.WebResource;
 import com.sun.jersey.api.client.WebResource.Builder;
 import com.sun.jersey.api.client.filter.HTTPBasicAuthFilter;
@@ -65,7 +66,20 @@ final class CronJobRunner implements JobRunner {
 
 		if (httpMethod.equals("GET") || httpMethod.equals("DELETE")) {
 			if (!queryString.equals("")) {
-				urlString += "?" + queryString;
+				try {
+					urlString += "?";
+					for (String keyValuePair: queryString.split("&")) {
+						String key = keyValuePair.split("=")[0];
+						String value = keyValuePair.split("=")[1];
+						urlString += key;
+						urlString += "=";
+						urlString += URLEncoder.encode(value, "UTF-8");
+						urlString += "&";
+					}
+					urlString = urlString.substring(0, urlString.length() - 1);
+				} catch (UnsupportedEncodingException e) {
+					logger.error("could url encode: " + queryString);;
+				}
 			}
 		}
 

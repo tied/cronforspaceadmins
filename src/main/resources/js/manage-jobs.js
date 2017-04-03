@@ -23,9 +23,29 @@ function init() {
 		dialog.show();
 	});
 	AJS.$(".delete-button").click(function(e) {
-		var url = AJS.contextPath() + "/plugins/cron-for-space-admins/DeleteJob.action?id=" + AJS.$(e.target).parent().attr("data-job-id") + "&spacekey=" + AJS.$(e.target).parent().attr("data-space-key");
+		var jobId = getJobId(e);
+		var spaceKey = getSpaceKey(e);
+		var url = AJS.contextPath() + "/plugins/cron-for-space-admins/DeleteJob.action?id=" + jobId + "&spacekey=" + spaceKey;
+		alert("url: " + url + ", parent element: " + AJS.$(e.target).parent());
 		window.location.replace(url);		
 	});
+	
+	function getJobId(event) {
+		var id = AJS.$(event.target).data("jobId");
+		if (!id) {
+			id = AJS.$(event.target).parent().data("jobId");
+		}
+		return id;
+	}
+	
+	function getSpaceKey(event) {
+		var key = AJS.$(event.target).data("spaceKey");
+		if (!key) {
+			key = AJS.$(event.target).parent().data("spaceKey");
+		}
+		return key;
+	}
+
 	AJS.$("#close-dialog").click(function() {
 		dialog.hide();
 	});
@@ -108,6 +128,14 @@ function init() {
 	}
 	
 	function getParameterFieldGroup(parameter) {
+		var field = "<div class=\"field-group top-label\">";
+		field += "<label for=\"parameter-" + parameter + "\">'" + parameter + "' parameter<span class=\"aui-icon aui-icon-required\">Required</span></label>";
+		field += "<textarea id=\"parameter-" + parameter + "\" name=\"parameter-" + parameter + "\" class=\"textarea\" data-aui-validation-field data-aui-validation-required data-aui-validation-required-msg=\"You must provide a value for all parameters\" rows=\"2\" cols=\"10\" />";
+		field += "</div>";
+		return field;
+	}
+	
+	function getParameterFieldGroup_old(parameter) {
 		var field = "<div class=\"field-group top-label\">";
 		field += "<label for=\"parameter-" + parameter + "\">'" + parameter + "' parameter<span class=\"aui-icon aui-icon-required\">Required</span></label>";
 		field += "<input id=\"parameter-" + parameter + "\" name=\"parameter-" + parameter + "\" class=\"text\" data-aui-validation-field data-aui-validation-required data-aui-validation-required-msg=\"You must provide a value for all parameters\" pattern=\"^[a-zA-Z0-9]+$\" pattern-msg=\"Only alphanumeric characters are allowed for parameters\"/>";
