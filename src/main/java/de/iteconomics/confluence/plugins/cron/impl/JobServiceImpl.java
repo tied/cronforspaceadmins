@@ -126,24 +126,11 @@ public class JobServiceImpl implements JobService {
 		String safeID = getSafeJobTypeID(jobTypeID);
 		String cronExpression = request.getParameter("cron-expression").trim();
 		String parameterString = getParameterString(request);
-		String username = request.getParameter("username");
-		if (username == null) {
-			username = "";
-		} else {
-			username = username.trim();
-		}
-		String password = request.getParameter("password");
-		if (password== null) {
-			password = "";
-		} else {
-			password = password.trim();
-		}
+
 		job.setName(name);
 		job.setJobTypeID(safeID);
 		job.setCronExpression(cronExpression);
 		job.setParameters(parameterString);
-		job.setUsername(username);
-		job.setPassword(password);
 	}
 
 	private String getParameterString(HttpServletRequest request) {
@@ -232,8 +219,8 @@ public class JobServiceImpl implements JobService {
 		jobParameters.put("url", url);
 		jobParameters.put("queryString", nonPathParameters);
 		jobParameters.put("method", jobType.getHttpMethod());
-		jobParameters.put("username", job.getUsername());
-		jobParameters.put("password", job.getPassword());
+		jobParameters.put("username", jobType.getUsername());
+		jobParameters.put("password", jobType.getPassword());
 
 		return jobParameters;
 	}

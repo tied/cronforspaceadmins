@@ -77,7 +77,6 @@ function init() {
 		var jobTypeId = AJS.$("#edit-job-type").val();
 		insertParameterFieldsForJobType(jobTypeId, "edit");
 		insertCredentialsFieldsForJobType(jobTypeId, "edit");
-//		prefillParameterFields();		
 	});	
 	
 	function insertCredentialsFieldsForJobType(jobTypeId, mode) {

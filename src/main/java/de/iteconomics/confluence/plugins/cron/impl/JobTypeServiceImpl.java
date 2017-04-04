@@ -98,9 +98,24 @@ public class JobTypeServiceImpl implements JobTypeService {
 		assertNoDuplicateParameterNames(allParameters);
 		boolean authenticationRequired = (request.getParameter("authentication") != null);
 
+		String username = request.getParameter("username");
+		if (username == null) {
+			username = "";
+		} else {
+			username = username.trim();
+		}
+		String password = request.getParameter("password");
+		if (password== null) {
+			password = "";
+		} else {
+			password = password.trim();
+		}
+
 		jobType.setName(name);
 		jobType.setHttpMethod(httpMethod);
 		jobType.setParameterNames(allParameters);
+		jobType.setUsername(username);
+		jobType.setPassword(password);
 		jobType.setAuthenticationRequired(authenticationRequired);
 		jobType.setUrl(url);
 	}

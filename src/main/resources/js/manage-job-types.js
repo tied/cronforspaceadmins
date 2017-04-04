@@ -34,9 +34,9 @@ function init() {
 		
 		AJS.$("#edit-job-type-name").attr("data-current-name", AJS.$(e.target).data("jobTypeName"));
 		// hack to trigger validation
-		AJS.$("#edit-job-type-name").change();		
-		AJS.$("#edit-job-type-url").change();		
-		AJS.$("#edit-job-type-id").change();		
+		AJS.$("#edit-job-type-name").change();	
+		AJS.$("#edit-job-type-url").change();
+		AJS.$("#edit-job-type-id").change();
 		dialog.show();
 	});
 	AJS.$(".delete-button").click(function(e) {
@@ -60,6 +60,44 @@ function init() {
 		}
 		window.location.replace(AJS.contextPath() + actionUrl + "?id=" + AJS.$(e.target).parent().attr("data-job-id") + "&spacekey=jobTypeAdmin");
 	});
+	
+	AJS.$("#create-job-type-authentication").on("change", function() {
+		var authenticationRequiredCheckBox = AJS.$("#create-job-type-authentication");
+		if (authenticationRequiredCheckBox.is(":checked")) {
+			insertCredentialsFields("create");			
+		} else {
+			emptyCredentialsDiv("create");
+		}
+	});
+	
+	AJS.$("#edit-job-type-authentication").on("change", function() {
+		var authenticationRequiredCheckBox = AJS.$("#edit-job-type-authentication");
+		if (authenticationRequiredCheckBox.is(":checked")) {
+			insertCredentialsFields("edit");
+		} else {
+			emptyCredentialsDiv("edit");
+		}
+	});
+		
+	function insertCredentialsFields(mode) {
+			var credentialsDiv = AJS.$("#" + mode + "-credentials");
+			credentialsDiv.empty();
+			var inputUsername = "<div class=\"field-group top-label\">";
+			inputUsername += "<label for=\"" + mode + "-username\">Username<span class=\"aui-icon aui-icon-required\">Required</span></label>";
+			inputUsername += "<input id=\"" + mode + "-username\" data-aui-validation-field data-aui-validation-required=\"required\" data-aui-validation-required-msg=\"You must provide a username\" name=\"username\" type=\"text\" class=\"text\" />";
+			inputUsername += "</div>";			
+			credentialsDiv.append(inputUsername);
+			var inputPassword = "<div class=\"field-group top-label\">";
+			inputPassword += "<label for=\"" + mode + "-password\">Password<span class=\"aui-icon aui-icon-required\">Required</span></label>";
+			inputPassword += "<input id=\"" + mode + "-password\" data-aui-validation-field data-aui-validation-required=\"required\" data-aui-validation-required-msg=\"You must provide a password\" name=\"password\" type=\"text\" class=\"text\" />";
+			inputPassword += "</div>";			
+			credentialsDiv.append(inputPassword);		
+	}
+	
+	function emptyCredentialsDiv(mode) {
+		var credentialsDiv = AJS.$("#" + mode + "-credentials");
+		credentialsDiv.empty();
+	}	
 	
 	AJS.formValidation.register(['job-type-name'], function(field) {
 		var jobTypesString = field.args('job-type-name');

@@ -29,7 +29,6 @@ public class JobTestRestService {
 	}
 
     @POST
-    @AnonymousAllowed
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces({MediaType.TEXT_PLAIN})
     @Path("yetanother/{param}/endpoint")

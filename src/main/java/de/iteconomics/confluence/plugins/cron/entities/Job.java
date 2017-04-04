@@ -13,8 +13,6 @@ public interface Job extends Entity {
 	String getCronExpression();
 	String getJobKey();
 	String getParameters();
-	String getUsername();
-	String getPassword();
 
 	void setName(String name);
 	void setJobTypeID(String ID);
@@ -22,6 +20,4 @@ public interface Job extends Entity {
 	void setCronExpression(String cronExpression);
 	void setJobKey(String jobKey);
 	void setParameters(String parameters);
-	void setUsername(String username);
-	void setPassword(String password);
 }
