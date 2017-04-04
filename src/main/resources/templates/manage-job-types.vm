@@ -41,7 +41,7 @@ $webResourceManager.requireResourcesForContext("cron-configuration-screen")
 			</td>
 			<td>
 				<button class="delete-button aui-button aui-button-link" type="button" data-job-type-id="${jobtype.ID}"><span class="aui-icon aui-icon-small aui-iconfont-delete" data-job-type-id="${jobtype.ID}">Delete</span></button>
-				<button class="edit-button aui-button aui-button-link" type="button" data-job-type-id="${jobtype.ID}" data-job-type-name="${jobtype.name}" data-job-type-url="${jobtype.url}" data-job-type-parameters="${jobtype.parameterNames}" data-job-type-method="${jobtype.httpMethod}"><span class="aui-icon aui-icon-small aui-iconfont-edit" data-job-type-id="${jobtype.ID}" data-job-type-name="${jobtype.name}" data-job-type-url="${jobtype.url}" data-job-type-parameters="${jobtype.parameterNames}" data-job-type-method="${jobtype.httpMethod}">Edit</span></button></td>		
+				<button class="edit-button aui-button aui-button-link" type="button" data-job-type-id="${jobtype.ID}" data-job-type-name="${jobtype.name}" data-job-type-url="${jobtype.url}" data-job-type-parameters="${jobtype.parameterNames}" data-job-type-method="${jobtype.httpMethod}"><span class="aui-icon aui-icon-small aui-iconfont-edit" data-job-type-id="${jobtype.ID}" data-job-type-name="${jobtype.name}" data-job-type-url="${jobtype.url}" data-job-type-parameters="${jobtype.parameterNames}" data-job-type-method="${jobtype.httpMethod}" data-job-type-authentication="${jobtype.authenticationRequired}" data-job-type-username="${jobtype.username}">Edit</span></button></td>		
 			</td>
 		</tr>
 		#end
@@ -164,9 +164,10 @@ $webResourceManager.requireResourcesForContext("cron-configuration-screen")
 								<aui-option class="method-option" value="DELETE">DELETE</aui-option>
 							</aui-select>
 						</div>
-						<div class="field-group top-label">	
+						<div class="field-group top-label">
 							<label for="edit-job-type-authentication">Requires Authentication</label>
-							<input type="checkbox" id="edit-job-type-authentication" class="checkbox" name="authentication"></textarea>		
+							<input type="checkbox" id="edit-job-type-authentication" class="checkbox" name="authentication"></textarea>
+							<span id="current-username" data-username="">		
 						</div>
 						<div id="edit-credentials">
 						</div>

@@ -9,6 +9,7 @@ function init() {
 		AJS.$("#edit-job-type-url").val(url);
 		AJS.$("#edit-job-type-method").val(AJS.$(e.target).data("jobTypeMethod"));
 		AJS.$("#edit-job-type-id").val(AJS.$(e.target).data("jobTypeId"));
+		AJS.$("#current-username").attr("data-username", AJS.$(e.target).data("jobTypeUsername"));
 		var parameterString = AJS.$(e.target).data("jobTypeParameters");
 		var parameters = parameterString.trim().split(/\s+/);
 		var nonPathParameters = "";
@@ -30,8 +31,16 @@ function init() {
 				currentOption.attr("selected", "selected");
 				currentOption.parent().parent().find(".select2-chosen").html(currentOption.html());				
 			}
-		});		
+		});
 		
+		var isAuthenticationRequired = AJS.$(e.target).attr("data-job-type-authentication");
+		if (isAuthenticationRequired == "true") {
+			AJS.$("#edit-job-type-authentication").attr("checked", "checked");
+			insertCredentialsFields("edit");
+			AJS.$("#edit-username").val(AJS.$("#current-username").data("username"));
+		} else {
+			AJS.$("#edit-job-type-authentication").removeAttr("checked");
+		}
 		AJS.$("#edit-job-type-name").attr("data-current-name", AJS.$(e.target).data("jobTypeName"));
 		// hack to trigger validation
 		AJS.$("#edit-job-type-name").change();	
@@ -74,6 +83,8 @@ function init() {
 		var authenticationRequiredCheckBox = AJS.$("#edit-job-type-authentication");
 		if (authenticationRequiredCheckBox.is(":checked")) {
 			insertCredentialsFields("edit");
+			AJS.$("#edit-username").val(AJS.$("#current-username").data("username"));
+//			AJS.$("#edit-username").val(AJS.$(e.target).data("jobTypeUsername"));
 		} else {
 			emptyCredentialsDiv("edit");
 		}
@@ -89,7 +100,7 @@ function init() {
 			credentialsDiv.append(inputUsername);
 			var inputPassword = "<div class=\"field-group top-label\">";
 			inputPassword += "<label for=\"" + mode + "-password\">Password<span class=\"aui-icon aui-icon-required\">Required</span></label>";
-			inputPassword += "<input id=\"" + mode + "-password\" data-aui-validation-field data-aui-validation-required=\"required\" data-aui-validation-required-msg=\"You must provide a password\" name=\"password\" type=\"text\" class=\"text\" />";
+			inputPassword += "<input id=\"" + mode + "-password\" data-aui-validation-field data-aui-validation-required=\"required\" data-aui-validation-required-msg=\"You must provide a password\" name=\"password\" type=\"password\" class=\"text\" />";
 			inputPassword += "</div>";			
 			credentialsDiv.append(inputPassword);		
 	}
