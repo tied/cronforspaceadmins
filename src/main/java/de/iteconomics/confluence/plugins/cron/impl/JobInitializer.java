@@ -69,8 +69,10 @@ public class JobInitializer implements DisposableBean {
 			public Object doInTransaction() {
 				logger.error("about to register jobs...");
 				for (Job job: disabledJobs) {
-					logger.error("registering job: " + job.getJobKey());
-					jobService.registerJob(job);
+					if (job.isActive()) {
+						logger.error("registering job: " + job.getJobKey());
+						jobService.registerJob(job);
+					}
 				}
 				return null;
 			}

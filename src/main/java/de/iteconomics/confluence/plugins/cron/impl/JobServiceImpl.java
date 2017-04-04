@@ -171,6 +171,8 @@ public class JobServiceImpl implements JobService {
 
 	@Override
 	public void unregisterJob(Job job) {
+		job.setActive(false);
+		job.save();
 		schedulerService.unscheduleJob(JobId.of(job.getJobKey()));
 		schedulerService.unregisterJobRunner(JobRunnerKey.of(job.getJobKey() + ":runner"));
 	}
@@ -181,6 +183,8 @@ public class JobServiceImpl implements JobService {
 
 		registerJobRunner(jobRunnerKey);
 		scheduleJob(job, jobRunnerKey);
+		job.setActive(true);
+		job.save();
 	}
 
 	private void registerJobRunner(JobRunnerKey jobRunnerKey) {
