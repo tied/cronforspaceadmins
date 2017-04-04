@@ -14,7 +14,7 @@ $webResourceManager.requireResourcesForContext("cron-configuration-screen")
 			<th id="url">URL</th>
 			<th id="http-method">Http method</th>
 			<th id="parameters">parameters</th>
-			<th di="authentication">Athentication required</th>
+			<th id="authentication">Athentication required</th>
 		</tr>
 	</thead>
 	<tbody>
