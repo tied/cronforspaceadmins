@@ -49,9 +49,29 @@ function init() {
 		dialog.show();
 	});
 	AJS.$(".delete-button").click(function(e) {
-		var url = AJS.contextPath() + "/plugins/cron-for-space-admins/DeleteJobType.action?id=" + AJS.$(e.target).attr("data-job-type-id");
+		var jobId = getJobId(e);
+		var spaceKey = getSpaceKey(e);
+		var url = AJS.contextPath() + "/plugins/cron-for-space-admins/DeleteJob.action?id=" + jobId + "&spacekey=" + spaceKey + "&fromJobTypeAdminPage=true";
+		//var url = AJS.contextPath() + "/plugins/cron-for-space-admins/DeleteJobType.action?id=" + AJS.$(e.target).attr("data-job-type-id");
 		window.location.replace(url);		
 	})	
+	
+	function getJobId(event) {
+		var id = AJS.$(event.target).data("jobId");
+		if (!id) {
+			id = AJS.$(event.target).parent().data("jobId");
+		}
+		return id;
+	}
+	
+	function getSpaceKey(event) {
+		var key = AJS.$(event.target).data("spaceKey");
+		if (!key) {
+			key = AJS.$(event.target).parent().data("spaceKey");
+		}
+		return key;
+	}
+
 	AJS.$("#close-dialog").click(function() {
 		dialog.hide()
 	});
