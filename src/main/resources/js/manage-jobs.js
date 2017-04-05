@@ -27,7 +27,6 @@ function init() {
 		var jobId = getJobId(e);
 		var spaceKey = getSpaceKey(e);
 		var url = AJS.contextPath() + "/plugins/cron-for-space-admins/DeleteJob.action?id=" + jobId + "&spacekey=" + spaceKey + "&fromJobTypeAdminPage=false";
-		alert("url: " + url + ", parent element: " + AJS.$(e.target).parent());
 		window.location.replace(url);		
 	});
 	
