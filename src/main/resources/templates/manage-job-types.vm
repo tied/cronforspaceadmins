@@ -25,11 +25,9 @@ $webResourceManager.requireResourcesForContext("cron-configuration-screen")
 			<td>${jobtype.httpMethod}</td>
 			<td>
 			#if ($jobtype.parameterNames && ($jobtype.parameterNames != ""))
-			<ul>
 			#foreach($param in	${action.formatParameters($jobtype.parameterNames)})
-				<li>$param</li>
+				<div>$param</div>
 			#end
-			</ul>
 			#end
 			</td>
 			<td>
