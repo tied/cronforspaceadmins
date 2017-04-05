@@ -14,6 +14,7 @@ public interface Job extends Entity {
 	String getJobKey();
 	String getParameters();
 	boolean isActive();
+	boolean isJobTypeChanged();
 
 	void setName(String name);
 	void setJobTypeID(String ID);
@@ -22,4 +23,5 @@ public interface Job extends Entity {
 	void setJobKey(String jobKey);
 	void setParameters(String parameters);
 	void setActive(boolean isActive);
+	void setJobTypeChanged(boolean isJobTypeChanged);
 }

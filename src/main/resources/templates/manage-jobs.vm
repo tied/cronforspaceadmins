@@ -42,18 +42,23 @@ $webResourceManager.requireResourcesForContext("cron-space-admin-screen")
 								<tr>
 									<td>${job.name}</td>
 									#if ($!action.getJobTypeByID($job.jobTypeID))
-										<td>$action.getJobTypeByID($job.jobTypeID).name</td>
+										<td>
+										$action.getJobTypeByID($job.jobTypeID).name
+										#if (${job.jobTypeChanged} == "true" && ${job.active} == "true")
+											<a id="job-type-modified-tooltip" href="#" original-title="This job type has been updated. Restart the job for the changes to take effect."><span class="aui-icon aui-icon-small aui-iconfont-warning"/></a>
+										#end
+										</td>
 									#else
 										<td><div class="aui-message aui-message-warning">This job type has been deleted</div></td>
 									#end
 									<td>${job.cronExpression}</td>
 									<td>
 									#if ($job.parameters && ($job.parameters != ""))
-									<ul>
+									
 									#foreach($param in	${action.formatParameters($job.parameters)})
-										<li>$param</li>
+										<div>$param</div>
 									#end
-									</ul>
+									
 									#end
 									</td>
 									<td>

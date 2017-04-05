@@ -117,6 +117,7 @@ public class JobServiceImpl implements JobService {
 
 		job.setSpaceKey(spaceKey);
 		job.setJobKey(jobKey);
+		job.setJobTypeChanged(false);
 		setJobValues(job, request);
 	}
 
@@ -184,6 +185,7 @@ public class JobServiceImpl implements JobService {
 		registerJobRunner(jobRunnerKey);
 		scheduleJob(job, jobRunnerKey);
 		job.setActive(true);
+		job.setJobTypeChanged(false);
 		job.save();
 	}
 

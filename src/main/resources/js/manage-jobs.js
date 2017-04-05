@@ -4,6 +4,7 @@ function init() {
 	AJS.$("#create-job-type").auiSelect2();
 	AJS.$("#edit-job-type").auiSelect2();
 	var dialog = AJS.dialog2("#edit-dialog");
+	AJS.$("#job-type-modified-tooltip").tooltip();
 	AJS.$(".edit-button").on("click", function(e) {
 		AJS.$("#edit-name").val(AJS.$(e.target).data("jobName"));
 		AJS.$(".jobtype-option").each(function(i) {

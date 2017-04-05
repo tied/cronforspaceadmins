@@ -67,6 +67,11 @@ public class JobTypeServiceImpl implements JobTypeService {
 		JobType jobType = getJobTypeIfExists(request);
 		setJobTypeValues(jobType, request);
 		jobType.save();
+		List<Job> jobs = jobService.getJobsByJobTypeID(jobType.getID());
+		for (Job job: jobs) {
+			job.setJobTypeChanged(true);
+			job.save();
+		}
 	}
 
 	private void checkRequestParametersNotNull(HttpServletRequest request) {
