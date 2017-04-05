@@ -41,7 +41,7 @@ $webResourceManager.requireResourcesForContext("cron-configuration-screen")
 			</td>
 			<td>
 				<button class="delete-button aui-button aui-button-link" type="button" data-job-type-id="${jobtype.ID}"><span class="aui-icon aui-icon-small aui-iconfont-delete" data-job-type-id="${jobtype.ID}">Delete</span></button>
-				<button class="edit-button aui-button aui-button-link" type="button" data-job-type-id="${jobtype.ID}" data-job-type-name="${jobtype.name}" data-job-type-url="${jobtype.url}" data-job-type-parameters="${jobtype.parameterNames}" data-job-type-method="${jobtype.httpMethod}"><span class="aui-icon aui-icon-small aui-iconfont-edit" data-job-type-id="${jobtype.ID}" data-job-type-name="${jobtype.name}" data-job-type-url="${jobtype.url}" data-job-type-parameters="${jobtype.parameterNames}" data-job-type-method="${jobtype.httpMethod}" data-job-type-authentication="${jobtype.authenticationRequired}" data-job-type-username="${jobtype.username}">Edit</span></button></td>		
+				<button class="edit-button aui-button aui-button-link" type="button" data-job-type-id="${jobtype.ID}" data-job-type-name="${jobtype.name}" data-job-type-url="${jobtype.url}" data-job-type-parameters="${jobtype.parameterNames}" data-job-type-method="${jobtype.httpMethod}"><span class="aui-icon aui-icon-small aui-iconfont-edit" data-job-type-id="${jobtype.ID}" data-job-type-name="${jobtype.name}" data-job-type-url="${jobtype.url}" data-job-type-parameters="${jobtype.parameterNames}" data-job-type-method="${jobtype.httpMethod}" data-job-type-authentication="${jobtype.authenticationRequired}" data-job-type-username="${jobtype.username}">Edit</span></button></td>
 			</td>
 		</tr>
 		#end
@@ -133,7 +133,15 @@ $webResourceManager.requireResourcesForContext("cron-configuration-screen")
 			#end
 		</tbody>
 	</table>
-                
+	<br/><br/>
+	#if ($req.getParameter("delete-error"))
+		<div class="aui-message aui-message-error">
+			<p class="title">
+				<strong>Error</strong>
+			</p>
+			<p>There was an error while deleting the job.</p>
+		</div>
+	#end	                
       <section role="dialog" id="edit-dialog" class="aui-layer aui-dialog2 aui-dialog2-medium" aria-hidden="true">
 			  <header class="aui-dialog2-header">
 			      <!-- The dialog's title -->
