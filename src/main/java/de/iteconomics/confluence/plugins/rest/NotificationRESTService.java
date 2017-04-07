@@ -31,7 +31,10 @@ public class NotificationRESTService {
     @Produces({MediaType.TEXT_PLAIN})
     public String getAnotherMessage(NotificationModel data, @Context UriInfo ui)
     {
-    	notifier.sendNotification(data.getRecipient(), data.getTitle(), data.getMessage());
+    	for (String recipient: data.getRecipients().split(System.getProperty("line.separator"))) {
+    		notifier.sendNotification(recipient.trim(), data.getTitle(), data.getMessage());
+    	}
+
     	return "sending notification";
     }
 
