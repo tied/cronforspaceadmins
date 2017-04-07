@@ -102,6 +102,7 @@ public class JobTypeServiceImpl implements JobTypeService {
 		String allParameters = getAllParameters(url, parameterNames);
 		assertNoDuplicateParameterNames(allParameters);
 		boolean authenticationRequired = (request.getParameter("authentication") != null);
+		String bundledJobTypeId = request.getParameter("bundled-job-type-id");
 
 		String username = request.getParameter("username");
 		if (username == null) {
@@ -123,6 +124,7 @@ public class JobTypeServiceImpl implements JobTypeService {
 		jobType.setPassword(password);
 		jobType.setAuthenticationRequired(authenticationRequired);
 		jobType.setUrl(url);
+		jobType.setBundledJobTypeID(bundledJobTypeId);
 	}
 
 	private void checkIsValidMethod(String httpMethod) {
@@ -209,6 +211,34 @@ public class JobTypeServiceImpl implements JobTypeService {
 		return getJobTypeIfExists(id);
 	}
 
+	@Override
+	public boolean hasNotificationJobType() {
+		String bundledJobTypeId = "NOTIFICATION";
+		JobType[] matches = ao.find(JobType.class, Query.select().where("BUNDLED_JOB_TYPE_ID = ?", bundledJobTypeId));
+
+		if (matches.length > 1) {
+			throw new JobTypeException("Cannot get bundled job type: more than one job type with id " + bundledJobTypeId + " were found.");
+		}
+
+		return matches.length == 1;
+	}
+
+	@Override
+	public String getNotificationJobTypeId() {
+		String bundledJobTypeId = "NOTIFICATION";
+		JobType[] matches = ao.find(JobType.class, Query.select().where("BUNDLED_JOB_TYPE_ID = ?", bundledJobTypeId));
+
+		if (matches.length > 1) {
+			throw new JobTypeException("Cannot get bundled job type: more than one job type with id " + bundledJobTypeId + " were found.");
+		}
+
+		if (matches.length == 0) {
+			return "none";
+		}
+
+		return Integer.toString(matches[0].getID());
+	}
+
 	private void checkValidID(String id) {
 		try {
 			Integer.parseInt(id);
@@ -235,5 +265,21 @@ public class JobTypeServiceImpl implements JobTypeService {
 	@Override
 	public String[] formatJobParameters(String unformatted) {
 		return jobService.formatParameters(unformatted);
+	}
+
+	@Override
+	public String getNotificationJobTypeUsername() {
+		String bundledJobTypeId = "NOTIFICATION";
+		JobType[] matches = ao.find(JobType.class, Query.select().where("BUNDLED_JOB_TYPE_ID = ?", bundledJobTypeId));
+
+		if (matches.length > 1) {
+			throw new JobTypeException("Cannot get bundled job type: more than one job type with id " + bundledJobTypeId + " were found.");
+		}
+
+		if (matches.length == 0) {
+			return "none";
+		}
+
+		return matches[0].getUsername();
 	}
 }

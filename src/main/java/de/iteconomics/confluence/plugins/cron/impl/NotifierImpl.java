@@ -30,14 +30,14 @@ public class NotifierImpl implements Notifier {
 	}
 
 	@Override
-	public Notification sendNotification(String username, String message) {
+	public Notification sendNotification(String recipient, String title, String message) {
 		logger.error("Notifying...");
 		Notification notification = null;
 		try {
-			notification = notificationService.createOrUpdate(username, new NotificationBuilder()
+			notification = notificationService.createOrUpdate(recipient, new NotificationBuilder()
 			        .application(PLUGIN_KEY) // a unique key that identifies your plugin
-			        .title("Message from your beloved administrator")
-			        .itemTitle("A message title")
+			        .title(title)
+			        .itemTitle(title)
 			        .description(message)
 			        .groupingId("de.iteconomics.de.confluence.plugins.cron") // a key to aggregate notifications
 			        .createNotification()).get();

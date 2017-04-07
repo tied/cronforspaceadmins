@@ -34,7 +34,7 @@ public class JobTestRestService {
     @Path("yetanother/{param}/endpoint")
     public String getAnotherMessage(@PathParam("param") String param, JobTestRestServiceModel data, @Context UriInfo ui)
     {
-    	notifier.sendNotification(data.getParam1(), data.getParam2());
+    	notifier.sendNotification(data.getParam1(), "title",data.getParam2());
     	logger.error("path param: " + param);
     	logger.error("XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXxx");
     	logger.error("first form param: " + data.getParam1());
@@ -64,7 +64,7 @@ public class JobTestRestService {
     @Produces(MediaType.TEXT_PLAIN)
     public String sendNotificationToDude(@FormParam("username") String username, @FormParam("message") String message)
     {
-    	notifier.sendNotification(username, message);
+    	notifier.sendNotification(username, "title", message);
     	return null;
     }
 }

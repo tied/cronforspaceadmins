@@ -12,6 +12,7 @@ public interface JobType extends Entity {
 	String getParameterNames();
 	String getUsername();
 	String getPassword();
+	String getBundledJobTypeID();
 	boolean isAuthenticationRequired();
 
 	void setName(String name);
@@ -20,5 +21,6 @@ public interface JobType extends Entity {
 	void setParameterNames(String parameterNames);
 	void setUsername(String username);
 	void setPassword(String password);
+	void setBundledJobTypeID(String id);
 	void setAuthenticationRequired(boolean authenticationRequired);
 }

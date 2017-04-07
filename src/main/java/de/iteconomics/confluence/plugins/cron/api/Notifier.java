@@ -4,5 +4,5 @@ import com.atlassian.mywork.model.Notification;
 
 public interface Notifier {
 
-	Notification sendNotification(String username, String message);
+	Notification sendNotification(String recipient, String title, String message);
 }

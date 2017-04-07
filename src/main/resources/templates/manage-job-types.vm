@@ -7,18 +7,47 @@ $webResourceManager.requireResourcesForContext("cron-configuration-screen")
   </head>
   
   <body>
-<table class="aui">
+
+	<h3>Notification Job Type</h3>
+	<span id="notification-status" job-type-id="${action.getNotificationJobTypeId()}" enabled="${action.hasNotificationJobType()}" />
+	<form id="notification-form" class="aui top-label" action="SaveJobType.action">
+	<fieldset class="top-label">
+		<input id="notification-job-type-name" type="hidden" name="name" value="Notification" />
+		<input id="notification-job-type-url" type="hidden" name="url" value="http://ckirchhoff-virtualbox:1990/confluence/rest/cronforspaceadmins/1.0/notification"/>
+		<textarea style="visibility:hidden;position:absolute;" id="notification-job-type-parameters" name="parameters" class="textarea" >recipient
+title
+message</textarea>		
+		<input id="notification-job-type-http-method" name="http-method" type="hidden" value="POST" />
+		<input type="hidden" id="create-job-type-authentication" name="authentication" value="true" />
+		<input type="hidden" name="bundled-job-type-id" value="NOTIFICATION" />
+		<div class="field-group top-label">
+			<aui-toggle id="toggle-notification-enabled" label="testing the toggle button" #if (${action.hasNotificationJobType()}) checked="checked" #else disabled="disabled" #end ></aui-toggle>
+		</div>
+		<div class="field-group top-label">
+			<label for="notification-username">Username<span class="aui-icon aui-icon-required">Required</span></label>
+			<input id="notification-username" #if (${action.hasNotificationJobType()}) disabled="disabled" value="${action.getNotificationJobTypeUsername()}" #end data-aui-validation-field data-aui-validation-required="required" data-aui-validation-required-msg="You must provide a username" name="username" type="text" class="text notification-credentials" />
+		</div	>
+		<div class="field-group top-label">
+			<label for="notification-password">Password<span class="aui-icon aui-icon-required">Required</span></label>
+			<input id="notification-password" #if (${action.hasNotificationJobType()}) disabled="disabled" value="xxxxxxxxxx" #end data-aui-validation-field data-aui-validation-required="required" data-aui-validation-required-msg="You must provide a password" name="password" type="password" class="text notification-credentials" />
+		</div>
+	</fieldset>
+	</form>
+	
+	<table class="aui">
+	<h3>Custom Job Types</h3>
 	<thead>
 		<tr>
 			<th id="name">Name</th>
 			<th id="url">URL</th>
 			<th id="http-method">Http method</th>
 			<th id="parameters">parameters</th>
-			<th id="authentication">Athentication required</th>
+			<th id="authentication">Authentication required</th>
 		</tr>
 	</thead>
 	<tbody>
 		#foreach ($jobtype in ${action.allJobTypes})
+		#if (${jobtype.ID} != ${action.getNotificationJobTypeId()})
 		<tr>
 			<td>${jobtype.name}</td>
 			<td>${jobtype.url}</td>
@@ -38,16 +67,17 @@ $webResourceManager.requireResourcesForContext("cron-configuration-screen")
 			#end
 			</td>
 			<td>
-				<button class="delete-button aui-button aui-button-link" type="button" data-job-type-id="${jobtype.ID}"><span class="aui-icon aui-icon-small aui-iconfont-delete" data-job-type-id="${jobtype.ID}">Delete</span></button>
+				<button class="delete-job-type-button aui-button aui-button-link" type="button" data-job-type-id="${jobtype.ID}"><span class="aui-icon aui-icon-small aui-iconfont-delete" data-job-type-id="${jobtype.ID}">Delete</span></button>
 				<button class="edit-button aui-button aui-button-link" type="button" data-job-type-id="${jobtype.ID}" data-job-type-name="${jobtype.name}" data-job-type-url="${jobtype.url}" data-job-type-parameters="${jobtype.parameterNames}" data-job-type-method="${jobtype.httpMethod}"><span class="aui-icon aui-icon-small aui-iconfont-edit" data-job-type-id="${jobtype.ID}" data-job-type-name="${jobtype.name}" data-job-type-url="${jobtype.url}" data-job-type-parameters="${jobtype.parameterNames}" data-job-type-method="${jobtype.httpMethod}" data-job-type-authentication="${jobtype.authenticationRequired}" data-job-type-username="${jobtype.username}">Edit</span></button></td>
 			</td>
 		</tr>
+		#end
 		#end
 	</tbody>
 </table>
 <br/><br/>
 <form class="aui top-label" action="SaveJobType.action">
-	<h3>Create Job Type</h3>
+	<h3>Create Custom Job Type</h3>
 	<fieldset class="top-label">
 	<div class="field-group top-label">
 		<label for="create-job-type-name">Name<span class="aui-icon aui-icon-required">Required</span></label>
@@ -125,7 +155,7 @@ $webResourceManager.requireResourcesForContext("cron-configuration-screen")
 				#end
 				</td>
 				<td>
-					<button class="delete-button aui-button aui-button-link" type="button" data-job-id="${job.ID}" data-space-key="${job.spaceKey}"><span class="aui-icon aui-icon-small aui-iconfont-delete">Delete</span></button>
+					<button class="delete-job-button aui-button aui-button-link" type="button" data-job-id="${job.ID}" data-space-key="${job.spaceKey}"><span class="aui-icon aui-icon-small aui-iconfont-delete">Delete</span></button>
 				</td>	
 			</tr>
 			#end

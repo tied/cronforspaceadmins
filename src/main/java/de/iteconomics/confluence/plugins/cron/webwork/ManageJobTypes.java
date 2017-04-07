@@ -40,6 +40,18 @@ public class ManageJobTypes extends ConfluenceActionSupport {
 		return jobTypeService.getAllJobTypes();
 	}
 
+	public boolean hasNotificationJobType() {
+		return jobTypeService.hasNotificationJobType();
+	}
+
+	public String getNotificationJobTypeId() {
+		return jobTypeService.getNotificationJobTypeId();
+	}
+
+	public String getNotificationJobTypeUsername() {
+		return jobTypeService.getNotificationJobTypeUsername();
+	}
+
 	public List<Job> getAllJobs() {
 		return jobService.getAllJobs();
 	}

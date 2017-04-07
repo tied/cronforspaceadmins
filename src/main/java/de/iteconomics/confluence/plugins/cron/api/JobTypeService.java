@@ -21,4 +21,7 @@ public interface JobTypeService {
 	void setJobService(JobService jobService);
 	String[] formatParameters(String unformatted);
 	String[] formatJobParameters(String unformatted);
+	boolean hasNotificationJobType();
+	String getNotificationJobTypeId();
+	String getNotificationJobTypeUsername();
 }
