@@ -54,7 +54,7 @@ public class JobTypeServiceImpl implements JobTypeService {
 
 	@Override
 	public void createJobType(HttpServletRequest request) {
-		checkRequestParametersNotNull(request);
+		checkRequiredRequestParametersPresent(request);
 		checkNewJobTypeName(request);
 		JobType jobType = ao.create(JobType.class);
 		setJobTypeValues(jobType, request);
@@ -63,7 +63,7 @@ public class JobTypeServiceImpl implements JobTypeService {
 
 	@Override
 	public void updateJobType(HttpServletRequest request) {
-		checkRequestParametersNotNull(request);
+		checkRequiredRequestParametersPresent(request);
 		JobType jobType = getJobTypeIfExists(request);
 		setJobTypeValues(jobType, request);
 		jobType.save();
@@ -74,9 +74,9 @@ public class JobTypeServiceImpl implements JobTypeService {
 		}
 	}
 
-	private void checkRequestParametersNotNull(HttpServletRequest request) {
-		for (String parameter: new String[] {"name", "url", "http-method"}) {
-			if (request.getParameter(parameter) == null) {
+	private void checkRequiredRequestParametersPresent(HttpServletRequest request) {
+		for (String parameter: new String[] {"url", "name", "http-method"}) {
+			if (request.getParameter(parameter) == null || "".equals(request.getParameter(parameter.trim()))) {
 				throw new JobTypeException("Cannot create job type: " + parameter + " may not be null");
 			}
 		}
@@ -197,11 +197,24 @@ public class JobTypeServiceImpl implements JobTypeService {
 		} else {
 			id = id.trim();
 		}
+
+		if (!validId(id)) {
+			throw new JobTypeException("Job type not found: id " + id + " is not valid.");
+		}
 		JobType[] jobTypes = ao.find(JobType.class, Query.select().where("id = ?", id));
 		if (jobTypes.length != 1) {
-			throw new JobTypeException("Cannot delete: job type with id" + id + " does not exist.");
+			throw new JobTypeException("Job type not found: job type with id" + id + " does not exist.");
 		}
 		return jobTypes[0];
+	}
+
+	private boolean validId(String id) {
+		try {
+			Integer.parseInt(id);
+			return true;
+		} catch (RuntimeException e) {
+			return false;
+		}
 	}
 
 	@Override
@@ -213,18 +226,34 @@ public class JobTypeServiceImpl implements JobTypeService {
 
 	@Override
 	public boolean hasNotificationJobType() {
-		String bundledJobTypeId = "NOTIFICATION";
-		JobType[] matches = ao.find(JobType.class, Query.select().where("BUNDLED_JOB_TYPE_ID = ?", bundledJobTypeId));
+		JobType notificationJobType = getNotificationJobType();
 
-		if (matches.length > 1) {
-			throw new JobTypeException("Cannot get bundled job type: more than one job type with id " + bundledJobTypeId + " were found.");
-		}
-
-		return matches.length == 1;
+		return notificationJobType != null;
 	}
 
 	@Override
 	public String getNotificationJobTypeId() {
+		JobType notificationJobType = getNotificationJobType();
+
+		if (notificationJobType == null) {
+			return "none";
+		}
+
+		return Integer.toString(notificationJobType.getID());
+	}
+
+	@Override
+	public String getNotificationJobTypeUsername() {
+		JobType notificationJobType = getNotificationJobType();
+
+		if (notificationJobType == null) {
+			return "none";
+		}
+
+		return notificationJobType.getUsername();
+	}
+
+	private JobType getNotificationJobType() {
 		String bundledJobTypeId = "NOTIFICATION";
 		JobType[] matches = ao.find(JobType.class, Query.select().where("BUNDLED_JOB_TYPE_ID = ?", bundledJobTypeId));
 
@@ -233,10 +262,10 @@ public class JobTypeServiceImpl implements JobTypeService {
 		}
 
 		if (matches.length == 0) {
-			return "none";
+			return null;
 		}
 
-		return Integer.toString(matches[0].getID());
+		return matches[0];
 	}
 
 	private void checkValidID(String id) {
@@ -259,7 +288,14 @@ public class JobTypeServiceImpl implements JobTypeService {
 
 	@Override
 	public String[] formatParameters(String unformatted) {
-		return unformatted.trim().split(System.getProperty("line.separator"));
+		if (unformatted == null || "".equals(unformatted.trim())) {
+			return new String[0];
+		}
+		String[] parameters = unformatted.trim().split(System.getProperty("line.separator"));
+		for (int i=0; i<parameters.length; i++) {
+			parameters[i] = parameters[i].trim();
+		}
+		return parameters;
 	}
 
 	@Override
@@ -267,19 +303,4 @@ public class JobTypeServiceImpl implements JobTypeService {
 		return jobService.formatParameters(unformatted);
 	}
 
-	@Override
-	public String getNotificationJobTypeUsername() {
-		String bundledJobTypeId = "NOTIFICATION";
-		JobType[] matches = ao.find(JobType.class, Query.select().where("BUNDLED_JOB_TYPE_ID = ?", bundledJobTypeId));
-
-		if (matches.length > 1) {
-			throw new JobTypeException("Cannot get bundled job type: more than one job type with id " + bundledJobTypeId + " were found.");
-		}
-
-		if (matches.length == 0) {
-			return "none";
-		}
-
-		return matches[0].getUsername();
-	}
 }
