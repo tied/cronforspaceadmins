@@ -7,6 +7,7 @@ import javax.servlet.http.HttpServletRequest;
 
 import com.atlassian.activeobjects.external.ActiveObjects;
 import com.atlassian.activeobjects.tx.Transactional;
+import com.atlassian.scheduler.SchedulerService;
 
 import de.iteconomics.confluence.plugins.cron.entities.Job;
 
@@ -17,11 +18,11 @@ public interface JobService {
 	void createJob(HttpServletRequest request);
 	void deleteJob(HttpServletRequest request);
 	void setAo(ActiveObjects ao);
+	void registerJob(Job job);
+	void registerJob(HttpServletRequest request);
 	void registerAllJobs();
 	boolean isEnabled(Job job);
 	Set<Job> getDisabledJobs();
-	void registerJob(Job job);
-	void registerJob(HttpServletRequest request);
 	void unregisterJob(Job job);
 	void updateJob(HttpServletRequest request);
 	void unregisterJob(HttpServletRequest request);
@@ -29,4 +30,6 @@ public interface JobService {
 	List<Job> getJobsByJobTypeID(int jobTypeID);
 	void deleteJob(Job job);
 	String[] formatParameters(String unformatted);
+	void setJobTypeService(JobTypeService jobTypeService);
+	void setSchedulerService(SchedulerService schedulerService);
 }

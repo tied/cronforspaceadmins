@@ -45,7 +45,6 @@ public class JobServiceImpl implements JobService {
 	private ActiveObjects ao;
 	@ComponentImport
 	private SchedulerService schedulerService;
-	@Inject
 	private JobTypeService jobTypeService;
 
 	final static Logger logger = LoggerFactory.getLogger(JobServiceImpl.class);
@@ -56,11 +55,14 @@ public class JobServiceImpl implements JobService {
 		this.ao = ao;
 	}
 
+	@Inject
+	@Override
 	public void setJobTypeService(JobTypeService jobTypeService) {
 		this.jobTypeService = jobTypeService;
 	}
 
 	@Inject
+	@Override
 	public void setSchedulerService(SchedulerService schedulerService) {
 		this.schedulerService = schedulerService;
 	}
@@ -72,7 +74,7 @@ public class JobServiceImpl implements JobService {
 
 	@Override
 	public void createJob(HttpServletRequest request) {
-		checkRequiredRequestParametersNotNull(request);
+		checkParametersRequiredForCreateNotNull(request);
 		checkUniqueJobNamePerSpace(request);
 
 		Job job = ao.create(Job.class);
@@ -84,8 +86,11 @@ public class JobServiceImpl implements JobService {
 
 	@Override
 	public void updateJob(HttpServletRequest request) {
-		checkRequiredRequestParametersNotNull(request);
+		checkParametersRequiredForUpdateNotNull(request);
 		Job job = getJobIfExists(request);
+		if (isJobNameChanged(job, request)) {
+			checkUniqueJobNamePerSpace(request);
+		}
 		boolean reregisterNecessary = isReregisterNecessary(job, request);
 		setJobValues(job, request);
 		job.save();
@@ -96,6 +101,10 @@ public class JobServiceImpl implements JobService {
 		}
 	}
 
+	private boolean isJobNameChanged(Job job, HttpServletRequest request) {
+		return !job.getName().equals(request.getParameter("name").trim());
+	}
+
 	private boolean isReregisterNecessary(Job job, HttpServletRequest request) {
 		return (!job.getCronExpression().equals(request.getParameter("cron-expression").trim()) ||
 				!job.getJobTypeID().equals(request.getParameter("job-type").trim()) ||
@@ -103,8 +112,18 @@ public class JobServiceImpl implements JobService {
 				);
 	}
 
-	private void checkRequiredRequestParametersNotNull(HttpServletRequest request) {
-		for (String parameter: new String[] {"name", "job-type", "spacekey", "cron-expression"}) {
+	private void checkParametersRequiredForCreateNotNull(HttpServletRequest request) {
+		String[] requiredParameters = new String[] {"name", "job-type", "spacekey", "cron-expression"};
+		checkRequiredParametersNotNull(request, requiredParameters);
+	}
+
+	private void checkParametersRequiredForUpdateNotNull(HttpServletRequest request) {
+		String[] requiredParameters = new String[] {"name", "job-type", "cron-expression"};
+		checkRequiredParametersNotNull(request, requiredParameters);
+	}
+
+	private void checkRequiredParametersNotNull(HttpServletRequest request, String[] requiredParameters) {
+		for (String parameter: requiredParameters) {
 			if (request.getParameter(parameter) == null) {
 				throw new JobException("Cannot create job: " + parameter + " may not be null.");
 			}
@@ -172,6 +191,9 @@ public class JobServiceImpl implements JobService {
 
 	@Override
 	public void unregisterJob(Job job) {
+		if (job == null) {
+			return;
+		}
 		job.setActive(false);
 		job.save();
 		schedulerService.unscheduleJob(JobId.of(job.getJobKey()));
@@ -322,7 +344,7 @@ public class JobServiceImpl implements JobService {
 		try {
 			return Integer.parseInt(jobTypeIDFromRequest);
 		} catch (NumberFormatException e) {
-			throw new JobException("Cannot create: job id " + jobTypeIDFromRequest + "is invalid.");
+			throw new JobException("Job id " + jobTypeIDFromRequest + "is invalid.");
 		}
 	}
 
@@ -333,8 +355,10 @@ public class JobServiceImpl implements JobService {
 		Job[] jobsWithSameName = ao.find(Job.class, Query.select().where("NAME = ?", name));
 
 		for (Job job: jobsWithSameName) {
+			logger.error(job.getSpaceKey());
+			logger.error(spaceKey);
 			if (job.getSpaceKey().equals(spaceKey)) {
-				throw new JobException("Cannot create: job with name " + name + "already exists.");
+				throw new JobException("A job with name " + name + "already exists.");
 			}
 		}
 	}
@@ -352,11 +376,16 @@ public class JobServiceImpl implements JobService {
 	}
 
 	private Job getJobIfExists(HttpServletRequest request) {
-		String id = request.getParameter("id").trim();
+		String id = request.getParameter("id");
+		if (id == null) {
+			throw new JobException("A job id is required, but was null.");
+		} else {
+			id = id.trim();
+		}
 		Job[] jobs= ao.find(Job.class, Query.select().where("id = ?", id));
 
 		if (jobs.length != 1) {
-			throw new JobException("Cannot delete: job with id " + id + " does not exist.");
+			throw new JobException("Job with id " + id + " does not exist.");
 		}
 
 		return jobs[0];
@@ -364,6 +393,9 @@ public class JobServiceImpl implements JobService {
 
 	@Override
 	public boolean isEnabled(Job job) {
+		if (job == null) {
+			return false;
+		}
 		JobRunnerKey jobRunnerKey = JobRunnerKey.of(job.getJobKey() + ":runner");
 		Set<JobRunnerKey> registeredJobRunnerKeys = schedulerService.getRegisteredJobRunnerKeys();
 
@@ -409,6 +441,9 @@ public class JobServiceImpl implements JobService {
 
 	@Override
 	public String[] formatParameters(String unformatted) {
+		if (unformatted == null || "".equals(unformatted.trim())) {
+			return new String[0];
+		}
 		return unformatted.replaceAll("=", ": ").split("&");
 	}
 }
