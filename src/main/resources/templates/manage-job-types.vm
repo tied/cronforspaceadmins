@@ -14,7 +14,7 @@ $webResourceManager.requireResourcesForContext("cron-configuration-screen")
 	<fieldset class="top-label">
 		<input id="notification-job-type-name" type="hidden" name="name" value="Notification" />
 		<input id="notification-job-type-url" type="hidden" name="url" value="http://ckirchhoff-virtualbox:1990/confluence/rest/cronforspaceadmins/1.0/notification"/>
-		<textarea style="visibility:hidden;position:absolute;" id="notification-job-type-parameters" name="parameters" class="textarea" >recipient
+		<textarea style="visibility:hidden;position:absolute;" id="notification-job-type-parameters" name="parameters" class="textarea" >recipients
 title
 message</textarea>		
 		<input id="notification-job-type-http-method" name="http-method" type="hidden" value="POST" />
