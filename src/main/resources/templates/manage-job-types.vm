@@ -18,7 +18,7 @@ $webResourceManager.requireResourcesForContext("cron-configuration-screen")
 title
 message</textarea>		
 		<input id="notification-job-type-http-method" name="http-method" type="hidden" value="POST" />
-		<input type="hidden" id="create-job-type-authentication" name="authentication" value="true" />
+		<input type="hidden" id="notification-job-type-authentication" name="authentication" value="true" />
 		<input type="hidden" name="bundled-job-type-id" value="NOTIFICATION" />
 		<div class="field-group top-label">
 			<aui-toggle id="toggle-notification-enabled" label="testing the toggle button" #if (${action.hasNotificationJobType()}) checked="checked" #else disabled="disabled" #end ></aui-toggle>
@@ -102,7 +102,7 @@ message</textarea>
 	</div>
 	<div class="field-group top-label">	
 		<label for="create-job-type-authentication">Requires Authentication</label>
-		<input type="checkbox" id="create-job-type-authentication" class="checkbox" name="authentication"></textarea>		
+		<input type="checkbox" id="create-job-type-authentication" name="authentication">		
 	</div>
 	<div id="create-credentials">
 	</div>
