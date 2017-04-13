@@ -4,21 +4,21 @@ import org.junit.Test;
 import org.junit.After;
 import org.junit.Before;
 import org.mockito.Mock;
-import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 
-import static org.junit.Assert.*;
+import com.atlassian.confluence.user.ConfluenceUserImpl;
+import com.atlassian.confluence.user.UserAccessor;
+import com.atlassian.user.Group;
+import com.google.common.collect.Lists;
+
 import static org.mockito.Mockito.*;
 
 import de.iteconomics.confluence.plugins.cron.api.Notifier;
-import de.iteconomics.confluence.plugins.rest.JobTestRestService;
-import de.iteconomics.confluence.plugins.rest.JobTestRestServiceModel;
 import de.iteconomics.confluence.plugins.rest.NotificationRESTService;
 import de.iteconomics.confluence.plugins.rest.NotificationModel;
 
-import javax.ws.rs.core.Response;
-import javax.ws.rs.core.GenericEntity;
 import javax.ws.rs.core.UriInfo;
+
 
 public class NotificationRESTServiceTest {
 
@@ -28,18 +28,27 @@ public class NotificationRESTServiceTest {
 	private NotificationModel data;
 	@Mock
 	private UriInfo uriInfo;
+	@Mock
+	private UserAccessor userAccessor;
+	@Mock
+	private Group group1;
+
 	private NotificationRESTService underTest;
 
     @Before
     public void setup() {
     	MockitoAnnotations.initMocks(this);
     	configureMocks();
-    	underTest = new NotificationRESTService(notifier);
+    	underTest = new NotificationRESTService(notifier, userAccessor);
     }
 
 	private void configureMocks() {
 		when(data.getTitle()).thenReturn("title");
 		when(data.getMessage()).thenReturn("message");
+		when(userAccessor.getGroup("group1")).thenReturn(group1);
+		when(userAccessor.getMemberNamesAsList(group1)).thenReturn(Lists.newArrayList("user1"));
+		when(userAccessor.getUserByName("user1")).thenReturn(new ConfluenceUserImpl());
+		when(userAccessor.getUserByName("user2")).thenReturn(new ConfluenceUserImpl());
 	}
 
 	@After
@@ -80,18 +89,18 @@ public class NotificationRESTServiceTest {
 
     @Test
     public void getAnotherMessage_turns_null_values_for_title_into_empty_string() {
-    	when(data.getRecipients()).thenReturn("user");
+    	when(data.getRecipients()).thenReturn("user1");
     	when(data.getTitle()).thenReturn(null);
     	underTest.getAnotherMessage(data, uriInfo);
-    	verify(notifier).sendNotification(eq("user"), eq(""), any());
+    	verify(notifier).sendNotification(eq("user1"), eq(""), any());
     }
 
     @Test
     public void getAnotherMessage_turns_null_values_for_message_into_empty_string() {
-    	when(data.getRecipients()).thenReturn("user");
+    	when(data.getRecipients()).thenReturn("user1");
     	when(data.getMessage()).thenReturn(null);
     	underTest.getAnotherMessage(data, uriInfo);
-    	verify(notifier).sendNotification(eq("user"), any(), eq(""));
+    	verify(notifier).sendNotification(eq("user1"), any(), eq(""));
     }
 
 }
