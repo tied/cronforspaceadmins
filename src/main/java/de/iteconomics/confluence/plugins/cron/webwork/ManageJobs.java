@@ -44,32 +44,59 @@ public class ManageJobs extends SpaceAdminAction {
 	}
 
 	public List<Job> getJobs(String spaceKey) {
-		return jobService.getJobs(spaceKey);
+		try {
+			return jobService.getJobs(spaceKey);
+		} catch (Exception e) {
+			logger.error(e.getMessage());
+			return new ArrayList<>();
+		}
 	}
 
 	public List<Job> getAllJobs() {
-		return jobService.getAllJobs();
+		try {
+			return jobService.getAllJobs();
+		} catch (Exception e) {
+			logger.error(e.getMessage());
+			return new ArrayList<>();
+		}
 	}
 
 	public List<JobType> getAllJobTypes() {
-		List<JobType> allJobTypes = jobTypeService.getAllJobTypes();
-		return allJobTypes;
+		try {
+			return jobTypeService.getAllJobTypes();
+		} catch (Exception e) {
+			logger.error(e.getMessage());
+			return new ArrayList<>();
+		}
+	}
+
+	public boolean isParametersInconsistent(Job job) {
+		try {
+			return jobService.isParametersInconsistent(job);
+		} catch (Exception e) {
+			logger.error(e.getMessage());
+			return false;
+		}
 	}
 
 	public JobType getJobTypeByID(String id) {
 		try {
 			return jobTypeService.getJobTypeByID(id);
-		} catch (JobTypeException e) {
-			logger.error("There is not JobType with the id " + id + ".");
+		} catch (Exception e) {
+			logger.error(e.getMessage());
 			return null;
 		}
-
 	}
 
 	public String getJobNameValidationString() {
 		StringBuilder validationStringBuilder = new StringBuilder();
-		for (Job job: jobService.getAllJobs()) {
-			validationStringBuilder.append(job.getName() + "|");
+		try {
+			for (Job job: jobService.getAllJobs()) {
+				validationStringBuilder.append(job.getName() + "|");
+			}
+		} catch (Exception e) {
+			logger.error(e.getMessage());
+			return "";
 		}
 
 		String validationString = validationStringBuilder.toString();
@@ -89,20 +116,25 @@ public class ManageJobs extends SpaceAdminAction {
 
 		List<String> keysAsStrings = new ArrayList<>();
 
-		Set<JobRunnerKey> keys= schedulerService.getRegisteredJobRunnerKeys();
-
-        for (JobRunnerKey key: keys) {
-            keysAsStrings.add(key.toString());
-        }
+		try {
+			Set<JobRunnerKey> keys= schedulerService.getRegisteredJobRunnerKeys();
+	        for (JobRunnerKey key: keys) {
+	            keysAsStrings.add(key.toString());
+	        }
+		} catch (Exception e) {
+			logger.error(e.getMessage());
+		}
 
         return keysAsStrings;
 	}
 
 	public boolean isEnabled(Job job) {
-		return jobService.isEnabled(job);
+		try {
+			return jobService.isEnabled(job);
+		} catch (Exception e) {
+			logger.error(e.getMessage());
+			return false;
+		}
 	}
 
-	public String[] formatParameters(String unformatted) {
-		return jobService.formatParameters(unformatted);
-	}
 }

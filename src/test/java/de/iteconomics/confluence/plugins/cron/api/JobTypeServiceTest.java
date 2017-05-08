@@ -16,14 +16,18 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.Vector;
 
 import javax.servlet.http.HttpServletRequest;
 
 import com.atlassian.activeobjects.external.ActiveObjects;
 import com.atlassian.activeobjects.test.TestActiveObjects;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Sets;
 
 import de.iteconomics.confluence.plugins.cron.entities.Job;
 import de.iteconomics.confluence.plugins.cron.entities.JobType;
+import de.iteconomics.confluence.plugins.cron.entities.JobTypeParameter;
 import de.iteconomics.confluence.plugins.cron.impl.JobTypeServiceImpl;
 import net.java.ao.EntityManager;
 import net.java.ao.test.jdbc.Data;
@@ -74,23 +78,30 @@ public class JobTypeServiceTest {
 		jobType1.setName("jobType1");
 		jobType1.setHttpMethod("GET");
 		jobType1.setUrl("url1");
-		jobType1.setParameterNames("parameters1");
 		jobType1.setUsername("username1");
 		jobType1.setPassword("password1");
 		jobType1.setBundledJobTypeID("BUNDLED1");
 		jobType1.setAuthenticationRequired(true);
 		jobType1.save();
+		JobTypeParameter parameters = ao.create(JobTypeParameter.class);
+		parameters.setName("parameters1");
+		parameters.setJobType(jobType1);
+		parameters.save();
 
 		jobType2 = ao.create(JobType.class);
 		jobType2.setName("jobType2");
 		jobType2.setHttpMethod("GET");
 		jobType2.setUrl("url2");
-		jobType2.setParameterNames("parameters2");
 		jobType2.setUsername("username2");
 		jobType2.setPassword("password2");
 		jobType2.setBundledJobTypeID("BUNDLED2");
 		jobType2.setAuthenticationRequired(true);
 		jobType2.save();
+		JobTypeParameter parameters2 = ao.create(JobTypeParameter.class);
+		parameters2.setName("parameters2");
+		parameters2.setJobType(jobType2);
+		parameters2.save();
+
 	}
 
 	/*
@@ -116,6 +127,8 @@ public class JobTypeServiceTest {
 		when(request.getParameter("name")).thenReturn("jobType3");
 		when(request.getParameter("url")).thenReturn("someUrl");
 		when(request.getParameter("http-method")).thenReturn("GET");
+		// avoid NPE
+		when(request.getParameterNames()).thenReturn(new Vector<String>().elements());
 
 		underTest.createJobType(request);
 		jobTypes = underTest.getAllJobTypes();
@@ -187,11 +200,14 @@ public class JobTypeServiceTest {
 		when(request.getParameter("name")).thenReturn("newJobTypeName");
 		when(request.getParameter("http-method")).thenReturn("POST");
 		when(request.getParameter("url")).thenReturn("newUrl");
-		when(request.getParameter("parameters")).thenReturn("newParameters");
+		when(request.getParameter("parameter-name-1")).thenReturn("newParameterName1");
+		when(request.getParameter("parameter-name-2")).thenReturn("newParameterName2");
 		when(request.getParameter("username")).thenReturn("newUsername");
 		when(request.getParameter("password")).thenReturn("newPassword");
 		when(request.getParameter("bundled-job-type-id")).thenReturn("newBundledJobTypeId");
 		when(request.getParameter("authenticaton")).thenReturn(null);
+		// avoid NPE
+		when(request.getParameterNames()).thenReturn(new Vector<String>(Lists.newArrayList("id", "name", "http-method", "parameter-name-1", "parameter-name-2")).elements());
 
 
 		underTest.updateJobType(request);
@@ -200,7 +216,14 @@ public class JobTypeServiceTest {
 		assertEquals(jobType.getName(), "newJobTypeName");
 		assertEquals(jobType.getHttpMethod(), "POST");
 		assertEquals(jobType.getUrl(), "newUrl");
-		assertEquals(jobType.getParameterNames(), "newParameters");
+
+
+		JobTypeParameter[] jobTypeParameters = jobType.getParameters();
+		List<String> newParameters = new ArrayList<>();
+    	for (JobTypeParameter jobTypeParameter: jobTypeParameters) {
+    		newParameters.add(jobTypeParameter.getName());
+    	}
+		assertEquals("parameters have been updated", Lists.newArrayList("newParameterName1",  "newParameterName2"), newParameters);
 		assertEquals(jobType.getUsername(), "newUsername");
 		assertEquals(jobType.getPassword(), "newPassword");
 		assertEquals(jobType.getBundledJobTypeID(), "newBundledJobTypeId");
@@ -270,17 +293,6 @@ public class JobTypeServiceTest {
 	}
 
 	/*
-	 * formatJobParameters
-	 */
-
-	@Test
-	public void formatJobParameters_should_delegate_to_jobService() {
-		underTest.setJobService(jobService);
-		underTest.formatJobParameters("parameter");
-		verify(jobService, times(1)).formatParameters("parameter");
-	}
-
-	/*
 	 * hasNotificationJobType()
 	 */
 
@@ -290,6 +302,7 @@ public class JobTypeServiceTest {
 		when(request.getParameter("http-method")).thenReturn("POST");
 		when(request.getParameter("url")).thenReturn("newUrl");
 		when(request.getParameter("bundled-job-type-id")).thenReturn("NOTIFICATION");
+		when(request.getParameterNames()).thenReturn(new Vector<String>().elements());
 
 		underTest.createJobType(request);
 
@@ -316,6 +329,7 @@ public class JobTypeServiceTest {
 		when(request.getParameter("http-method")).thenReturn("POST");
 		when(request.getParameter("url")).thenReturn("url");
 		when(request.getParameter("bundled-job-type-id")).thenReturn("SOMETHING_OTHER_THAN_NOTIFICATION");
+		when(request.getParameterNames()).thenReturn(new Vector<String>().elements());
 
 		underTest.createJobType(request);
 
@@ -335,6 +349,8 @@ public class JobTypeServiceTest {
 		when(request.getParameter("http-method")).thenReturn("POST");
 		when(request.getParameter("url")).thenReturn("newUrl");
 		when(request.getParameter("bundled-job-type-id")).thenReturn("NOTIFICATION");
+		// avoid NPE
+		when(request.getParameterNames()).thenReturn(new Vector<String>().elements());
 
 		underTest.updateJobType(request);
 
@@ -361,6 +377,8 @@ public class JobTypeServiceTest {
 		when(request.getParameter("http-method")).thenReturn("POST");
 		when(request.getParameter("url")).thenReturn("url");
 		when(request.getParameter("bundled-job-type-id")).thenReturn("SOMETHING_OTHER_THAN_NOTIFICATION");
+		// avoid NPE
+		when(request.getParameterNames()).thenReturn(new Vector<String>().elements());
 
 		underTest.createJobType(request);
 
@@ -381,6 +399,8 @@ public class JobTypeServiceTest {
 		when(request.getParameter("url")).thenReturn("newUrl");
 		when(request.getParameter("username")).thenReturn("newUsername");
 		when(request.getParameter("bundled-job-type-id")).thenReturn("NOTIFICATION");
+		// avoid NPE
+		when(request.getParameterNames()).thenReturn(new Vector<String>().elements());
 
 		underTest.updateJobType(request);
 
@@ -402,15 +422,17 @@ public class JobTypeServiceTest {
 	}
 
 	@Test
-	public void getNotificationJobTypeUsername_should_return_none_when_no_notification_job_type_exists() {
+	public void getNotificationJobTypeUsername_should_return_empty_string_when_no_notification_job_type_exists() {
 		when(request.getParameter("name")).thenReturn("jobType");
 		when(request.getParameter("http-method")).thenReturn("POST");
 		when(request.getParameter("url")).thenReturn("url");
 		when(request.getParameter("bundled-job-type-id")).thenReturn("SOMETHING_OTHER_THAN_NOTIFICATION");
+		// avoid NPE
+		when(request.getParameterNames()).thenReturn(new Vector<String>().elements());
 
 		underTest.createJobType(request);
 
-		assertEquals("none", underTest.getNotificationJobTypeUsername());
+		assertEquals("", underTest.getNotificationJobTypeUsername());
 	}
 
 	/*
@@ -434,7 +456,7 @@ public class JobTypeServiceTest {
 
 		@Override
 		public void update(EntityManager entityManager) throws Exception {
-			entityManager.migrate(JobType.class);
+			entityManager.migrate(JobType.class, JobTypeParameter.class);
 		}
 	}
 }

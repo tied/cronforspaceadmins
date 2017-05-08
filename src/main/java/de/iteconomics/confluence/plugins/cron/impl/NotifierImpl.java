@@ -35,15 +35,14 @@ public class NotifierImpl implements Notifier {
 		Notification notification = null;
 		try {
 			notification = notificationService.createOrUpdate(recipient, new NotificationBuilder()
-			        .application(PLUGIN_KEY) // a unique key that identifies your plugin
+			        .application(PLUGIN_KEY)
 			        .title(title)
 			        .itemTitle(title)
 			        .description(message)
-			        .groupingId("de.iteconomics.de.confluence.plugins.cron") // a key to aggregate notifications
+			        .groupingId("de.iteconomics.de.confluence.plugins.cron")
 			        .createNotification()).get();
 		} catch (InterruptedException | ExecutionException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			logger.error(e.getMessage());
 		}
 		return notification;
 	}

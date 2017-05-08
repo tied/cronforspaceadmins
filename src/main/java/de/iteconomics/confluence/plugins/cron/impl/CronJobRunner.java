@@ -63,7 +63,6 @@ final class CronJobRunner implements JobRunner {
 		String username = (String) parameters.get("username");
 		String password = (String) parameters.get("password");
 
-
 		if (httpMethod.equals("GET") || httpMethod.equals("DELETE")) {
 			if (!queryString.equals("")) {
 				try {
@@ -99,7 +98,8 @@ final class CronJobRunner implements JobRunner {
 
 		if (httpMethod.equals("POST") || httpMethod.equals("PUT")) {
 			if (queryString != "") {
-				requestBody = getJsonFromQueryString(queryString);
+				// use substring() to remove the '?'
+				requestBody = getJsonFromQueryString(queryString.substring(1));
 				builder.type(MediaType.APPLICATION_JSON);
 			}
 		}

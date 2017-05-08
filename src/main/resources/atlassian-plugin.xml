@@ -26,13 +26,18 @@
     <dependency>com.atlassian.auiplugin:ajs</dependency>
     <dependency>com.atlassian.auiplugin:aui-form-validation</dependency>
     <dependency>com.atlassian.auiplugin:aui-select</dependency>
-    <dependency>com.atlassian.auiplugin:aui-toggle</dependency>    
+    <dependency>com.atlassian.auiplugin:aui-toggle</dependency>
+    <transformation extension="js">
+	    <transformer key="jsI18n"/>
+    </transformation>
     <resource type="download" name="cron.css" location="/css/cron.css"/>
     <resource type="download" name="manage-job-types.js" location="/js/manage-job-types.js"/>
     <resource type="download" name="images/" location="/images"/>
     <context>cron-configuration-screen</context>
   </web-resource>
   <ao key="ao-module">
+  	<entity>de.iteconomics.confluence.plugins.cron.entities.JobTypeParameter</entity>
+  	<entity>de.iteconomics.confluence.plugins.cron.entities.JobParameter</entity>
     <entity>de.iteconomics.confluence.plugins.cron.entities.JobType</entity>
     <entity>de.iteconomics.confluence.plugins.cron.entities.Job</entity>
   </ao>
@@ -91,13 +96,7 @@
       </action>      
     </package>
   </xwork>
-  <rest name="Job Test Rest Service" i18n-name-key="job-test-rest-service.name" key="job-test-rest-service" path="/jobtestrestservice" version="1.0">
-    <description key="job-test-rest-service.description">The Job Test Rest Service Plugin</description>
-  </rest>
-  <rest name="Notification Service" i18n-name-key="notification-rest-service.name" key="notification-rest-service" path="/cronforspaceadmins" version="1.0">
-    <description key="notification-rest-service.description">Notification Service</description>
-  </rest>
-  <rest name="JobType Information Provider" i18n-name-key="job-type-information-provider.name" key="job-type-information-provider" path="/jobtype" version="1.0">
+  <rest name="JobType Information Provider" i18n-name-key="job-type-information-provider.name" key="job-type-information-provider" path="/cronforspaceadmins" version="1.0">
     <description key="job-type-information-provider.description">Provides information about a job type</description>
   </rest>  
 </atlassian-plugin>

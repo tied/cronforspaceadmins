@@ -1,10 +1,13 @@
 package de.iteconomics.confluence.plugins.cron.entities;
 
 import net.java.ao.Entity;
+import net.java.ao.OneToMany;
 import net.java.ao.Preload;
+import net.java.ao.schema.Table;
 
 
 @Preload
+@Table("JOB")
 public interface Job extends Entity {
 
 	String getName();
@@ -12,7 +15,8 @@ public interface Job extends Entity {
 	String getSpaceKey();
 	String getCronExpression();
 	String getJobKey();
-	String getParameters();
+	@OneToMany
+	JobParameter[] getJobParameters();
 	boolean isActive();
 	boolean isJobTypeChanged();
 
@@ -21,7 +25,6 @@ public interface Job extends Entity {
 	void setSpaceKey(String spaceKey);
 	void setCronExpression(String cronExpression);
 	void setJobKey(String jobKey);
-	void setParameters(String parameters);
 	void setActive(boolean isActive);
 	void setJobTypeChanged(boolean isJobTypeChanged);
 }

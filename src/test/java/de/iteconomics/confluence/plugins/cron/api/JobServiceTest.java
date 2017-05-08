@@ -20,7 +20,9 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 
 import de.iteconomics.confluence.plugins.cron.entities.Job;
+import de.iteconomics.confluence.plugins.cron.entities.JobParameter;
 import de.iteconomics.confluence.plugins.cron.entities.JobType;
+import de.iteconomics.confluence.plugins.cron.entities.JobTypeParameter;
 import de.iteconomics.confluence.plugins.cron.exceptions.JobException;
 import de.iteconomics.confluence.plugins.cron.impl.JobServiceImpl;
 
@@ -78,8 +80,10 @@ public class JobServiceTest {
 	private void configureMocks() {
 		when(jobType1.getID()).thenReturn(1);
 		when(jobType1.getUrl()).thenReturn("url1");
+		when(jobType1.getParameters()).thenReturn(new JobTypeParameter[0]);
 		when(jobType2.getID()).thenReturn(2);
 		when(jobType2.getUrl()).thenReturn("url2");
+		when(jobType2.getParameters()).thenReturn(new JobTypeParameter[0]);
 		when(jobTypeService.getAllJobTypes()).thenReturn(Lists.newArrayList(jobType1, jobType2));
 		when(jobTypeService.getJobTypeByID("1")).thenReturn(jobType1);
 		when(jobTypeService.getJobTypeByID("2")).thenReturn(jobType2);
@@ -99,10 +103,16 @@ public class JobServiceTest {
 		job1.setSpaceKey("SPACE1");
 		job1.setCronExpression("1 * * * * ?");
 		job1.setJobKey("jobkey1");
-		job1.setParameters("key1=value1");
+//		job1.setParameters("key1=value1");
 		job1.setActive(false);
 		job1.setJobTypeChanged(true);
 		job1.save();
+		JobParameter parameter1 = ao.create(JobParameter.class);
+		parameter1.setName("testparam");
+		parameter1.setValue("testparam-value");
+		parameter1.setJob(job1);
+		parameter1.save();
+
 
 		Job job2 = ao.create(Job.class);
 		job2Id = job2.getID();
@@ -111,7 +121,7 @@ public class JobServiceTest {
 		job2.setSpaceKey("SPACE2");
 		job2.setCronExpression("2 * * * * ?");
 		job2.setJobKey("jobkey2");
-		job2.setParameters("key2=value2");
+//		job2.setParameters("key2=value2");
 		job2.setActive(false);
 		job2.setJobTypeChanged(true);
 		job2.save();
@@ -123,7 +133,7 @@ public class JobServiceTest {
 		job3.setSpaceKey("SPACE1");
 		job3.setCronExpression("3 * * * * ?");
 		job3.setJobKey("jobkey3");
-		job3.setParameters("key3=value3");
+//		job3.setParameters("key3=value3");
 		job3.setActive(false);
 		job3.setJobTypeChanged(true);
 		job3.save();
@@ -135,7 +145,7 @@ public class JobServiceTest {
 		job4.setSpaceKey("SPACE2");
 		job4.setCronExpression("4 * * * * ?");
 		job4.setJobKey("jobkey4");
-		job4.setParameters("key4=value4");
+//		job4.setParameters("key4=value4");
 		job4.setActive(false);
 		job4.setJobTypeChanged(true);
 		job4.save();
@@ -162,7 +172,6 @@ public class JobServiceTest {
 		when(request.getParameter("job-type")).thenReturn("1");
 		when(request.getParameter("spacekey")).thenReturn("SPACE1");
 		when(request.getParameter("cron-expression")).thenReturn("3 * * * * ?");
-		when(request.getParameterNames()).thenReturn(new Vector<String>(Sets.newHashSet("name", "job-type", "spacekey", "cron-expression")).elements());
 
 		underTest.createJob(request);
 
@@ -220,12 +229,15 @@ public class JobServiceTest {
 	public void deleteJob_should_delete_job_if_it_exists() {
 		assertEquals(4, underTest.getAllJobs().size());
 
-		when(request.getParameter("id")).thenReturn(Integer.toString(job1Id));
+		when(request.getParameter("id")).thenReturn(Integer.toString(job2Id));
 		underTest.deleteJob(request);
 
 		List<Job> jobs = underTest.getAllJobs();
 		assertEquals(3, jobs.size());
-		assertFalse(jobs.get(0).getID() == 1);
+		for (Job job: jobs) {
+			assertFalse(job.getID() == job2Id);
+		}
+
 	}
 
 	@Test(expected=JobException.class)
@@ -499,8 +511,6 @@ public class JobServiceTest {
 		when(request.getParameter("parameters")).thenReturn("newKey=newValue");
 		// not changing spacekey, but a value is required
 		when(request.getParameter("spacekey")).thenReturn("SPACE1");
-		// to avoid NPE
-		when(request.getParameterNames()).thenReturn(new Vector<String>(Sets.newHashSet("name", "job-type", "spacekey", "cron-expression")).elements());
 
 		underTest.updateJob(request);
 
@@ -610,6 +620,115 @@ public class JobServiceTest {
 		underTest.updateJob(request);
 	}
 
+	@Test
+	public void updateJob_should_reregister_job_if_cron_expression_is_changed() throws SchedulerServiceException {
+
+		when(request.getParameter("id")).thenReturn(Integer.toString(job1Id));
+		when(request.getParameter("name")).thenReturn("job1");
+		when(request.getParameter("job-type")).thenReturn("1");
+		when(request.getParameter("cron-expression")).thenReturn("3 * * * * ?");
+		when(request.getParameter("job-key")).thenReturn("jobkey1");
+		// not changing spacekey, but a value is required
+		when(request.getParameter("spacekey")).thenReturn("SPACE1");
+		when(request.getParameterNames()).thenReturn(new Vector<String>(Sets.newHashSet("name", "job-type", "spacekey", "cron-expression", "parameter-testparam")).elements());
+		when(request.getParameter("parameter-testparam")).thenReturn("testparam-value");
+
+		underTest.updateJob(request);
+
+		verify(schedulerService, times(1)).unscheduleJob(any());
+		verify(schedulerService, times(1)).scheduleJob(any(), any());
+	}
+
+	@Test
+	public void updateJob_should_reregister_job_if_job_type_is_changed() throws SchedulerServiceException {
+		when(request.getParameter("id")).thenReturn(Integer.toString(job1Id));
+		when(request.getParameter("name")).thenReturn("job1");
+		when(request.getParameter("job-type")).thenReturn("2");
+		when(request.getParameter("cron-expression")).thenReturn("1 * * * * ?");
+		when(request.getParameter("job-key")).thenReturn("jobkey1");
+		// not changing spacekey, but a value is required
+		when(request.getParameter("spacekey")).thenReturn("SPACE1");
+		when(request.getParameterNames()).thenReturn(new Vector<String>(Sets.newHashSet("name", "job-type", "spacekey", "cron-expression", "parameter-testparam")).elements());
+		when(request.getParameter("parameter-testparam")).thenReturn("testparam-value");
+
+		underTest.updateJob(request);
+
+		verify(schedulerService, times(1)).unscheduleJob(any());
+		verify(schedulerService, times(1)).scheduleJob(any(), any());
+	}
+
+	@Test
+	public void updateJob_should_reregister_job_if_parameter_value_is_changed() throws SchedulerServiceException {
+		when(request.getParameter("id")).thenReturn(Integer.toString(job1Id));
+		when(request.getParameter("name")).thenReturn("job1");
+		when(request.getParameter("job-type")).thenReturn("1");
+		when(request.getParameter("cron-expression")).thenReturn("1 * * * * ?");
+		when(request.getParameter("job-key")).thenReturn("jobkey1");
+		// not changing spacekey, but a value is required
+		when(request.getParameter("spacekey")).thenReturn("SPACE1");
+		when(request.getParameterNames()).thenReturn(new Vector<String>(Sets.newHashSet("name", "job-type", "spacekey", "cron-expression", "parameter-testparam")).elements());
+		when(request.getParameter("parameter-testparam")).thenReturn("new-testparam-value");
+
+		underTest.updateJob(request);
+
+		verify(schedulerService, times(1)).unscheduleJob(any());
+		verify(schedulerService, times(1)).scheduleJob(any(), any());
+	}
+
+	@Test
+	public void updateJob_should_reregister_job_if_parameter__is_added() throws SchedulerServiceException {
+		when(request.getParameter("id")).thenReturn(Integer.toString(job1Id));
+		when(request.getParameter("name")).thenReturn("job1");
+		when(request.getParameter("job-type")).thenReturn("1");
+		when(request.getParameter("cron-expression")).thenReturn("1 * * * * ?");
+		when(request.getParameter("job-key")).thenReturn("jobkey1");
+		// not changing spacekey, but a value is required
+		when(request.getParameter("spacekey")).thenReturn("SPACE1");
+		when(request.getParameterNames()).thenReturn(new Vector<String>(Sets.newHashSet("name", "job-type", "spacekey", "cron-expression", "parameter-testparam", "parameter-testparam2")).elements());
+		when(request.getParameter("parameter-testparam")).thenReturn("testparam-value");
+		when(request.getParameter("parameter-testparam2")).thenReturn("testparam-value2");
+
+		underTest.updateJob(request);
+
+		verify(schedulerService, times(1)).unscheduleJob(any());
+		verify(schedulerService, times(1)).scheduleJob(any(), any());
+	}
+
+	@Test
+	public void updateJob_should_reregister_job_if_parameter__is_removed() throws SchedulerServiceException {
+		when(request.getParameter("id")).thenReturn(Integer.toString(job1Id));
+		when(request.getParameter("name")).thenReturn("job1");
+		when(request.getParameter("job-type")).thenReturn("1");
+		when(request.getParameter("cron-expression")).thenReturn("1 * * * * ?");
+		when(request.getParameter("job-key")).thenReturn("jobkey1");
+		// not changing spacekey, but a value is required
+		when(request.getParameter("spacekey")).thenReturn("SPACE1");
+		when(request.getParameterNames()).thenReturn(new Vector<String>(Sets.newHashSet("name", "job-type", "spacekey", "cron-expression")).elements());
+
+		underTest.updateJob(request);
+
+		verify(schedulerService, times(1)).unscheduleJob(any());
+		verify(schedulerService, times(1)).scheduleJob(any(), any());
+	}
+
+	@Test
+	public void updateJob_should_reregister_job_if_parameter_is_removed_and_another_is_added() throws SchedulerServiceException {
+		when(request.getParameter("id")).thenReturn(Integer.toString(job1Id));
+		when(request.getParameter("name")).thenReturn("job1");
+		when(request.getParameter("job-type")).thenReturn("1");
+		when(request.getParameter("cron-expression")).thenReturn("1 * * * * ?");
+		when(request.getParameter("job-key")).thenReturn("jobkey1");
+		// not changing spacekey, but a value is required
+		when(request.getParameter("spacekey")).thenReturn("SPACE1");
+		when(request.getParameterNames()).thenReturn(new Vector<String>(Sets.newHashSet("name", "job-type", "spacekey", "cron-expression", "new-parameter-testparam")).elements());
+		when(request.getParameter("new-parameter-testparam")).thenReturn("new-testparam-value");
+
+		underTest.updateJob(request);
+
+		verify(schedulerService, times(1)).unscheduleJob(any());
+		verify(schedulerService, times(1)).scheduleJob(any(), any());
+	}
+
 	/*
 	 * getJobs(String spaceKey)
 	 */
@@ -668,40 +787,6 @@ public class JobServiceTest {
 	}
 
 	/*
-	 * formatParameters()
-	 */
-
-	@Test
-	public void formatParameters_should_replace_equals_with_colon_and_split_at_ampersand() {
-		String[] formatted = underTest.formatParameters("key1=value1&key2=value2");
-		assertEquals(2, formatted.length);
-		assertEquals("key1: value1", formatted[0]);
-		assertEquals("key2: value2", formatted[1]);
-	}
-
-	@Test
-	public void formatParameters_should_return_an_empty_array_for_an_empty_string() {
-		String[] formatted = underTest.formatParameters("");
-		assertEquals(0, formatted.length);
-	}
-
-	@Test
-	public void formatParameters_should_return_an_empty_array_for_whitespace() {
-		String[] formatted = underTest.formatParameters(" ");
-		assertEquals(0, formatted.length);
-
-		formatted = underTest.formatParameters(" " + System.getProperty("line.separator"));
-		assertEquals(0, formatted.length);
-	}
-
-	@Test
-	public void formatParameters_should_return_an_empty_array_for_null() {
-		String[] formatted = underTest.formatParameters(null);
-		assertEquals(0, formatted.length);
-	}
-
-
-	/*
 	 * non-test methods
 	 */
 
@@ -714,7 +799,7 @@ public class JobServiceTest {
 
 		@Override
 		public void update(EntityManager entityManager) throws Exception {
-			entityManager.migrate(Job.class);
+			entityManager.migrate(Job.class, JobParameter.class);
 		}
 	}
 }

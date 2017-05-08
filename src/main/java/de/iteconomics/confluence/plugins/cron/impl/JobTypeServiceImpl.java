@@ -1,11 +1,8 @@
 package de.iteconomics.confluence.plugins.cron.impl;
 
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashSet;
+import java.util.Collections;
 import java.util.List;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -23,6 +20,7 @@ import de.iteconomics.confluence.plugins.cron.api.JobService;
 import de.iteconomics.confluence.plugins.cron.api.JobTypeService;
 import de.iteconomics.confluence.plugins.cron.entities.Job;
 import de.iteconomics.confluence.plugins.cron.entities.JobType;
+import de.iteconomics.confluence.plugins.cron.entities.JobTypeParameter;
 import de.iteconomics.confluence.plugins.cron.exceptions.JobTypeException;
 import net.java.ao.Query;
 
@@ -34,6 +32,7 @@ public class JobTypeServiceImpl implements JobTypeService {
 	private ActiveObjects ao;
 	private JobService jobService;
 	private static Logger logger = LoggerFactory.getLogger(JobTypeServiceImpl.class);
+	private static String namePrefix = "parameter-name-";
 
 	@Inject
 	@Override
@@ -58,20 +57,62 @@ public class JobTypeServiceImpl implements JobTypeService {
 		checkNewJobTypeName(request);
 		JobType jobType = ao.create(JobType.class);
 		setJobTypeValues(jobType, request);
-		jobType.save();
 	}
 
 	@Override
 	public void updateJobType(HttpServletRequest request) {
 		checkRequiredRequestParametersPresent(request);
 		JobType jobType = getJobTypeIfExists(request);
+		
+		boolean changeAffectsJobs = changeAffectsJobs(jobType, request);
+		
 		setJobTypeValues(jobType, request);
-		jobType.save();
 		List<Job> jobs = jobService.getJobsByJobTypeID(jobType.getID());
-		for (Job job: jobs) {
-			job.setJobTypeChanged(true);
-			job.save();
+		
+		if (changeAffectsJobs) {
+			for (Job job: jobs) {
+				job.setJobTypeChanged(true);
+				job.save();
+			}
 		}
+	}
+
+	private boolean changeAffectsJobs(JobType jobType, HttpServletRequest request) {
+		if (!jobType.getUrl().equals(request.getParameter("url"))) {
+			return true;
+		}
+		if (!jobType.getHttpMethod().equals(request.getParameter("http-method"))) {
+			return true;
+		}
+		if (jobType.isAuthenticationRequired() != (request.getParameter("authentication") != null)) {
+			return true;
+		}
+		if (jobType.isAuthenticationRequired() && !jobType.getUsername().equals(request.getParameter("username"))) {
+			return true;
+		}
+		if (jobType.isAuthenticationRequired() && !jobType.getPassword().equals(request.getParameter("password"))) {
+			return true;
+		}
+		if (parameterNamesNotEqual(jobType, request)) {
+			return true;
+		}
+		
+		return false;
+	}
+
+	private boolean parameterNamesNotEqual(JobType jobType, HttpServletRequest request) {
+		List<String> parameterNamesFromJobType = getParameterNamesFromJobType(jobType);
+		List<String> parameterNamesFromRequest = getRequestParameterKeys(request);
+		
+		return !parameterNamesFromJobType.equals(parameterNamesFromRequest);
+	}
+
+	private List<String> getParameterNamesFromJobType(JobType jobType) {
+		List<String> parameterNamesFromJobType = new ArrayList<>();
+		for (JobTypeParameter jobTypeParameter: jobType.getParameters()) {
+			parameterNamesFromJobType.add(jobTypeParameter.getName());
+		}
+		return parameterNamesFromJobType;
 	}
 
 	private void checkRequiredRequestParametersPresent(HttpServletRequest request) {
@@ -83,7 +124,67 @@ public class JobTypeServiceImpl implements JobTypeService {
 	}
 
 	private void setJobTypeValues(JobType jobType, HttpServletRequest request) {
-		String name = request.getParameter("name").trim();
+		String name = request.getParameter("name");
+		if (name == null) {
+			throw new JobTypeException("The name of the job type may not be null.");
+		}
+		jobType.setName(name);
+
+		String description = request.getParameter("description");
+		if (description == null) {
+			description = "";
+		}
+		jobType.setDescription(description);
+
+		String url = getUrl(request);
+		jobType.setUrl(url);
+
+		setParameters(jobType, request, url);
+
+		setHttpMethod(jobType, request);
+
+		boolean authenticationRequired = (request.getParameter("authentication") != null);
+		jobType.setAuthenticationRequired(authenticationRequired);
+
+		String bundledJobTypeId = request.getParameter("bundled-job-type-id");
+		jobType.setBundledJobTypeID(bundledJobTypeId);
+
+		String username = getUsername(request);
+		jobType.setUsername(username);
+
+		String password = getPassword(request);
+		jobType.setPassword(password);
+
+		jobType.save();
+	}
+
+	private String getPassword(HttpServletRequest request) {
+		String password = request.getParameter("password");
+		if (password== null) {
+			password = "";
+		} else {
+			password = password.trim();
+		}
+		return password;
+	}
+
+	private String getUsername(HttpServletRequest request) {
+		String username = request.getParameter("username");
+		if (username == null) {
+			username = "";
+		} else {
+			username = username.trim();
+		}
+		return username;
+	}
+
+	private void setHttpMethod(JobType jobType, HttpServletRequest request) {
+		String httpMethod = request.getParameter("http-method").trim();
+		checkIsValidMethod(httpMethod);
+		jobType.setHttpMethod(httpMethod);
+	}
+
+	private String getUrl(HttpServletRequest request) {
 		String url = request.getParameter("url").trim();
 		if (url.charAt(url.length() -1) == '/') {
 			url = url.substring(0, url.length() -1);
@@ -91,40 +192,62 @@ public class JobTypeServiceImpl implements JobTypeService {
 		if (url.contains(" ")) {
 			throw new JobTypeException("Invalid URL: " + url + ". URLs must not contain whitespace.");
 		}
-		String parameterNames = request.getParameter("parameters");
-		if (parameterNames == null) {
-			parameterNames = "";
-		} else {
-			parameterNames = parameterNames.trim();
-		}
-		String httpMethod = request.getParameter("http-method").trim();
-		checkIsValidMethod(httpMethod);
-		String allParameters = getAllParameters(url, parameterNames);
-		assertNoDuplicateParameterNames(allParameters);
-		boolean authenticationRequired = (request.getParameter("authentication") != null);
-		String bundledJobTypeId = request.getParameter("bundled-job-type-id");
+		return url;
+	}
 
-		String username = request.getParameter("username");
-		if (username == null) {
-			username = "";
-		} else {
-			username = username.trim();
-		}
-		String password = request.getParameter("password");
-		if (password== null) {
-			password = "";
-		} else {
-			password = password.trim();
+	private void setParameters(JobType jobType, HttpServletRequest request, String url) {
+
+		JobTypeParameter[] oldParameters = jobType.getParameters();
+
+		for (JobTypeParameter oldParameter: oldParameters) {
+			ao.delete(oldParameter);
 		}
 
-		jobType.setName(name);
-		jobType.setHttpMethod(httpMethod);
-		jobType.setParameterNames(allParameters);
-		jobType.setUsername(username);
-		jobType.setPassword(password);
-		jobType.setAuthenticationRequired(authenticationRequired);
-		jobType.setUrl(url);
-		jobType.setBundledJobTypeID(bundledJobTypeId);
+		
+		List<String> parameterNameKeys = getRequestParameterKeys(request); 
+
+		for (String parameterNameKey: parameterNameKeys) {
+			JobTypeParameter jobTypeParameter = ao.create(JobTypeParameter.class);
+			String parameterName = request.getParameter(parameterNameKey);
+			if (parameterName == null) {
+				throw new JobTypeException("Parameter name with key " + parameterNameKey + " was null.");
+			}
+			jobTypeParameter.setName(parameterName.trim());
+
+			
+			String parameterNumber = parameterNameKey.substring(namePrefix.length());
+			String parameterFriendlyName = request.getParameter("parameter-friendly-name-" + parameterNumber);
+			String parameterDescription = request.getParameter("parameter-description-" + parameterNumber);
+			boolean isPathParameter = request.getParameter("parameter-path-parameter-" + parameterNumber) != null;
+
+			if (parameterFriendlyName != null && !parameterFriendlyName.trim().equals("")) {
+				jobTypeParameter.setFriendlyName(parameterFriendlyName.trim());
+			} else {
+				jobTypeParameter.setFriendlyName(parameterName.trim());
+			}
+			if (parameterDescription != null) {
+				jobTypeParameter.setDescription(parameterDescription.trim());
+			} else {
+				jobTypeParameter.setDescription("");
+			}
+			jobTypeParameter.setPathParameter(isPathParameter);
+
+			jobTypeParameter.setJobType(jobType);
+			jobTypeParameter.save();
+		}
+
+	}
+
+	private List<String> getRequestParameterKeys(HttpServletRequest request) {
+		List<String> requestParameterKeys = Collections.list(request.getParameterNames());
+		List<String> parameterNameKeys = new ArrayList<>();
+
+		for (String key: requestParameterKeys) {
+			if (key.startsWith(namePrefix)) {
+				parameterNameKeys.add(key);
+			}
+		}
+		return parameterNameKeys;
 	}
 
 	private void checkIsValidMethod(String httpMethod) {
@@ -138,36 +261,6 @@ public class JobTypeServiceImpl implements JobTypeService {
 		}
 
 		throw new JobTypeException("Invalid http method: " + httpMethod + ". Only GET, POST, PUT, and DELETE are allowed.");
-	}
-
-	private String getAllParameters(String url, String parameterNames) {
-		List<String> pathParameters = new ArrayList<>();
-		Matcher m = Pattern.compile("\\{(.*?)\\}").matcher(url);
-		while (m.find()) {
-			String param = m.group().substring(1, m.group().length() -1);
-			pathParameters.add(param);
-		}
-
-		String allParameters = parameterNames;
-		for (String pathParameter: pathParameters) {
-			logger.error("adding path parameter: " + pathParameter);
-			allParameters += System.getProperty("line.separator");
-			allParameters += pathParameter;
-		}
-
-		logger.error("all parameters: " + allParameters);
-
-		return allParameters;
-	}
-
-	private void assertNoDuplicateParameterNames(String parameterNames) {
-
-		List<String> parameters = Arrays.asList(parameterNames.split(System.getProperty("line.separator")));
-
-		if (parameters.size() != new HashSet<String>(parameters).size()) {
-			throw new JobTypeException("All parameter names must be unique across all kinds of parameters");
-		}
-
 	}
 
 	private void checkNewJobTypeName(HttpServletRequest request) {
@@ -186,6 +279,10 @@ public class JobTypeServiceImpl implements JobTypeService {
 		List<Job> jobs = jobService.getJobsByJobTypeID(jobType.getID());
 		for (Job job: jobs) {
 			jobService.unregisterJob(job);
+		}
+		JobTypeParameter[] parameters = jobType.getParameters();
+		for (JobTypeParameter parameter: parameters) {
+			ao.delete(parameter);
 		}
 		ao.delete(jobType);
 	}
@@ -247,7 +344,7 @@ public class JobTypeServiceImpl implements JobTypeService {
 		JobType notificationJobType = getNotificationJobType();
 
 		if (notificationJobType == null) {
-			return "none";
+			return "";
 		}
 
 		return notificationJobType.getUsername();
@@ -299,8 +396,9 @@ public class JobTypeServiceImpl implements JobTypeService {
 	}
 
 	@Override
-	public String[] formatJobParameters(String unformatted) {
-		return jobService.formatParameters(unformatted);
+	public JobTypeParameter[] getJobTypeParameters(int id) {
+		JobType jobType = getJobTypeByID(Integer.toString(id));
+ 		return jobType.getParameters();
 	}
 
 }

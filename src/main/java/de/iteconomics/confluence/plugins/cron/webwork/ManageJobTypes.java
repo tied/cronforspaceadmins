@@ -1,6 +1,8 @@
 package de.iteconomics.confluence.plugins.cron.webwork;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import javax.inject.Inject;
 
@@ -13,6 +15,7 @@ import de.iteconomics.confluence.plugins.cron.api.JobService;
 import de.iteconomics.confluence.plugins.cron.api.JobTypeService;
 import de.iteconomics.confluence.plugins.cron.entities.Job;
 import de.iteconomics.confluence.plugins.cron.entities.JobType;
+import de.iteconomics.confluence.plugins.cron.entities.JobTypeParameter;
 import de.iteconomics.confluence.plugins.cron.exceptions.JobTypeException;
 
 public class ManageJobTypes extends ConfluenceActionSupport {
@@ -37,50 +40,87 @@ public class ManageJobTypes extends ConfluenceActionSupport {
 	}
 
 	public List<JobType> getAllJobTypes() {
-		return jobTypeService.getAllJobTypes();
+		try {
+			return jobTypeService.getAllJobTypes();
+		} catch (Exception e) {
+			logger.error(e.getMessage());
+			return new ArrayList<>();
+		}
 	}
 
 	public boolean hasNotificationJobType() {
-		return jobTypeService.hasNotificationJobType();
+		try {
+			return jobTypeService.hasNotificationJobType();
+		} catch (Exception e) {
+			logger.error(e.getMessage());
+			return false;
+		}
 	}
 
 	public String getNotificationJobTypeId() {
-		return jobTypeService.getNotificationJobTypeId();
+		try {
+			return jobTypeService.getNotificationJobTypeId();
+		} catch (Exception e) {
+			logger.error(e.getMessage());
+			return "";
+		}
 	}
 
 	public String getNotificationJobTypeUsername() {
-		return jobTypeService.getNotificationJobTypeUsername();
+		try {
+			return jobTypeService.getNotificationJobTypeUsername();
+		} catch (Exception e) {
+			logger.error(e.getMessage());
+			return "";
+		}
 	}
 
 	public List<Job> getAllJobs() {
-		return jobService.getAllJobs();
+		try {
+			return jobService.getAllJobs();
+		} catch (Exception e) {
+			logger.error(e.getMessage());
+			return new ArrayList<>();
+		}
 	}
 
 	public JobType getJobTypeByID(String id) {
 		try {
 			return jobTypeService.getJobTypeByID(id);
-		} catch (JobTypeException e) {
-			logger.error("There is not JobType with the id " + id + ".");
+		} catch (Exception e) {
+			logger.error(e.getMessage());
 			return null;
 		}
 	}
 
-	public String[] formatParameters(String unformatted) {
-		return jobTypeService.formatParameters(unformatted);
-	}
-
-	public String[] formatJobParameters(String unformatted) {
-		return jobService.formatParameters(unformatted);
+	public JobTypeParameter[] getParameters(int id) {
+		try {
+			return jobTypeService.getJobTypeParameters(id);
+		} catch (Exception e) {
+			logger.error(e.getMessage());
+			return new JobTypeParameter[0];
+		}
 	}
 
 	public boolean isEnabled(Job job) {
-		return jobService.isEnabled(job);
+		try {
+			return jobService.isEnabled(job);
+		} catch (Exception e) {
+			logger.error(e.getMessage());
+			return false;
+		}
 	}
 
 	public String getJobTypeNameValidationString() {
 		StringBuilder validationStringBuilder = new StringBuilder();
+
+		try {
 		for (JobType jobType: jobTypeService.getAllJobTypes()) {
 			validationStringBuilder.append(jobType.getName() + "|");
+		}
+		} catch (Exception e) {
+			logger.error(e.getMessage());
+			return "";
 		}
 
 		String validationString = validationStringBuilder.toString();
@@ -91,4 +131,12 @@ public class ManageJobTypes extends ConfluenceActionSupport {
 		return validationString;
 	}
 
+	public boolean isParametersInconsistent(Job job) {
+		try {
+			return jobService.isParametersInconsistent(job);
+		} catch (Exception e) {
+			logger.error(e.getMessage());
+			return false;
+		}
+	}
 }

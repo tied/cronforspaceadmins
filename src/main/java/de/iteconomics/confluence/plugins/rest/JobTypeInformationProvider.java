@@ -5,6 +5,10 @@ import com.atlassian.plugins.rest.common.security.AnonymousAllowed;
 
 import de.iteconomics.confluence.plugins.cron.api.JobTypeService;
 import de.iteconomics.confluence.plugins.cron.entities.JobType;
+import de.iteconomics.confluence.plugins.cron.entities.JobTypeParameter;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
@@ -16,7 +20,7 @@ import org.slf4j.LoggerFactory;
  * A resource of message.
  */
 @Scanned
-@Path("info")
+@Path("jobtype")
 public class JobTypeInformationProvider {
 
 	private static Logger logger = LoggerFactory.getLogger(JobTypeInformationProvider.class);
@@ -27,17 +31,30 @@ public class JobTypeInformationProvider {
 	}
 
     @GET
-    @AnonymousAllowed
     @Path("parameters/{id}")
-    @Produces({MediaType.TEXT_PLAIN})
-    public String getParameters(@PathParam("id") String id)
+    @Produces({MediaType.APPLICATION_JSON})
+    public JobTypeParameterModel[] getParameters(@PathParam("id") String id)
     {
     	JobType jobType = jobTypeService.getJobTypeByID(id);
-    	return jobType.getParameterNames();
+    	JobTypeParameter[] jobTypeParameters = jobType.getParameters();
+
+    	List<JobTypeParameterModel> parameters = new ArrayList<>();
+    	for (JobTypeParameter jobTypeParameter: jobTypeParameters) {
+    		parameters.add(new JobTypeParameterModel(jobTypeParameter.getName(), jobTypeParameter.getFriendlyName(), jobTypeParameter.getDescription(), jobTypeParameter.isPathParameter()));
+    	}
+
+    	return parameters.toArray(new JobTypeParameterModel[parameters.size()]);
     }
 
     @GET
-    @AnonymousAllowed
+    @Path("description/{id}")
+    @Produces({MediaType.TEXT_PLAIN})
+    public String getDescription(@PathParam("id") String id)
+    {
+    	return jobTypeService.getJobTypeByID(id).getDescription();
+    }
+
+    @GET
     @Path("authentication/{id}")
     @Produces({MediaType.TEXT_PLAIN})
     public String isAuthenticationRequired(@PathParam("id") String id)

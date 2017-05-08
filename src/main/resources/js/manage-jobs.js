@@ -5,6 +5,8 @@ function init() {
 	AJS.$("#edit-job-type").auiSelect2();
 	var dialog = AJS.dialog2("#edit-dialog");
 	AJS.$("#job-type-modified-tooltip").tooltip();
+	AJS.$(".job-disabled-tooltip").tooltip();
+	AJS.$("#notification-username-tooltip").tooltip();
 	AJS.$(".edit-button").on("click", function(e) {
 		AJS.$("#edit-name").val(AJS.$(e.target).data("jobName"));
 		AJS.$(".jobtype-option").each(function(i) {
@@ -13,11 +15,12 @@ function init() {
 			if (currentOption.val() == AJS.$(e.target).data("jobType")) {
 				currentOption.attr("selected", "selected");
 				currentOption.parent().parent().find(".select2-chosen").html(currentOption.html());
-				insertParameterFieldsForJobType(currentOption.val(), "edit");
+				insertParameterFieldsForJobType(currentOption.val(), "edit", AJS.$(e.target).data("jobId"));
 				insertCredentialsFieldsForJobType(currentOption.val(), "edit");
+				insertDescriptionForJobType(AJS.$(e.target).data("jobType"), "edit");
 			}
 		});
-		AJS.$("#edit-cron-expression").val(AJS.$(e.target).data("cronExpression"));		
+		AJS.$("#edit-cron-expression").val(AJS.$(e.target).data("cronExpression"));
 		AJS.$("#edit-job-id").val(AJS.$(e.target).data("jobId"));
 		AJS.$("#edit-name").attr("data-current-name", AJS.$(e.target).data("jobName"));
 		AJS.$("#parameter-string").attr("data-parameters", AJS.$(e.target).data("parameters"));
@@ -53,6 +56,9 @@ function init() {
 		AJS.$("#edit-form").submit();
 	});
 	AJS.$(".toggle-status").click(function(e) {
+		if (e.target.hasAttribute("disabled")) {
+			return;
+		}
 		AJS.$(e.target).parent()[0].busy = true;
 		var actionUrl;
 		if (AJS.$(e.target).parent().attr("data-is-enabled") === "true") {
@@ -71,16 +77,18 @@ function init() {
 		var jobTypeId = AJS.$("#create-job-type").val();
 		insertCredentialsFieldsForJobType(jobTypeId, "create");
 		insertParameterFieldsForJobType(jobTypeId, "create");
+		insertDescriptionForJobType(jobTypeId, "create");
 	});
 	
 	AJS.$("#edit-job-type").on("change", function() {
 		var jobTypeId = AJS.$("#edit-job-type").val();
-		insertParameterFieldsForJobType(jobTypeId, "edit");
+		insertParameterFieldsForJobType(jobTypeId, "edit", AJS.$("#edit-job-id").val());
 		insertCredentialsFieldsForJobType(jobTypeId, "edit");
+		insertDescriptionForJobType(jobTypeId, "edit");
 	});	
 	
 	function insertCredentialsFieldsForJobType(jobTypeId, mode) {
-		AJS.$.get(AJS.contextPath() + "/rest/jobtype/1.0/info/authentication/" + jobTypeId)
+		AJS.$.get(AJS.contextPath() + "/rest/cronforspaceadmins/1.0/jobtype/authentication/" + jobTypeId)
 			.done(function(data) {
 				var credentialsDiv = AJS.$("#" + mode + "-credentials");
 				credentialsDiv.empty();
@@ -89,6 +97,18 @@ function init() {
 				}
 			});
 	}
+	
+	function insertDescriptionForJobType(jobTypeId, mode) {
+		var descriptionParagraph = AJS.$("#" + mode + "-job-job-type-description");
+		AJS.$.get(AJS.contextPath() + "/rest/cronforspaceadmins/1.0/jobtype/description/" + jobTypeId)
+			.done(function(description) {
+				descriptionParagraph.empty();
+				descriptionParagraph.append(description);
+			})
+			.fail(function() {
+				descriptionParagraph.empty();
+			});
+	}	
 	
 	function insertCredentialsFields(div, mode) {
 			var inputUsername = "<div class=\"field-group top-label\">";
@@ -103,33 +123,37 @@ function init() {
 			div.append(inputPassword);			
 	}	
 	
-	function insertParameterFieldsForJobType(jobTypeId, mode) {
-		AJS.$.get(AJS.contextPath() + "/rest/jobtype/1.0/info/parameters/" + jobTypeId)
+	function insertParameterFieldsForJobType(jobTypeId, mode, jobId) {
+		AJS.$.get(AJS.contextPath() + "/rest/cronforspaceadmins/1.0/jobtype/parameters/" + jobTypeId)
 			.done(function(data) {
 				var parametersDiv = AJS.$("#" + mode + "-job-parameters");
 				parametersDiv.empty();
 				insertParameterFields(data, parametersDiv);
 				if (mode === "edit") {
-					prefillParameterFields();
+					prefillParameterFields(jobId);
 				}
 				
 			});		
 	}
 	
 	function insertParameterFields(data, div) {
-		parameters = data.split("\n");
-		for (index in parameters) {
-			var parameter = parameters[index].trim();
-			if (parameter) {
-				div.append(getParameterFieldGroup(parameter));
-			}
+		for (index in data) {
+			var parameter = data[index];
+			div.append(getParameterFieldGroup(parameter.name, parameter.friendlyName, parameter.description));
 		}
+		AJS.$(".parameter-tooltip").each(function() {
+			AJS.$(this).tooltip();
+		})
 	}
 	
-	function getParameterFieldGroup(parameter) {
+	function getParameterFieldGroup(name, friendlyName, description) {
 		var field = "<div class=\"field-group top-label\">";
-		field += "<label for=\"parameter-" + parameter + "\">'" + parameter + "' parameter<span class=\"aui-icon aui-icon-required\">Required</span></label>";
-		field += "<textarea id=\"parameter-" + parameter + "\" name=\"parameter-" + parameter + "\" class=\"textarea\" data-aui-validation-field data-aui-validation-required data-aui-validation-required-msg=\"You must provide a value for all parameters\" rows=\"2\" cols=\"10\" />";
+		field += "<label for=\"parameter-" + name + "\">'" + friendlyName+ "' parameter<span class=\"aui-icon aui-icon-required\">Required</span>";
+		if (description) {
+			field += "<a class=\"parameter-tooltip\" title=\"" + description + "\"><span class=\"aui-icon aui-icon-small aui-iconfont-info\">info</span></a>";
+		}
+		field += "</label>";
+		field += "<textarea id=\"parameter-" + name + "\" name=\"parameter-" + name + "\" class=\"textarea\" data-aui-validation-field data-aui-validation-required data-aui-validation-required-msg=\"You must provide a value for all parameters\" rows=\"2\" cols=\"10\" />";
 		field += "</div>";
 		return field;
 	}
@@ -142,19 +166,21 @@ function init() {
 		return field;
 	}
 	
-	function prefillParameterFields() {
-		var parameterString = AJS.$("#parameter-string").attr("data-parameters");
-		var keyValuePairs = parameterString.split("&");
-		for (index in keyValuePairs) {
-			var keyValuePair = keyValuePairs[index];
-			var name = keyValuePair.split("=")[0];
-			var value = keyValuePair.split("=")[1];
-			var target = AJS.$("#parameter-" + name);
-			target.val(value);
-			target.append(value);
-		}
+	function prefillParameterFields(jobId) {
+		AJS.$.get(AJS.contextPath() + "/rest/cronforspaceadmins/1.0/job/parameters/" + jobId)
+		.done(function(parameters) {
+			
+			for (index in parameters) {
+				var parameter = parameters[index];
+				var name = parameter.name;
+				var value = parameter.value;
+				var target = AJS.$("#parameter-" + name);
+				target.val(value);
+				target.append(value);
+			}			
+		});
 	}
-
+	
 	AJS.formValidation.register(['job-name'], function(field) {
 			var jobsString = field.args('job-name');
 			var jobs= [];
@@ -260,8 +286,7 @@ function init() {
 			return true;
 		}
 		
-		field.validate();
-		
+		field.validate();		
 	});
 	
 	function isValidSingleValue(value, lowerBound, upperBound) {

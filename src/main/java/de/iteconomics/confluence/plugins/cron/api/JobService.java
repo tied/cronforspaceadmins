@@ -29,7 +29,8 @@ public interface JobService {
 	List<Job> getJobs(String spaceKey);
 	List<Job> getJobsByJobTypeID(int jobTypeID);
 	void deleteJob(Job job);
-	String[] formatParameters(String unformatted);
 	void setJobTypeService(JobTypeService jobTypeService);
 	void setSchedulerService(SchedulerService schedulerService);
+	Job getJobIfExists(String id);
+	boolean isParametersInconsistent(Job job);
 }

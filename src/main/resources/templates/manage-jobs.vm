@@ -25,16 +25,15 @@ $webResourceManager.requireResourcesForContext("cron-space-admin-screen")
 						<table class="aui">
 							<thead>
 								<tr>
-									<th id="name">Name</th>
-									<th id="job-type">Job Type</th>
+									<th id="name">$i18n.getText("de.iteconomics.confluence.plugins.name")</th>
+									<th id="job-type">$i18n.getText("de.iteconomics.confluence.plugins.job-type")</th>
 									<th id="cron-expression">
-										Cron Expression
-										<a class="cron-tooltip" title="Format: seconds minutes hours dayOfWeek month dayOfMonth year">
-											<span class="aui-icon aui-icon-small aui-iconfont-info">info</span>
+										$i18n.getText("de.iteconomics.confluence.plugins.cron-expression")
+										<a class="cron-tooltip" title="$i18n.getText('de.iteconomics.confluence.plugins.cron-format')">
+											<span class="aui-icon aui-icon-small aui-iconfont-info">$i18n.getText("de.iteconomics.confluence.plugins.info")</span>
 										</a>
 									</th>
-									<th id="paramteres">Parameters</th>
-									<th id="status">Status</th>
+									<th id="status">$i18n.getText("de.iteconomics.confluence.plugins.status")</th>
 								</tr>
 							</thead>
 							<tbody>
@@ -45,32 +44,28 @@ $webResourceManager.requireResourcesForContext("cron-space-admin-screen")
 										<td>
 										$action.getJobTypeByID($job.jobTypeID).name
 										#if (${job.jobTypeChanged} == "true" && ${job.active} == "true")
-											<a id="job-type-modified-tooltip" href="#" original-title="This job type has been updated. Restart the job for the changes to take effect."><span class="aui-icon aui-icon-small aui-iconfont-warning"/></a>
+											<a id="job-type-modified-tooltip" href="#" original-title="$i18n.getText('de.iteconomics.confluence.plugins.job-type-updated')"><span class="aui-icon aui-icon-small aui-iconfont-warning"/></a>
 										#end
 										</td>
 									#else
-										<td><div class="aui-message aui-message-warning">This job type has been deleted</div></td>
+										<td><div class="aui-message aui-message-warning">$i18n.getText("de.iteconomics.confluence.plugins.job-type-deleted")</div></td>
 									#end
 									<td>${job.cronExpression}</td>
 									<td>
-									#if ($job.parameters && ($job.parameters != ""))
-									
-									#foreach($param in	${action.formatParameters($job.parameters)})
-										<div>$param</div>
-									#end
-									
-									#end
-									</td>
-									<td>
 									#if ($!action.getJobTypeByID($job.jobTypeID))
-											<aui-toggle id="toggle-status" class="toggle-status" label="testing the toggle button" data-is-enabled="${action.isEnabled($job)}" data-job-id="${job.ID}" data-space-key="${action.spaceKey}" #if (${action.isEnabled($job)}) checked="" #end></aui-toggle>
-									#end									
+											<aui-toggle id="toggle-status" class="toggle-status" label="testing the toggle button" data-is-enabled="${action.isEnabled($job)}" data-job-id="${job.ID}" data-space-key="${action.spaceKey}" #if (${action.isEnabled($job)}) checked="" #end #if (${action.isParametersInconsistent($job)} && !${action.isEnabled($job)}) disabled="disabled" #end ></aui-toggle>
+											#if (${action.isParametersInconsistent($job)} && !${action.isEnabled($job)})
+												<a class="job-disabled-tooltip" href="#" original-title="$i18n.getText('de.iteconomics.confluence.plugins.job-disabled')"><span class="aui-icon aui-icon-small aui-iconfont-info"/></a>
+											#end
+									#end                                     
 									</td>
 									<td>
-										<button class="delete-button aui-button aui-button-link" type="button" data-job-id="${job.ID}" data-space-key="${action.spaceKey}"><span class="aui-icon aui-icon-small aui-iconfont-delete">Delete</span></button>
-										<button class="edit-button aui-button aui-button-link" type="button" data-job-id="${job.ID}" data-job-name="${job.name}" data-job-type="${job.jobTypeID}" data-cron-expression="${job.cronExpression}" data-parameters="${job.parameters}">
-											<span class="aui-icon aui-icon-small aui-iconfont-edit" data-job-id="${job.ID}" data-job-name="${job.name}" data-job-type="${job.jobTypeID}" data-cron-expression="${job.cronExpression}" data-parameters="${job.parameters}">Edit</span>
+										<button class="delete-button aui-button aui-button-link" type="button" data-job-id="${job.ID}" data-space-key="${action.spaceKey}"><span class="aui-icon aui-icon-small aui-iconfont-delete">$i18n.getText("de.iteconomics.confluence.plugins.delete")</span></button>
+										#if ($!action.getJobTypeByID($job.jobTypeID))
+										<button class="edit-button aui-button aui-button-link" type="button" data-job-id="${job.ID}" data-job-name="${job.name}" data-job-type="${job.jobTypeID}" data-cron-expression="${job.cronExpression}" >
+											<span class="aui-icon aui-icon-small aui-iconfont-edit" data-job-id="${job.ID}" data-job-name="${job.name}" data-job-type="${job.jobTypeID}" data-cron-expression="${job.cronExpression}" >$i18n.getText("de.iteconomics.confluence.plugins.edit")</span>
 										</button>
+										#end
 									</td>	
 								</tr>
 								#end
@@ -80,84 +75,85 @@ $webResourceManager.requireResourcesForContext("cron-space-admin-screen")
 						#if ($req.getParameter("save-error"))
 						<div class="aui-message aui-message-error">
 							<p class="title">
-								<strong>Error</strong>
+								<strong>$i18n.getText("de.iteconomics.confluence.plugins.error")</strong>
 							</p>
-							<p>There was an error while saving the job.</p>
+							<p>$i18n.getText("de.iteconomics.confluence.plugins.save-error")</p>
 						</div>
 						#end
 						#if ($req.getParameter("delete-error"))
 						<div class="aui-message aui-message-error">
 							<p class="title">
-								<strong>Error</strong>
+								<strong>$i18n.getText("de.iteconomics.confluence.plugins.error")</strong>
 							</p>
-							<p>There was an error while deleting the job.</p>
+							<p>$i18n.getText("de.iteconomics.confluence.plugins.deleteerror")</p>
 						</div>
 						#end						
 						<form class="aui top-label" method="post" action="SaveJob.action">
-							<h3>Create Job</h3>
+							<h3>$i18n.getText("de.iteconomics.confluence.plugins.create-job")</h3>
 							<fieldset class="top-label">
 							<div class="field-group top-label">
-								<label for="create-name">Name<span class="aui-icon aui-icon-required">Required</span></label>
-								<input id="create-name" data-aui-validation-job-name="$action.getJobNameValidationString()" data-is-edit="false" data-aui-validation-field data-aui-validation-required data-aui-validation-required-msg="You must provide a job name" class="text" type="text" name="name">
+								<label for="create-name">Name<span class="aui-icon aui-icon-required">$i18n.getText("de.iteconomics.confluence.plugins.required")</span></label>
+								<input id="create-name" data-aui-validation-job-name="$action.getJobNameValidationString()" data-is-edit="false" data-aui-validation-field data-aui-validation-required data-aui-validation-required-msg="$i18n.getText('de.iteconomics.confluence.plugins.job-name-required')" class="text" type="text" name="name">
 							</div>
 							<div class="field-group top-label">
-								<label for="create-job-type">Type<span class="aui-icon aui-icon-required">Required</span></label>
-								<select id="create-job-type" data-aui-validation-field data-aui-validation-required data-aui-validation-required-msg="You must pick a job type" name="job-type">
-									<option value="">-- none --</option>
+								<label for="create-job-type">Type<span class="aui-icon aui-icon-required">$i18n.getText("de.iteconomics.confluence.plugins.required")</span></label>
+								<select id="create-job-type" data-aui-validation-field data-aui-validation-required data-aui-validation-required-msg="$i18n.getText('de.iteconomics.confluence.plugins.job-jobtype-required')" name="job-type">
+									<option value="">$i18n.getText("de.iteconomics.confluence.plugins.none-option")</option>
 									#foreach ($jobType in $action.allJobTypes)
 										<option value="$jobType.ID">$jobType.name</option>
 									#end
 								</select>
+								<p id="create-job-job-type-description" style="font-style: italic; color: #707070;"></p>
 							</div>
 							<div id="create-job-parameters"></div>
 							<div class="field-group top-label">
-								<label for="create-cron-expression">Cron Expression<span class="aui-icon aui-icon-required">Required</span>
-									<a class="cron-tooltip" title="Format: seconds minutes hours dayOfWeek month dayOfMonth year">
-										<span class="aui-icon aui-icon-small aui-iconfont-info">info</span>
-									</a>								
+								<label for="create-cron-expression">$i18n.getText("de.iteconomics.confluence.plugins.cron-expression")<span class="aui-icon aui-icon-required">$i18n.getText("de.iteconomics.confluence.plugins.required")</span>
+									<a class="cron-tooltip" title="$i18n.getText('de.iteconomics.confluence.plugins.cron-format')">
+										<span class="aui-icon aui-icon-small aui-iconfont-info">$i18n.getText("de.iteconomics.confluence.plugins.info")</span>
+									</a>
 								</label>
-								<input id="create-cron-expression" data-aui-validation-field data-aui-validation-cron-expression="valid" data-aui-validation-required="required" data-aui-validation-required-msg="You must provide a cron expression" class="text" type="text" name="cron-expression">
+								<input id="create-cron-expression" data-aui-validation-field data-aui-validation-cron-expression="valid" data-aui-validation-required="required" data-aui-validation-required-msg="$i18n.getText('de.iteconomics.confluence.plugins.job-cronexpression-required')" class="text" type="text" name="cron-expression">
 							</div>
 							<input type="hidden" name="spacekey" value="$action.getSpaceKey()"/>
 							<div class="field-group top-label">	
-								<button class="aui-button" type="submit">save</button>
+								<button class="aui-button" type="submit">$i18n.getText("de.iteconomics.confluence.plugins.save")</button>
 							</div>
 							</fieldset>
 						</form>
-
-                </div>
-                
+          </div>
+          
                 <section role="dialog" id="edit-dialog" class="aui-layer aui-dialog2 aui-dialog2-medium" aria-hidden="true">
 							    <header class="aui-dialog2-header">
 							        <!-- The dialog's title -->
-							        <h2 class="aui-dialog2-header-main">Edit Job</h2>
+							        <h2 class="aui-dialog2-header-main">$i18n.getText("de.iteconomics.confluence.plugins.edit-job")</h2>
 							    </header>
 							    <!-- Main dialog content -->
 							    <div class="aui-dialog2-content">
 										<form id="edit-form" class="aui top-label" method="post" action="EditJob.action">
 											<fieldset class="top-label">
 											<div class="field-group top-label">
-												<label for="edit-name">Name<span class="aui-icon aui-icon-required">Required</span></label>
-												<input id="edit-name" data-aui-validation-job-name="$action.jobNameValidationString" data-is-edit="true" data-current-name="" data-aui-validation-field data-aui-validation-required data-aui-validation-required-msg="You must provide a job name" class="text" type="text" name="name"></input>
+												<label for="edit-name">$i18n.getText("de.iteconomics.confluence.plugins.name")<span class="aui-icon aui-icon-required">$i18n.getText("de.iteconomics.confluence.plugins.required")</span></label>
+												<input id="edit-name" data-aui-validation-job-name="$action.jobNameValidationString" data-is-edit="true" data-current-name="" data-aui-validation-field data-aui-validation-required data-aui-validation-required-msg="$i18n.getText('de.iteconomics.confluence.plugins.job-name-required')" class="text" type="text" name="name"></input>
 											</div>
 											<div class="field-group top-label">
-												<label for="edit-job-type">Type<span class="aui-icon aui-icon-required">Required</span></label>
-												<select id="edit-job-type" data-aui-validation-field data-aui-validation-required data-aui-validation-required-msg="You must pick a job type" name="job-type">
-													<option value="">-- none --</option>
+												<label for="edit-job-type">Type<span class="aui-icon aui-icon-required">$i18n.getText("de.iteconomics.confluence.plugins.required")</span></label>
+												<select id="edit-job-type" data-aui-validation-field data-aui-validation-required data-aui-validation-required-msg="$i18n.getText('de.iteconomics.confluence.plugins.job-jobtype-required')" name="job-type">
+													<option value="">$i18n.getText("de.iteconomics.confluence.plugins.none-option")</option>
 													#foreach ($jobType in $action.allJobTypes)
 														<option class="jobtype-option" value="$jobType.ID">$jobType.name</option>
 													#end
 												</select>
+												<p id="edit-job-job-type-description" style="font-style: italic; color: #707070;"></p>
 											</div>
 											<div id="edit-job-parameters">
 											</div>
 											<div class="field-group top-label">
-												<label for="edit-cron-expression">Cron Expression<span class="aui-icon aui-icon-required">Required</span>
-													<a class="cron-tooltip" title="Format: seconds minutes hours dayOfWeek month dayOfMonth year">
-														<span class="aui-icon aui-icon-small aui-iconfont-info">info</span>
+												<label for="edit-cron-expression">$i18n.getText("de.iteconomics.confluence.plugins.cron-expression")<span class="aui-icon aui-icon-required">$i18n.getText("de.iteconomics.confluence.plugins.required")</span>
+													<a class="tooltip" title="$i18n.getText('de.iteconomics.confluence.plugins.cron-format')">
+														<span class="aui-icon aui-icon-small aui-iconfont-info">$i18n.getText("de.iteconomics.confluence.plugins.info")</span>
 													</a>
 												</label>
-												<input id="edit-cron-expression" data-aui-validation-field data-aui-validation-cron-expression="valid" data-aui-validation-required="required" data-aui-validation-required-msg="You must provide a cron expression" class="text" type="text" name="cron-expression">
+												<input id="edit-cron-expression" data-aui-validation-field data-aui-validation-cron-expression="valid" data-aui-validation-required="required" data-aui-validation-required-msg="$i18n.getText('de.iteconomics.confluence.plugins.job-cronexpression-required')" class="text" type="text" name="cron-expression">
 											</div>
 											<input type="hidden" name="spacekey" value="$action.getSpaceKey()"/>
 											<input id="edit-job-id" type="hidden" name="id" />
@@ -169,8 +165,8 @@ $webResourceManager.requireResourcesForContext("cron-space-admin-screen")
 							    <footer class="aui-dialog2-footer">
 							        <!-- Actions to render on the right of the footer -->
 							        <div class="aui-dialog2-footer-actions">
-							            <button type="button" id="submit-dialog" class="aui-button aui-button-primary">Save</button>
-							            <button type="button" id="close-dialog" class="aui-button aui-button-link">Close</button>
+							            <button type="button" id="submit-dialog" class="aui-button aui-button-primary">$i18n.getText("de.iteconomics.confluence.plugins.save")</button>
+							            <button type="button" id="close-dialog" class="aui-button aui-button-link">$i18n.getText("de.iteconomics.confluence.plugins.close")</button>
 							        </div>
 							    </footer>
 							</section>

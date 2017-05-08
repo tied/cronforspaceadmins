@@ -2,14 +2,12 @@ package de.iteconomics.confluence.plugins.cron.impl;
 
 import java.io.Serializable;
 import java.util.Arrays;
-import java.util.Enumeration;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import javax.inject.Inject;
 import javax.inject.Named;
@@ -33,7 +31,9 @@ import com.google.common.collect.Lists;
 import de.iteconomics.confluence.plugins.cron.api.JobService;
 import de.iteconomics.confluence.plugins.cron.api.JobTypeService;
 import de.iteconomics.confluence.plugins.cron.entities.Job;
+import de.iteconomics.confluence.plugins.cron.entities.JobParameter;
 import de.iteconomics.confluence.plugins.cron.entities.JobType;
+import de.iteconomics.confluence.plugins.cron.entities.JobTypeParameter;
 import de.iteconomics.confluence.plugins.cron.exceptions.JobException;
 
 import net.java.ao.Query;
@@ -108,8 +108,30 @@ public class JobServiceImpl implements JobService {
 	private boolean isReregisterNecessary(Job job, HttpServletRequest request) {
 		return (!job.getCronExpression().equals(request.getParameter("cron-expression").trim()) ||
 				!job.getJobTypeID().equals(request.getParameter("job-type").trim()) ||
-				!job.getParameters().equals(getParameterString(request))
-				);
+				parametersChanged(job, request));
+	}
+
+	private boolean parametersChanged(Job job, HttpServletRequest request) {
+		JobParameter[] parameters = job.getJobParameters();
+		Map<String, String> currentValues = new HashMap<>();
+
+		for (JobParameter parameter: parameters) {
+			currentValues.put(parameter.getName(), parameter.getValue());
+		}
+
+		return !currentValues.equals(getParametersFromRequest(request));
+	}
+
+	private Map<String, String> getParametersFromRequest(HttpServletRequest request) {
+		Map<String, String> result = new HashMap<>();
+		List<String> parameters = Collections.list(request.getParameterNames());
+		String prefix = "parameter-";
+		for (String parameter: parameters) {
+			if (parameter.startsWith(prefix)) {
+				result.put(parameter.substring(prefix.length()), request.getParameter(parameter));
+			}
+		}
+		return result;
 	}
 
 	private void checkParametersRequiredForCreateNotNull(HttpServletRequest request) {
@@ -145,34 +167,29 @@ public class JobServiceImpl implements JobService {
 		String jobTypeID = request.getParameter("job-type").trim();
 		String safeID = getSafeJobTypeID(jobTypeID);
 		String cronExpression = request.getParameter("cron-expression").trim();
-		String parameterString = getParameterString(request);
 
 		job.setName(name);
 		job.setJobTypeID(safeID);
 		job.setCronExpression(cronExpression);
-		job.setParameters(parameterString);
+		setParameterValues(job, safeID, request);
 	}
 
-	private String getParameterString(HttpServletRequest request) {
-		String prefix = "parameter-";
-		String parameterString = "";
-		Enumeration<?> parameterNames = request.getParameterNames();
-		while (parameterNames.hasMoreElements()) {
-			String key = ((String) parameterNames.nextElement()).trim();
-			if (key.startsWith(prefix)) {
-				String[] values = request.getParameterValues(key);
-				String value = values[0].trim();
-				parameterString += key.substring(prefix.length());
-				parameterString += "=";
-				parameterString += (value);
-				parameterString += "&";
-			}
-		}
-		if (parameterString.length() > 0) {
-			parameterString = parameterString.substring(0, parameterString.length() -1);
+	private void setParameterValues(Job job, String safeID, HttpServletRequest request) {
+		JobParameter[] oldParameters = job.getJobParameters();
+		for (JobParameter oldParameter: oldParameters) {
+			ao.delete(oldParameter);
 		}
 
-		return parameterString;
+		JobType jobType = jobTypeService.getJobTypeByID(safeID);
+		JobTypeParameter[] JobTypeParameters = jobType.getParameters();
+		for (JobTypeParameter jobTypeParameter: JobTypeParameters) {
+			JobParameter jobParameter = ao.create(JobParameter.class);
+			jobParameter.setName(jobTypeParameter.getName());
+			jobParameter.setValue(request.getParameter("parameter-" + jobTypeParameter.getName()));
+			jobParameter.setJob(job);
+			jobParameter.setPathParameter(jobTypeParameter.isPathParameter());
+			jobParameter.save();
+		}
 	}
 
 	@Override
@@ -239,13 +256,9 @@ public class JobServiceImpl implements JobService {
 		Map<String, Serializable> jobParameters = new HashMap<>();
 
 		JobType jobType = jobTypeService.getJobTypeByID(job.getJobTypeID());
-		Set<String> pathParameterNames = getPathParameterNames(jobType.getUrl());
-		Map<String, String> parametersMap = getParametersAsMap(job.getParameters());
-		String url = getUrlWithParameters(jobType.getUrl(), parametersMap);
-		String nonPathParameters = getNonPathParameters(job.getParameters(), pathParameterNames);
 
-		jobParameters.put("url", url);
-		jobParameters.put("queryString", nonPathParameters);
+		jobParameters.put("url", jobType.getUrl());
+		jobParameters.put("queryString", getQueryString(job));
 		jobParameters.put("method", jobType.getHttpMethod());
 		jobParameters.put("username", jobType.getUsername());
 		jobParameters.put("password", jobType.getPassword());
@@ -253,59 +266,37 @@ public class JobServiceImpl implements JobService {
 		return jobParameters;
 	}
 
-	private String getNonPathParameters(String parameters, Set<String> pathParameterNames) {
-		String result = "";
-		for (String keyValuePair: parameters.split("&")) {
-			String key = keyValuePair.split("=")[0];
-			if (!pathParameterNames.contains(key)) {
-				result += keyValuePair;
-				result += "&";
-			}
-		}
-		if (result.length() > 0) {
-			result = result.substring(0, result.length() - 1);
-		}
+	private String getQueryString(Job job) {
+		Map<String, String> parameters = getParameters(job);
 
-		return result;
+		StringBuilder queryString = new StringBuilder();
+		queryString.append("?");
+		for (String key: parameters.keySet()) {
+			queryString.append(key);
+			queryString.append("=");
+			queryString.append(parameters.get(key));
+			queryString.append("&");
+		}
+		queryString = queryString.deleteCharAt(queryString.length() - 1);
+
+		return queryString.toString();
 	}
-
-	private Set<String> getPathParameterNames(String url) {
-		Set<String> parameters= new HashSet<>();
-		Matcher m = Pattern.compile("\\{(.*?)\\}").matcher(url);
-		while (m.find()) {
-			String param = m.group().substring(1, m.group().length() - 1);
-			parameters.add(param);
+	
+	private Map<String, String> getParameters(Job job) {
+		Map<String, String> parameters = new HashMap<>();
+		for (JobParameter jobParameter: job.getJobParameters()) {
+			parameters.put(jobParameter.getName(), jobParameter.getValue());
 		}
-
 		return parameters;
 	}
 
-	private String getUrlWithParameters(String url, Map<String, String> parametersMap) {
-		String result = url;
-
-		for (String parameter: getPathParameterNames(url)) {
-			result = result.replace("{" + parameter + "}", parametersMap.get(parameter));
-		}
-
-		return result;
-	}
-
-	private Map<String, String> getParametersAsMap(String parametersString) {
+	private Map<String, String> getPathParameters(Job job) {
 		Map<String, String> parameters = new HashMap<>();
-		if (parametersString == null || parametersString.equals("")) {
-			return parameters;
-		}
-
-		for (String element: parametersString.split("&")) {
-			String[] keyValuePair = element.split("=");
-			if (keyValuePair.length != 2) {
-				throw new JobException("Invalid parameter string: " + parametersString);
+		for (JobParameter jobParameter: job.getJobParameters()) {
+			if (jobParameter.isPathParameter()) {
+				parameters.put(jobParameter.getName(), jobParameter.getValue());
 			}
-			String key = keyValuePair[0];
-			String value = keyValuePair[1];
-			parameters.put(key, value);
 		}
-
 		return parameters;
 	}
 
@@ -366,7 +357,39 @@ public class JobServiceImpl implements JobService {
 	@Override
 	public void deleteJob(Job job) {
 		unregisterJob(job);
+		deleteJobParameters(job);
 		ao.delete(job);
+	}
+
+	private void deleteJobParameters(Job job) {
+		for (JobParameter jobParameter: job.getJobParameters()) {
+			ao.delete(jobParameter);
+		}
+	}
+
+	@Override
+	public boolean isParametersInconsistent(Job job) {
+		Set<String> jobParameterNames = getJobParameterNames(job);
+		JobType jobType = jobTypeService.getJobTypeByID(job.getJobTypeID());
+		Set<String> jobTypeParameterNames = getJobTypeParameterNames(jobType);
+
+		return !jobParameterNames.equals(jobTypeParameterNames);
+
+	}
+	private Set<String> getJobParameterNames(Job job) {
+		Set<String> jobParameterNames = new HashSet<>();
+		for (JobParameter jobParameter: job.getJobParameters()) {
+			jobParameterNames.add(jobParameter.getName());
+		}
+		return jobParameterNames;
+	}
+
+	private Set<String> getJobTypeParameterNames(JobType jobType) {
+		Set<String> jobTypeParameterNames = new HashSet<>();
+		for (JobTypeParameter jobTypeParameter: jobType.getParameters()) {
+			jobTypeParameterNames.add(jobTypeParameter.getName());
+		}
+		return jobTypeParameterNames;
 	}
 
 	@Override
@@ -382,6 +405,11 @@ public class JobServiceImpl implements JobService {
 		} else {
 			id = id.trim();
 		}
+		return getJobIfExists(id);
+	}
+
+	@Override
+	public Job getJobIfExists(String id) {
 		Job[] jobs= ao.find(Job.class, Query.select().where("id = ?", id));
 
 		if (jobs.length != 1) {
@@ -437,13 +465,5 @@ public class JobServiceImpl implements JobService {
 	public List<Job> getJobsByJobTypeID(int jobTypeID) {
 		Job[] jobs= ao.find(Job.class, Query.select().where("JOB_TYPE_ID = ?", jobTypeID));
 		return Arrays.asList(jobs);
-	}
-
-	@Override
-	public String[] formatParameters(String unformatted) {
-		if (unformatted == null || "".equals(unformatted.trim())) {
-			return new String[0];
-		}
-		return unformatted.replaceAll("=", ": ").split("&");
 	}
 }

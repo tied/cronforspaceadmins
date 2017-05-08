@@ -19,7 +19,6 @@ import com.atlassian.user.Group;
 import com.atlassian.confluence.user.UserAccessor;
 import com.atlassian.plugin.spring.scanner.annotation.component.Scanned;
 import com.atlassian.plugin.spring.scanner.annotation.imports.ComponentImport;
-import com.google.common.collect.Sets;
 
 /**
  * A resource of message.

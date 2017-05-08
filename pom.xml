@@ -6,11 +6,11 @@
     <artifactId>cron</artifactId>
     <version>1.0.0-SNAPSHOT</version>
     <organization>
-        <name>Example Company</name>
-        <url>http://www.example.com/</url>
+        <name>it-economics</name>
+        <url>http://www.it-economics.de/</url>
     </organization>
-    <name>cron</name>
-    <description>This is the de.iteconomics.confluence.plugins:cron plugin for Atlassian Confluence.</description>
+    <name>Scheduling for Space Admins</name>
+    <description>Gives space admins the power to schedule notifications and other custom tasks.</description>
     <packaging>atlassian-plugin</packaging>
     <dependencies>
         <dependency>

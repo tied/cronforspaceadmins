@@ -3,46 +3,58 @@ $webResourceManager.requireResourcesForContext("cron-configuration-screen")
 <html>
   <head>
     <meta name="decorator" content="atl.admin"/>
-    <title>Manage Job Types</title>
+    <title>$i18n.getText("de.iteconomics.confluence.plugins.manage-job-types")</title>
   </head>
   
   <body>
-
-	<h3>Notification Job Type</h3>
+	<h3>$i18n.getText("de.iteconomics.confluence.plugins.notification-job-type")</h3>
 	<span id="notification-status" job-type-id="${action.getNotificationJobTypeId()}" enabled="${action.hasNotificationJobType()}" />
 	<form id="notification-form" class="aui top-label" action="SaveJobType.action">
 	<fieldset class="top-label">
 		<input id="notification-job-type-name" type="hidden" name="name" value="Notification" />
-		<input id="notification-job-type-url" type="hidden" name="url" value="http://ckirchhoff-virtualbox:1990/confluence/rest/cronforspaceadmins/1.0/notification"/>
-		<textarea style="visibility:hidden;position:absolute;" id="notification-job-type-parameters" name="parameters" class="textarea" >recipients
-title
-message</textarea>		
+		<input id="notification-job-type-url" type="hidden" name="url" value="${settingsManager.getGlobalSettings().getBaseUrl()}/rest/cronforspaceadmins/1.0/notification"/>
+		<input type="hidden" name="parameter-name-1" value="recipients"/>
+		<input type="hidden" name="parameter-description-1" value="$i18n.getText('de.iteconomics.confluence.plugins.recipients-parameter-description')"/>
+		<input type="hidden" name="parameter-name-2" value="title"/>
+		<input type="hidden" name="parameter-name-3" value="message"/>
+		<input type="hidden" name="parameter-description-3" value="$i18n.getText('de.iteconomics.confluence.plugins.message-parameter-description')"/>
 		<input id="notification-job-type-http-method" name="http-method" type="hidden" value="POST" />
 		<input type="hidden" id="notification-job-type-authentication" name="authentication" value="true" />
 		<input type="hidden" name="bundled-job-type-id" value="NOTIFICATION" />
-		<div class="field-group top-label">
+		<div id="notifications-toggle" class="field-group top-label">
 			<aui-toggle id="toggle-notification-enabled" label="testing the toggle button" #if (${action.hasNotificationJobType()}) checked="checked" #else disabled="disabled" #end ></aui-toggle>
+			#if (!${action.hasNotificationJobType()})
+				&nbsp;
+				<a id="notification-tooltip" title="$i18n.getText('de.iteconomics.confluence.plugins.toggle-notifications-tooltip-message')">
+					<span class="aui-icon aui-icon-small aui-iconfont-info">$i18n.getText("de.iteconomics.confluence.plugins.info")</span>
+				</a>			
+			#end
 		</div>
+		<br/>
 		<div class="field-group top-label">
-			<label for="notification-username">Username<span class="aui-icon aui-icon-required">Required</span></label>
-			<input id="notification-username" #if (${action.hasNotificationJobType()}) disabled="disabled" value="${action.getNotificationJobTypeUsername()}" #end data-aui-validation-field data-aui-validation-required="required" data-aui-validation-required-msg="You must provide a username" name="username" type="text" class="text notification-credentials" />
+			<label for="notification-username">
+				$i18n.getText("de.iteconomics.confluence.plugins.username")<span class="aui-icon aui-icon-required">$i18n.getText("de.iteconomics.confluence.plugins.required")</span>
+				<a id="notification-username-tooltip" title="$i18n.getText('de.iteconomics.confluence.plugins.username-description')">
+					<span class="aui-icon aui-icon-small aui-iconfont-info">$i18n.getText("de.iteconomics.confluence.plugins.info")</span>
+				</a>
+			</label>
+			<input id="notification-username" #if (${action.hasNotificationJobType()}) disabled="disabled" value="${action.getNotificationJobTypeUsername()}" #end data-aui-validation-field data-aui-validation-required="required" data-aui-validation-required-msg="$i18n.getText('de.iteconomics.confluence.plugins.username-required')" name="username" type="text" class="text notification-credentials" />
 		</div	>
 		<div class="field-group top-label">
-			<label for="notification-password">Password<span class="aui-icon aui-icon-required">Required</span></label>
-			<input id="notification-password" #if (${action.hasNotificationJobType()}) disabled="disabled" value="xxxxxxxxxx" #end data-aui-validation-field data-aui-validation-required="required" data-aui-validation-required-msg="You must provide a password" name="password" type="password" class="text notification-credentials" />
+			<label for="notification-password">$i18n.getText("de.iteconomics.confluence.plugins.password")<span class="aui-icon aui-icon-required">$i18n.getText("de.iteconomics.confluence.plugins.required")</span></label>
+			<input id="notification-password" #if (${action.hasNotificationJobType()}) disabled="disabled" value="xxxxxxxxxx" #end data-aui-validation-field data-aui-validation-required="required" data-aui-validation-required-msg="$i18n.getText('de.iteconomics.confluence.plugins.username-required')" name="password" type="password" class="text notification-credentials" />
 		</div>
 	</fieldset>
 	</form>
 	
 	<table class="aui">
-	<h3>Custom Job Types</h3>
+	<h3>$i18n.getText("de.iteconomics.confluence.plugins.custom-job-types")</h3>
 	<thead>
 		<tr>
-			<th id="name">Name</th>
-			<th id="url">URL</th>
-			<th id="http-method">Http method</th>
-			<th id="parameters">parameters</th>
-			<th id="authentication">Authentication required</th>
+			<th id="name">$i18n.getText("de.iteconomics.confluence.plugins.name")</th>
+			<th id="url">$i18n.getText("de.iteconomics.confluence.plugins.url")</th>
+			<th id="http-method">$i18n.getText("de.iteconomics.confluence.plugins.http-method")</th>
+			<th id="parameters">$i18n.getText("de.iteconomics.confluence.plugins.parameters")</th>
 		</tr>
 	</thead>
 	<tbody>
@@ -53,22 +65,13 @@ message</textarea>
 			<td>${jobtype.url}</td>
 			<td>${jobtype.httpMethod}</td>
 			<td>
-			#if ($jobtype.parameterNames && ($jobtype.parameterNames != ""))
-			#foreach($param in	${action.formatParameters($jobtype.parameterNames)})
-				<div>$param</div>
-			#end
+			#foreach($param in	${action.getParameters($jobtype.ID)})
+				<div>$param.name</div>
 			#end
 			</td>
 			<td>
-			#if(${jobtype.authenticationRequired} == true)
-				yes
-			#else
-				no
-			#end
-			</td>
-			<td>
-				<button class="delete-job-type-button aui-button aui-button-link" type="button" data-job-type-id="${jobtype.ID}"><span class="aui-icon aui-icon-small aui-iconfont-delete" data-job-type-id="${jobtype.ID}">Delete</span></button>
-				<button class="edit-button aui-button aui-button-link" type="button" data-job-type-id="${jobtype.ID}" data-job-type-name="${jobtype.name}" data-job-type-url="${jobtype.url}" data-job-type-parameters="${jobtype.parameterNames}" data-job-type-method="${jobtype.httpMethod}"><span class="aui-icon aui-icon-small aui-iconfont-edit" data-job-type-id="${jobtype.ID}" data-job-type-name="${jobtype.name}" data-job-type-url="${jobtype.url}" data-job-type-parameters="${jobtype.parameterNames}" data-job-type-method="${jobtype.httpMethod}" data-job-type-authentication="${jobtype.authenticationRequired}" data-job-type-username="${jobtype.username}">Edit</span></button></td>
+				<button class="delete-job-type-button aui-button aui-button-link" type="button" data-job-type-id="${jobtype.ID}"><span class="aui-icon aui-icon-small aui-iconfont-delete" data-job-type-id="${jobtype.ID}">$i18n.getText("de.iteconomics.confluence.plugins.delete")</span></button>
+				<button class="edit-button aui-button aui-button-link" type="button" data-job-type-id="${jobtype.ID}" data-job-type-name="${jobtype.name}" data-job-type-url="${jobtype.url}" data-job-type-method="${jobtype.httpMethod}"><span class="aui-icon aui-icon-small aui-iconfont-edit" data-job-type-id="${jobtype.ID}" data-job-type-name="${jobtype.name}" data-job-type-friendly-name="${jobtype.friendly-name}" data-job-type-description="${jobtype.description}" data-job-type-url="${jobtype.url}" data-job-type-method="${jobtype.httpMethod}" data-job-type-authentication="${jobtype.authenticationRequired}" data-job-type-username="${jobtype.username}">$i18n.getText("de.iteconomics.confluence.plugins.edit")</span></button></td>
 			</td>
 		</tr>
 		#end
@@ -77,56 +80,68 @@ message</textarea>
 </table>
 <br/><br/>
 <form class="aui top-label" action="SaveJobType.action">
-	<h3>Create Custom Job Type</h3>
+	<h3>$i18n.getText("de.iteconomics.confluence.plugins.create-custom-job-type")</h3>
 	<fieldset class="top-label">
 	<div class="field-group top-label">
-		<label for="create-job-type-name">Name<span class="aui-icon aui-icon-required">Required</span></label>
-		<input id="create-job-type-name" data-aui-validation-job-type-name="$action.jobTypeNameValidationString" data-is-edit="false" data-aui-validation-field data-aui-validation-required data-aui-validation-required-msg="You must provide a job type name" class="text" type="text" name="name">
+		<label for="create-job-type-name">$i18n.getText("de.iteconomics.confluence.plugins.name")<span class="aui-icon aui-icon-required">$i18n.getText("de.iteconomics.confluence.plugins.required")</span></label>
+		<input id="create-job-type-name" data-aui-validation-job-type-name="$action.jobTypeNameValidationString" data-is-edit="false" data-aui-validation-field data-aui-validation-required data-aui-validation-required-msg="$i18n.getText('de.iteconomics.confluence.plugins.job-type-name-required')" class="text" type="text" name="name">
+	</div>
+	<div class="field-group top-label">
+		<label for="create-job-type-description">$i18n.getText("de.iteconomics.confluence.plugins.description")</label>
+		<textarea id="create-job-type-description" data-is-edit="false" class="text" name="description" cols="10" rows="3"></textarea>
+	</div>		
+	<div class="field-group top-label">	
+		<label for="create-job-type-url">$i18n.getText("de.iteconomics.confluence.plugins.url")<span class="aui-icon aui-icon-required">$i18n.getText("de.iteconomics.confluence.plugins.required")</span>
+			<a class="url-tooltip" title="$i18n.getText('de.iteconomics.confluence.plugins.url-tooltip-message')">
+				<span class="aui-icon aui-icon-small aui-iconfont-info">$i18n.getText("de.iteconomics.confluence.plugins.info")</span>
+			</a>
+		</label>
+		<input id="create-job-type-url" data-aui-validation-field data-aui-validation-doesnotcontain=" " data-aui-validation-doesnotcontain-msg="$i18n.getText('de.iteconomics.confluence.plugins.url-may-not-contain-whitespace')" data-aui-validation-required data-aui-validation-required-msg="$i18n.getText('de.iteconomics.confluence.plugins.job-type-url-required')" class="text" type="text" name="url">
 	</div>
 	<div class="field-group top-label">	
-		<label for="create-job-type-url">URL<span class="aui-icon aui-icon-required">Required</span></label>
-		<input id="create-job-type-url" data-aui-validation-field data-aui-validation-doesnotcontain=" " data-aui-validation-doesnotcontain-msg="The URL may not contain whitespace" data-aui-validation-required data-aui-validation-required-msg="You must provide a URL" class="text" type="text" name="url">
-	</div>
-	<div class="field-group top-label">	
-		<label for="create-job-type-parameters">Parameters</label>
-		<textarea id="create-job-type-parameters" class="textarea" name="parameters" rows="2" cols="10"></textarea>		
-	</div>	
-	<div class="field-group top-label">	
-		<label for="create-job-type-http-method">Http method<span class="aui-icon aui-icon-required">Required</span></label>
+		<label for="create-job-type-http-method">$i18n.getText("de.iteconomics.confluence.plugins.http-method")<span class="aui-icon aui-icon-required">$i18n.getText("de.iteconomics.confluence.plugins.required")</span></label>
 		<aui-select id="create-job-type-http-method" name="http-method">
-			<aui-option selected="selected" value="GET">GET</aui-option>
-			<aui-option value="POST">POST</aui-option>
-			<aui-option value="PUT">PUT</aui-option>
-			<aui-option value="DELETE">DELETE</aui-option>
+			<aui-option selected="selected" value="GET">$i18n.getText("de.iteconomics.confluence.plugins.get")</aui-option>
+			<aui-option value="POST">$i18n.getText("de.iteconomics.confluence.plugins.post")</aui-option>
+			<aui-option value="PUT">$i18n.getText("de.iteconomics.confluence.plugins.put")</aui-option>
+			<aui-option value="DELETE">$i18n.getText("de.iteconomics.confluence.plugins.delete")</aui-option>
 		</aui-select>
+	</div>	
+	<h6>$i18n.getText("de.iteconomics.confluence.plugins.form-or-query-parameters")</h6>
+	<div id="create-job-type-parameters">	
 	</div>
+	<div class="field-group">
+		<button type="button" id="create-add-parameter" class="aui-button">$i18n.getText("de.iteconomics.confluence.plugins.add-form-or-query-parameter") <span class="aui-icon aui-icon-small aui-iconfont-list-add">$i18n.getText("de.iteconomics.confluence.plugins.add-parameter")</span></button>	
+	</div>
+	<h6>$i18n.getText("de.iteconomics.confluence.plugins.path-parameters")</h6>
+	<div id="create-job-type-path-parameters">
+	</div>
+	<h6>$i18n.getText("de.iteconomics.confluence.plugins.authentication")</h6>	
 	<div class="field-group top-label">	
-		<label for="create-job-type-authentication">Requires Authentication</label>
+		<label for="create-job-type-authentication">$i18n.getText("de.iteconomics.confluence.plugins.requires-authentication")</label>
 		<input type="checkbox" id="create-job-type-authentication" name="authentication">		
 	</div>
 	<div id="create-credentials">
 	</div>
 	<div class="field-group top-label">
-		<button class="aui-button" type="submit">save</button>
+		<button class="aui-button" type="submit">$i18n.getText("de.iteconomics.confluence.plugins.save")</button>
 	</div>
 	</fieldset>
 </form>
 <br/><br/>
-<h3>Jobs</h3>
+<h3>$i18n.getText("de.iteconomics.confluence.plugins.jobs")</h3>
 	<table class="aui">
 		<thead>
 			<tr>
-				<th id="name">Name</th>
-				<th id="job-type">Job Type</th>
-				<th id="space-key">Space Key</th>
+				<th id="name">$i18n.getText("de.iteconomics.confluence.plugins.name")</th>
+				<th id="job-type">$i18n.getText("de.iteconomics.confluence.plugins.job-type")</th>
 				<th id="cron-expression">
-					Cron Expression
-					<a class="cron-tooltip" title="Format: seconds minutes hours dayOfWeek month dayOfMonth year">
-						<span class="aui-icon aui-icon-small aui-iconfont-info">info</span>
+					$i18n.getText("de.iteconomics.confluence.plugins.cron-expression")
+					<a class="cron-tooltip" title="$i18n.getText('de.iteconomics.confluence.plugins.cron-format')">
+						<span class="aui-icon aui-icon-small aui-iconfont-info">$i18n.getText("de.iteconomics.confluence.plugins.info")</span>
 					</a>
 				</th>
-				<th>Parameters</th>
-				<th id="status">Status</th>
+				<th id="status">$i18n.getText("de.iteconomics.confluence.plugins.status")</th>
 			</tr>
 		</thead>
 		<tbody>
@@ -134,28 +149,26 @@ message</textarea>
 			<tr>
 				<td>${job.name}</td>
 				#if ($!action.getJobTypeByID($job.jobTypeID))
-					<td>$action.getJobTypeByID($job.jobTypeID).name</td>
+					<td>
+					$action.getJobTypeByID($job.jobTypeID).name
+					#if (${job.jobTypeChanged} == "true" && ${job.active} == "true")
+						<a id="job-type-modified-tooltip" href="#" original-title="$i18n.getText('de.iteconomics.confluence.plugins.job-type-updated')"><span class="aui-icon aui-icon-small aui-iconfont-warning"/></a>
+					#end
+					</td>
 				#else
-					<td><div class="aui-message aui-message-warning">This job type has been deleted</div></td>
+					<td><div class="aui-message aui-message-warning">i18n.getText("de.iteconomics.confluence.plugins.job-type-deleted")</div></td>
 				#end
-				<td>${job.spaceKey}</td>
 				<td>${job.cronExpression}</td>
 				<td>
-				#if ($job.parameters && ($job.parameters != ""))
-				<ul>
-				#foreach($param in ${action.formatJobParameters($job.parameters)})
-					<li>$param</li>
-				#end
-				</ul>
-				#end
-				</td>
-				<td>
 				#if ($!action.getJobTypeByID($job.jobTypeID))
-						<aui-toggle id="toggle-status" class="toggle-status" label="testing the toggle button" data-is-enabled="${action.isEnabled($job)}" data-job-id="${job.ID}" data-space-key="${job.spaceKey}" #if (${action.isEnabled($job)}) checked="" #end></aui-toggle>
-				#end
+						<aui-toggle id="toggle-status" class="toggle-status" label="testing the toggle button" data-is-enabled="${action.isEnabled($job)}" data-job-id="${job.ID}" data-space-key="${job.spaceKey}" #if (${action.isEnabled($job)}) checked="" #end #if (${action.isParametersInconsistent($job)} && !${action.isEnabled($job)}) disabled="disabled" #end></aui-toggle>
+						#if (${action.isParametersInconsistent($job)} && !${action.isEnabled($job)})
+							<a class="job-disabled-tooltip" href="#" original-title="$i18n.getText('de.iteconomics.confluence.plugins.job-type.job-disabled')"><span class="aui-icon aui-icon-small aui-iconfont-info"/></a>
+						#end
+				#end				
 				</td>
 				<td>
-					<button class="delete-job-button aui-button aui-button-link" type="button" data-job-id="${job.ID}" data-space-key="${job.spaceKey}"><span class="aui-icon aui-icon-small aui-iconfont-delete">Delete</span></button>
+					<button class="delete-job-button aui-button aui-button-link" type="button" data-job-id="${job.ID}" data-space-key="${job.spaceKey}"><span class="aui-icon aui-icon-small aui-iconfont-delete">i18n.getText("de.iteconomics.confluence.plugins.delete")</span></button>
 				</td>	
 			</tr>
 			#end
@@ -165,43 +178,57 @@ message</textarea>
 	#if ($req.getParameter("delete-error"))
 		<div class="aui-message aui-message-error">
 			<p class="title">
-				<strong>Error</strong>
+				<strong>$i18n.getText("de.iteconomics.confluence.plugins.error")</strong>
 			</p>
-			<p>There was an error while deleting the job.</p>
+			<p>$i18n.getText("de.iteconomics.confluence.plugins.delete-error")</p>
 		</div>
 	#end	                
       <section role="dialog" id="edit-dialog" class="aui-layer aui-dialog2 aui-dialog2-medium" aria-hidden="true">
 			  <header class="aui-dialog2-header">
 			      <!-- The dialog's title -->
-			      <h2 class="aui-dialog2-header-main">Edit Job Type</h2>
+			      <h2 class="aui-dialog2-header-main">$i18n.getText("de.iteconomics.confluence.plugins.edit-job-type")</h2>
 			  </header>
 		    <!-- Main dialog content -->
 		    <div class="aui-dialog2-content">
 					<form id="edit-form" class="aui top-label" method="post" action="EditJobType.action">
 						<fieldset class="top-label">
 						<div class="field-group top-label">
-							<label for="edit-job-type-name">Name<span class="aui-icon aui-icon-required">Required</span></label>
-							<input id="edit-job-type-name" data-is-edit="true" data-current-name="" data-aui-validation-job-type-name="$action.jobTypeNameValidationString" data-is-edit="true" data-current-name="" data-aui-validation-field data-aui-validation-required data-aui-validation-required-msg="You must provide a job type name" class="text" type="text" name="name"></input>
+							<label for="edit-job-type-name">$i18n.getText("de.iteconomics.confluence.plugins.name")<span class="aui-icon aui-icon-required">$i18n.getText("de.iteconomics.confluence.plugins.required")</span></label>
+							<input id="edit-job-type-name" data-is-edit="true" data-current-name="" data-aui-validation-job-type-name="$action.jobTypeNameValidationString" data-is-edit="true" data-current-name="" data-aui-validation-field data-aui-validation-required data-aui-validation-required-msg="$i18n.getText('de.iteconomics.confluence.plugins.job-type-name-required')" class="text" type="text" name="name"></input>
 						</div>
 						<div class="field-group top-label">
-							<label for="edit-job-type-url">URL<span class="aui-icon aui-icon-required">Required</span></label>
-							<input id="edit-job-type-url" data-aui-validation-field data-aui-validation-doesnotcontain=" " data-aui-validation-doesnotcontain-msg="The URL may not contain whitespace" data-aui-validation-required="required" data-aui-validation-required-msg="You must provide an url" class="text" type="text" name="url">
+							<label for="edit-job-type-description">$i18n.getText("de.iteconomics.confluence.plugins.description")</label>
+							<textarea id="edit-job-type-description" data-is-edit="true" class="text" name="description" cols="10" rows="3"></textarea>
+						</div>												
+						<div class="field-group top-label">
+							<label for="edit-job-type-url">$i18n.getText("de.iteconomics.confluence.plugins.url")<span class="aui-icon aui-icon-required">$i18n.getText("de.iteconomics.confluence.plugins.required")</span>
+								<a class="url-tooltip" title="$i18n.getText('de.iteconomics.confluence.plugins.url-tooltip-message')">
+									<span class="aui-icon aui-icon-small aui-iconfont-info">$i18n.getText("de.iteconomics.confluence.plugins.info")</span>
+								</a>
+							</label>
+							<input id="edit-job-type-url" data-aui-validation-field data-aui-validation-doesnotcontain=" " data-aui-validation-doesnotcontain-msg="i18n.getText('de.iteconomics.confluence.plugins.url-may-not-contain-whitespace')" data-aui-validation-required="required" data-aui-validation-required-msg="$i18n.getText('de.iteconomics.confluence.plugins.job-type-url-required')" class="text" type="text" name="url">
 						</div>
 						<div class="field-group top-label">
-							<label for="edit-job-type-parameters">Parameters</label>
-							<textarea id="edit-job-type-parameters" class="textarea" name="parameters" rows="2" cols="10"></textarea>		
-						</div>						
-						<div class="field-group top-label">
-							<label for="edit-job-type-method">Http method<span class="aui-icon aui-icon-required">Required</span></label>
-							<aui-select id="edit-job-type-method" data-aui-validation-field data-aui-validation-required data-aui-validation-required-msg="You must pick an http method" name="http-method">
-								<aui-option class="method-option" value="GET">GET</aui-option>
-								<aui-option class="method-option" value="POST">POST</aui-option>
-								<aui-option class="method-option" value="PUT">PUT</aui-option>
-								<aui-option class="method-option" value="DELETE">DELETE</aui-option>
+							<label for="edit-job-type-method">$i18n.getText("de.iteconomics.confluence.plugins.http-method")<span class="aui-icon aui-icon-required">$i18n.getText("de.iteconomics.confluence.plugins.required")</span></label>
+							<aui-select id="edit-job-type-method" data-aui-validation-field data-aui-validation-required data-aui-validation-required-msg="i18n.getText('de.iteconomics.confluence.plugins.http-method-required')" name="http-method">
+								<aui-option value="GET">$i18n.getText("de.iteconomics.confluence.plugins.get")</aui-option>
+								<aui-option value="POST">$i18n.getText("de.iteconomics.confluence.plugins.post")</aui-option>
+								<aui-option value="PUT">$i18n.getText("de.iteconomics.confluence.plugins.put")</aui-option>
+								<aui-option value="DELETE">$i18n.getText("de.iteconomics.confluence.plugins.delete")</aui-option>
 							</aui-select>
+						</div>						
+						<h6>$i18n.getText("de.iteconomics.confluence.plugins.form-or-query-parameters")</h6>
+						<div id="edit-job-type-parameters">
 						</div>
+						<div class="field-group">
+							<button type="button" id="edit-add-parameter" class="aui-button">$i18n.getText("de.iteconomics.confluence.plugins.add-form-or-query-parameter")<span class="aui-icon aui-icon-small aui-iconfont-list-add">$i18n.getText("de.iteconomics.confluence.plugins.add-parameter")</span></button>
+						</div>						
+						<h6>$i18n.getText("de.iteconomics.confluence.plugins.path-parameters")</h6>
+							<div id="edit-job-type-path-parameters">
+						</div>
+						<h6>$i18n.getText("de.iteconomics.confluence.plugins.authentication")</h6>
 						<div class="field-group top-label">
-							<label for="edit-job-type-authentication">Requires Authentication</label>
+							<label for="edit-job-type-authentication">$i18n.getText("de.iteconomics.confluence.plugins.requires-authentication")</label>
 							<input type="checkbox" id="edit-job-type-authentication" class="checkbox" name="authentication"></textarea>
 							<span id="current-username" data-username="">		
 						</div>
@@ -215,8 +242,8 @@ message</textarea>
 		    <footer class="aui-dialog2-footer">
 		        <!-- Actions to render on the right of the footer -->
 		      <div class="aui-dialog2-footer-actions">
-		        <button type="button" id="submit-dialog" class="aui-button aui-button-primary">Save</button>
-		        <button type="button" id="close-dialog" class="aui-button aui-button-link">Close</button>
+		        <button type="button" id="submit-dialog" class="aui-button aui-button-primary">$i18n.getText("de.iteconomics.confluence.plugins.save")</button>
+		        <button type="button" id="close-dialog" class="aui-button aui-button-link">$i18n.getText("de.iteconomics.confluence.plugins.close")</button>
 		      </div>
 		    </footer>
 			</section>
