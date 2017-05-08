@@ -12,6 +12,64 @@
     <name>Scheduling for Space Admins</name>
     <description>Gives space admins the power to schedule notifications and other custom tasks.</description>
     <packaging>atlassian-plugin</packaging>
+    
+    <repositories>
+        <repository>
+            <id>atlassian-public</id>
+            <url>http://maven.atlassian.com/content/repositories/atlassian-public</url>
+            <snapshots>
+                <enabled>true</enabled>
+                <updatePolicy>never</updatePolicy>
+                <checksumPolicy>warn</checksumPolicy>
+            </snapshots>
+            <releases>
+                <enabled>true</enabled>
+                <checksumPolicy>warn</checksumPolicy>
+            </releases>
+        </repository>
+        <repository>
+          <id>atlassian-plugin-sdk</id>
+           <url>https://maven.atlassian.com/repository/public</url>
+           <snapshots>
+             <enabled>true</enabled>
+           </snapshots>
+           <releases>
+             <enabled>true</enabled>
+             <checksumPolicy>warn</checksumPolicy>
+           </releases>
+        </repository>
+        <repository>
+          <id>localrepo</id>
+          <url>file://localmvnrepo</url>
+        </repository>
+      </repositories>
+
+      <pluginRepositories>
+        <pluginRepository>
+          <id>atlassian-public</id>
+          <url>https://maven.atlassian.com/repository/public</url>
+          <releases>
+            <enabled>true</enabled>
+            <checksumPolicy>warn</checksumPolicy>
+          </releases>
+          <snapshots>
+            <updatePolicy>never</updatePolicy>
+            <checksumPolicy>warn</checksumPolicy>
+          </snapshots>
+        </pluginRepository>
+        <pluginRepository>
+          <id>atlassian-plugin-sdk</id>
+          <url>https://maven.atlassian.com/repository/public</url>
+          <releases>
+            <enabled>true</enabled>
+            <checksumPolicy>warn</checksumPolicy>
+          </releases>
+          <snapshots>
+            <enabled>true</enabled>
+          </snapshots>
+        </pluginRepository>
+      </pluginRepositories>    
+    
     <dependencies>
         <dependency>
             <groupId>org.hamcrest</groupId>
