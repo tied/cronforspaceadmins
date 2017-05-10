@@ -27,11 +27,11 @@ public class SaveJob extends ConfluenceActionSupport {
 	 */
 	private static final long serialVersionUID = -6061253789428293167L;
 
-	@Inject
 	private final JobService jobService;
 	@ComponentImport
 	private final SettingsManager settingsManager;
 
+	@Inject
 	public SaveJob(JobService jobService, SettingsManager settingsManager) {
 		this.jobService = jobService;
 		this.settingsManager = settingsManager;

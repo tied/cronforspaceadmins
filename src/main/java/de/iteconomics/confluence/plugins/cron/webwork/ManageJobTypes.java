@@ -10,6 +10,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.atlassian.confluence.core.ConfluenceActionSupport;
+import com.atlassian.plugin.spring.scanner.annotation.component.Scanned;
 
 import de.iteconomics.confluence.plugins.cron.api.JobService;
 import de.iteconomics.confluence.plugins.cron.api.JobTypeService;
@@ -18,6 +19,7 @@ import de.iteconomics.confluence.plugins.cron.entities.JobType;
 import de.iteconomics.confluence.plugins.cron.entities.JobTypeParameter;
 import de.iteconomics.confluence.plugins.cron.exceptions.JobTypeException;
 
+@Scanned
 public class ManageJobTypes extends ConfluenceActionSupport {
 
 	/**

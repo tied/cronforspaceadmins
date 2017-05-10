@@ -11,12 +11,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.atlassian.confluence.core.ConfluenceActionSupport;
+import com.atlassian.plugin.spring.scanner.annotation.component.Scanned;
 import com.opensymphony.webwork.ServletActionContext;
 
 import de.iteconomics.confluence.plugins.cron.api.JobService;
 import de.iteconomics.confluence.plugins.cron.exceptions.JobException;
 
-
+@Scanned
 public class DeleteJob extends ConfluenceActionSupport {
 
 	/**
@@ -25,9 +26,9 @@ public class DeleteJob extends ConfluenceActionSupport {
 	private static final long serialVersionUID = -6061253789428293167L;
 	private static Logger logger = LoggerFactory.getLogger(DeleteJob.class);
 
-	@Inject
 	private final JobService jobService;
 
+	@Inject
 	public DeleteJob(JobService jobService) {
 		this.jobService = jobService;
 	}
