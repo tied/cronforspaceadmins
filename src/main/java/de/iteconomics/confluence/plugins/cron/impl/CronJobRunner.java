@@ -97,7 +97,7 @@ final class CronJobRunner implements JobRunner {
 		Builder builder = webResource.accept(MediaType.MEDIA_TYPE_WILDCARD);
 
 		if (httpMethod.equals("POST") || httpMethod.equals("PUT")) {
-			if (queryString != "") {
+			if (!queryString.equals("")) {
 				// use substring() to remove the '?'
 				requestBody = getJsonFromQueryString(queryString.substring(1));
 				builder.type(MediaType.APPLICATION_JSON);
